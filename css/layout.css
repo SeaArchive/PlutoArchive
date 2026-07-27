@@ -1,0 +1,345 @@
+/* ==========================================================
+   Null Archive
+   layout.css
+========================================================== */
+
+/* ==========================================================
+   Variables
+========================================================== */
+
+:root{
+
+    --bg:#020305;
+
+    --text:#edf3ff;
+
+    --sub:#7d8ca6;
+
+    --cyan:#49d6ff;
+
+    --cyan-soft:rgba(73,214,255,.22);
+
+    --transition:.35s ease;
+
+}
+
+/* ==========================================================
+   Background Layer
+========================================================== */
+
+#background{
+
+    position:fixed;
+
+    inset:0;
+
+    overflow:hidden;
+
+    z-index:-1000;
+
+}
+
+/* ==========================================================
+   Universe
+========================================================== */
+
+#universe{
+
+    position:relative;
+
+    overflow:hidden;
+
+    isolation:isolate;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    perspective:2200px;
+
+    perspective-origin:center center;
+
+}
+
+/* ==========================================================
+   Camera
+========================================================== */
+
+#camera{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:0;
+    height:0;
+
+    transform:
+
+        translate(-50%,-50%);
+
+    transform-style:preserve-3d;
+
+    will-change:transform;
+
+    pointer-events:none;
+
+}
+
+/* ==========================================================
+   Camera Children
+========================================================== */
+
+#camera>*{
+
+    transform-style:preserve-3d;
+
+}
+
+/* ==========================================================
+   Core
+========================================================== */
+
+#core{
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:0;
+    height:0;
+
+    z-index:100;
+
+    pointer-events:none;
+
+}
+
+/* ==========================================================
+   Orbit
+========================================================== */
+
+.orbit{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+
+        translate(-50%,-50%);
+
+
+    border-radius:50%;
+
+
+    transform-style:preserve-3d;
+
+
+    pointer-events:none;
+    width:calc(var(--radius) * 2);
+    height:calc(var(--radius) * 2);
+
+
+}
+
+/* ==========================================================
+   Planet Wrapper
+========================================================== */
+
+.planet-wrapper{
+
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:0;
+    height:0;
+
+    transform-style:preserve-3d;
+
+    pointer-events:none;
+
+}
+
+/* ==========================================================
+   Planet
+========================================================== */
+
+.planet{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+
+        translate(-50%,-50%);
+
+    pointer-events:auto;
+
+}
+
+/* ==========================================================
+   Label
+========================================================== */
+
+.planet-label{
+
+    position:absolute;
+
+    left:50%;
+
+    top:100%;
+
+    margin-top:16px;
+
+    transform:
+
+        translateX(-50%);
+
+    white-space:nowrap;
+
+    opacity:0;
+
+    transition:
+
+        opacity .3s,
+
+        transform .3s;
+
+    pointer-events:none;
+
+}
+
+/* ==========================================================
+   Utility Layers
+========================================================== */
+
+#stars,
+#nebula,
+#vignette{
+
+    position:absolute;
+
+    inset:0;
+
+}
+
+/* ==========================================================
+   Z Index
+========================================================== */
+
+#stars{
+
+    z-index:0;
+
+}
+
+#nebula{
+
+    z-index:1;
+
+}
+
+#vignette{
+
+    z-index:2;
+
+}
+
+#camera{
+
+    z-index:10;
+
+}
+
+/* ==========================================================
+   Prevent Selection
+========================================================== */
+
+#camera,
+.orbit,
+.planet{
+
+    user-select:none;
+
+    -webkit-user-select:none;
+
+}
+
+/* ==========================================================
+   GPU
+========================================================== */
+
+#camera,
+.orbit,
+.planet,
+.planet-wrapper{
+
+    backface-visibility:hidden;
+
+    -webkit-backface-visibility:hidden;
+
+    will-change:transform;
+
+}
+
+/* ==========================================================
+   Animation Helper
+========================================================== */
+
+.fade-in{
+
+    animation:
+
+        fadeIn .5s ease forwards;
+
+}
+
+.fade-out{
+
+    animation:
+
+        fadeOut .5s ease forwards;
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
+
+@keyframes fadeOut{
+
+    from{
+
+        opacity:1;
+
+    }
+
+    to{
+
+        opacity:0;
+
+    }
+
+}

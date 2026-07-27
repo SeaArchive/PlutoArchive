@@ -1,0 +1,329 @@
+/* ==========================================================
+   Null Archive
+   responsive.css
+========================================================== */
+
+
+/* ==========================================================
+   Large Desktop
+   1920px 이상
+========================================================== */
+
+@media (min-width:1920px){
+
+    #core-center{
+
+        width:220px;
+        height:220px;
+
+    }
+
+
+    .planet-label{
+
+        font-size:.85rem;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   Desktop
+   1440px 이하
+========================================================== */
+
+@media (max-width:1440px){
+
+
+    #camera{
+
+        scale:.9;
+
+    }
+
+
+    #core-center{
+
+        width:160px;
+
+        height:160px;
+
+    }
+
+
+    .core-ring-1{
+
+        width:210px;
+
+        height:210px;
+
+    }
+
+
+    .core-ring-2{
+
+        width:260px;
+
+        height:260px;
+
+    }
+
+
+    .core-ring-3{
+
+        width:320px;
+
+        height:320px;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   Laptop
+   1024px 이하
+========================================================== */
+
+@media (max-width:1024px){
+
+
+    #universe{
+
+        perspective:1600px;
+
+    }
+
+
+    #camera{
+
+        scale:.75;
+
+    }
+
+
+    #nebula{
+
+        filter:blur(35px);
+
+    }
+
+
+    .planet-label{
+
+        font-size:.65rem;
+
+        letter-spacing:.15em;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   Tablet
+   768px 이하
+========================================================== */
+
+@media (max-width:768px){
+
+
+    #universe{
+
+        perspective:1200px;
+
+    }
+
+
+    #camera{
+
+        scale:.55;
+
+    }
+
+
+    #core-center h1{
+
+        font-size:1.5rem;
+
+    }
+
+
+    #core-center p{
+
+        font-size:.5rem;
+
+    }
+
+
+    .planet:hover{
+
+
+        transform:
+
+
+            translate(-50%,-50%)
+
+            scale(1.2);
+
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   Mobile
+   480px 이하
+========================================================== */
+
+@media(max-width:480px){
+
+
+    body{
+
+        overflow:hidden;
+
+    }
+
+
+    #camera{
+
+        scale:.42;
+
+    }
+
+
+    #core-center{
+
+
+        width:110px;
+
+        height:110px;
+
+
+    }
+
+
+    .planet-label{
+
+
+        margin-top:10px;
+
+
+        font-size:.55rem;
+
+
+    }
+
+
+    .planet-ring{
+
+
+        width:130%;
+
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   Small Mobile
+   360px 이하
+========================================================== */
+
+@media(max-width:360px){
+
+
+    #camera{
+
+        scale:.35;
+
+    }
+
+
+    .planet-label{
+
+        display:none;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   Landscape Mobile
+========================================================== */
+
+@media(max-height:500px)
+and (orientation:landscape){
+
+
+    #camera{
+
+        scale:.45;
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   Touch Device
+========================================================== */
+
+@media(hover:none){
+
+
+    .planet-label{
+
+        opacity:.8;
+
+    }
+
+
+    .planet:hover{
+
+        transform:
+
+            translate(-50%,-50%);
+
+    }
+
+
+}
+
+
+
+/* ==========================================================
+   Reduced Motion
+========================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+
+    .orbit::before,
+    .orbit::after,
+    .core-ring,
+    #nebula{
+
+
+        animation:none !important;
+
+
+    }
+
+
+}
