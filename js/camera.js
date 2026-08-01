@@ -124,17 +124,6 @@ class Camera {
 
         }
 
-        this.targetX =
-            -mouse.normalX * this.parallaxStrength;
-
-        this.targetY =
-            -mouse.normalY * this.parallaxStrength;
-
-        this.targetRotationY =
-            mouse.normalX * this.rotationStrength;
-
-        this.targetRotationX =
-            -mouse.normalY * this.rotationStrength;
 
     }
 
