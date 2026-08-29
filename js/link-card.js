@@ -2,7 +2,7 @@
 ============================================================
 Pluto Archive
 link-card.js
-Link Planet card orbit
+Link Planet card depth motion
 ============================================================
 */
 
@@ -26,16 +26,9 @@ class LinkCard {
             planetWrapper.dataset.cardSpeed || 0.08
         );
 
-        this.radius = Number(
-            planetWrapper.dataset.cardRadius || 78
-        );
-
+        // Z-axis only: the card moves toward and away from the viewer.
         this.depth = Number(
             planetWrapper.dataset.cardDepth || 34
-        );
-
-        this.tilt = Number(
-            planetWrapper.dataset.cardTilt || 12
         );
 
         this.hover = false;
@@ -80,8 +73,7 @@ class LinkCard {
 
         const angle = radians(this.angle);
 
-        const x = Math.cos(angle) * this.radius;
-        const y = Math.sin(angle) * this.radius * 0.42;
+        // X/Y stay fixed. Only Z changes, creating front/back motion.
         const z = Math.sin(angle) * this.depth;
 
         const depth = clamp(
@@ -90,14 +82,16 @@ class LinkCard {
             1
         );
 
-        const scale =
-            0.72 + depth * 0.28;
+        const scale = this.hover
+            ? 1.18
+            : 0.72 + depth * 0.28;
 
-        const opacity =
-            0.28 + depth * 0.72;
+        const opacity = this.hover
+            ? 1
+            : 0.28 + depth * 0.72;
 
         this.card.style.transform =
-            `translate3d(${x}px, ${y}px, ${z}px) ` +
+            `translate3d(0, 0, ${z}px) ` +
             `translate(-50%, -50%) ` +
             `scale(${scale})`;
 
