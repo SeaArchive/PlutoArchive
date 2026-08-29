@@ -16,6 +16,8 @@
     pointer-events: none;
 
     transform-style: preserve-3d;
+    perspective: 700px;
+    perspective-origin: center center;
 
 }
 
@@ -133,6 +135,10 @@
 }
 
 @media(max-width:768px) {
+
+    .link-card-orbit {
+        perspective: 560px;
+    }
 
     .link-card {
 
