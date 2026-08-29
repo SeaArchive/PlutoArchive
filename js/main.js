@@ -1,6 +1,6 @@
 /*
 ============================================================
-Null Archive
+Pluto Archive
 main.js
 ============================================================
 */
@@ -84,7 +84,7 @@ window.addEventListener("DOMContentLoaded", () => {
     engine.start();
 
     console.log(
-        "%cNull Archive",
+        "%cPluto Archive",
         "color:#4fdcff;font-size:22px;font-weight:bold;"
     );
 
