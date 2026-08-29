@@ -52,15 +52,11 @@ class LinkCard {
         this.cards.forEach(card => {
 
             card.addEventListener("mouseenter", () => {
-
                 this.hover = true;
-
             });
 
             card.addEventListener("mouseleave", () => {
-
                 this.hover = false;
-
             });
 
         });
@@ -73,9 +69,7 @@ class LinkCard {
             return;
 
         if (!this.hover) {
-
             this.angle += this.speed * dt;
-
         }
 
         this.updateVisual();
@@ -89,9 +83,8 @@ class LinkCard {
 
         this.cards.forEach((card, index) => {
 
-            // Evenly distribute the cards around one vertical circle.
-            // The orbit lies on the Y/Z plane, so cards move forward/back
-            // instead of tracing a circle across the viewer's screen.
+            // The cards travel around a vertical circle in the Y/Z plane.
+            // X remains fixed, while Y moves vertically and Z controls depth.
             const angle = radians(
                 this.angle + (360 / count) * index
             );
@@ -99,29 +92,31 @@ class LinkCard {
             const y = Math.sin(angle) * this.radius;
             const z = Math.cos(angle) * this.depth;
 
-            // Optional tilt around the card orbit's local X axis.
             const tiltedY =
                 y * Math.cos(tilt) - z * Math.sin(tilt);
 
             const tiltedZ =
                 y * Math.sin(tilt) + z * Math.cos(tilt);
 
-            // Perspective scale: cards closer to the viewer are larger.
+            // 0 = furthest behind, 1 = closest to the viewer.
             const depth01 = clamp(
                 (tiltedZ + this.depth) / (this.depth * 2),
                 0,
                 1
             );
 
+            // Perspective: front cards are larger and clearer.
             const scale =
-                0.58 + depth01 * 0.42;
+                0.55 + depth01 * 0.45;
 
             const opacity =
-                0.16 + depth01 * 0.84;
+                0.12 + depth01 * 0.88;
 
-            // Cards behind the planet are painted behind it.
+            // Keep the planet between rear cards and front cards.
+            // Negative values remain behind the planet; positive values
+            // allow cards in front of it to pass over the planet.
             const zIndex =
-                Math.round(tiltedZ * 10);
+                Math.round((depth01 - 0.5) * 200);
 
             card.style.transform =
                 `translate3d(0, ${tiltedY}px, ${tiltedZ}px) ` +
