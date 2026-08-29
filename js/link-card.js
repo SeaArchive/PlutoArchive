@@ -2,7 +2,7 @@
 ============================================================
 Pluto Archive
 link-card.js
-Link Planet card depth motion
+Link Planet vertical card orbit
 ============================================================
 */
 
@@ -13,9 +13,11 @@ class LinkCard {
     constructor(planetWrapper) {
 
         this.wrapper = planetWrapper;
-        this.card = planetWrapper.querySelector(".link-card");
+        this.cards = Array.from(
+            planetWrapper.querySelectorAll(".link-card")
+        );
 
-        if (!this.card)
+        if (!this.cards.length)
             return;
 
         this.angle = Number(
@@ -26,9 +28,16 @@ class LinkCard {
             planetWrapper.dataset.cardSpeed || 0.08
         );
 
-        // Z-axis only: the card moves toward and away from the viewer.
+        this.radius = Number(
+            planetWrapper.dataset.cardRadius || 92
+        );
+
         this.depth = Number(
-            planetWrapper.dataset.cardDepth || 34
+            planetWrapper.dataset.cardDepth || 62
+        );
+
+        this.tilt = Number(
+            planetWrapper.dataset.cardTilt || 0
         );
 
         this.hover = false;
@@ -40,15 +49,19 @@ class LinkCard {
 
     bindEvents() {
 
-        this.card.addEventListener("mouseenter", () => {
+        this.cards.forEach(card => {
 
-            this.hover = true;
+            card.addEventListener("mouseenter", () => {
 
-        });
+                this.hover = true;
 
-        this.card.addEventListener("mouseleave", () => {
+            });
 
-            this.hover = false;
+            card.addEventListener("mouseleave", () => {
+
+                this.hover = false;
+
+            });
 
         });
 
@@ -56,7 +69,7 @@ class LinkCard {
 
     update(dt) {
 
-        if (!this.card)
+        if (!this.cards.length)
             return;
 
         if (!this.hover) {
@@ -71,40 +84,62 @@ class LinkCard {
 
     updateVisual() {
 
-        const angle = radians(this.angle);
+        const count = this.cards.length;
+        const tilt = radians(this.tilt);
 
-        // X/Y stay fixed. Only Z changes, creating front/back motion.
-        const z = Math.sin(angle) * this.depth;
+        this.cards.forEach((card, index) => {
 
-        const depth = clamp(
-            (z + this.depth) / (this.depth * 2),
-            0,
-            1
-        );
+            // Evenly distribute the cards around one vertical circle.
+            // The orbit lies on the Y/Z plane, so cards move forward/back
+            // instead of tracing a circle across the viewer's screen.
+            const angle = radians(
+                this.angle + (360 / count) * index
+            );
 
-        const scale = this.hover
-            ? 1.18
-            : 0.72 + depth * 0.28;
+            const y = Math.sin(angle) * this.radius;
+            const z = Math.cos(angle) * this.depth;
 
-        const opacity = this.hover
-            ? 1
-            : 0.28 + depth * 0.72;
+            // Optional tilt around the card orbit's local X axis.
+            const tiltedY =
+                y * Math.cos(tilt) - z * Math.sin(tilt);
 
-        this.card.style.transform =
-            `translate3d(0, 0, ${z}px) ` +
-            `translate(-50%, -50%) ` +
-            `scale(${scale})`;
+            const tiltedZ =
+                y * Math.sin(tilt) + z * Math.cos(tilt);
 
-        this.card.style.opacity =
-            opacity.toFixed(3);
+            // Perspective scale: cards closer to the viewer are larger.
+            const depth01 = clamp(
+                (tiltedZ + this.depth) / (this.depth * 2),
+                0,
+                1
+            );
 
-        this.card.style.zIndex =
-            String(Math.round(depth * 100));
+            const scale =
+                0.58 + depth01 * 0.42;
 
-        this.card.classList.toggle(
-            "is-hovered",
-            this.hover
-        );
+            const opacity =
+                0.16 + depth01 * 0.84;
+
+            // Cards behind the planet are painted behind it.
+            const zIndex =
+                Math.round(tiltedZ * 10);
+
+            card.style.transform =
+                `translate3d(0, ${tiltedY}px, ${tiltedZ}px) ` +
+                `translate(-50%, -50%) ` +
+                `scale(${scale})`;
+
+            card.style.opacity =
+                opacity.toFixed(3);
+
+            card.style.zIndex =
+                String(zIndex);
+
+            card.classList.toggle(
+                "is-hovered",
+                this.hover
+            );
+
+        });
 
     }
 
