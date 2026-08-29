@@ -24,9 +24,11 @@ class LinkCard {
             planetWrapper.dataset.cardAngle || 0
         );
 
+        // The current HTML value is kept at 0.10, but the visual speed is
+        // intentionally increased for this prototype.
         this.speed = Number(
             planetWrapper.dataset.cardSpeed || 0.18
-        );
+        ) * 1.8;
 
         this.radius = Number(
             planetWrapper.dataset.cardRadius || 110
