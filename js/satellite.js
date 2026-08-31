@@ -1,7 +1,7 @@
-/* Pluto Archive satellite.js */
+/* Pluto Archive - satellite.js */
 "use strict";
 class Satellite {
- constructor(planetWrapper){this.wrapper=planetWrapper;this.satellite=planetWrapper.querySelector(".link-satellite");if(!this.satellite)return;this.angle=Number(planetWrapper.dataset.satelliteAngle||0);this.speed=Number(planetWrapper.dataset.satelliteSpeed||.42);this.radius=Number(planetWrapper.dataset.satelliteRadius||78);this.depth=Number(planetWrapper.dataset.satelliteDepth||52);this.trailLength=140;this.trailTimer=0;this.trail=[];this.createTrail();this.updateVisual()}
+ constructor(planetWrapper){this.wrapper=planetWrapper;this.satellite=planetWrapper.querySelector(".link-satellite");if(!this.satellite)return;this.angle=Number(planetWrapper.dataset.satelliteAngle||0);this.speed=Number(planetWrapper.dataset.satelliteSpeed||.42)*1.4;this.radius=Number(planetWrapper.dataset.satelliteRadius||78);this.depth=Number(planetWrapper.dataset.satelliteDepth||52);this.trailLength=140;this.trailTimer=0;this.trail=[];this.createTrail();this.updateVisual()}
  createTrail(){for(let i=0;i<this.trailLength;i++){const e=document.createElement("span");e.className="satellite-orbit-trail";Object.assign(e.style,{position:"absolute",width:"2.5px",height:"2.5px",borderRadius:"50%",pointerEvents:"none",background:"rgba(79,216,255,.95)",boxShadow:"0 0 8px rgba(79,216,255,.85)",opacity:"0",zIndex:"1"});this.wrapper.appendChild(e);this.trail.push({element:e,x:0,z:0,initialized:false})}}
  update(dt){if(!this.satellite)return;this.angle+=this.speed*dt;this.trailTimer+=dt;if(this.trailTimer>=.5){this.trailTimer=0;this.recordTrailPosition()}this.updateVisual();this.renderTrail()}
  getPosition(){const a=radians(this.angle);return{x:Math.sin(a)*this.radius,z:Math.cos(a)*this.depth}}
