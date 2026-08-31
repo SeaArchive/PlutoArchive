@@ -92,6 +92,10 @@ class LinkCard {
             const x = Math.sin(angle) * this.radius;
             const z = Math.cos(angle) * this.depth;
 
+            // Cards face toward the planet instead of the viewer.
+            // Their rotation follows their position around the X/Z orbit.
+            const facing = Math.atan2(x, z) * (180 / Math.PI);
+
             // 0 = furthest behind, 1 = closest to the viewer.
             const depth01 = clamp(
                 (z + this.depth) / (this.depth * 2),
@@ -99,18 +103,17 @@ class LinkCard {
                 1
             );
 
-            // Perspective: front cards are larger and clearer.
+            // 3D perspective: front cards are larger and clearer.
             let scale = 0.55 + depth01 * 0.45;
             let opacity = 0.10 + depth01 * 0.90;
 
             // Only the hovered card receives the selection treatment.
-            // Other 15 cards remain in their normal depth state.
             if (card === this.hoveredCard) {
                 scale *= 1.28;
                 opacity = 1;
             }
 
-            // Keep rear cards behind the planet and front cards above it.
+            // Rear cards stay behind the planet; front cards stay above it.
             const zIndex =
                 Math.round((depth01 - 0.5) * 200) +
                 (card === this.hoveredCard ? 1000 : 0);
@@ -118,6 +121,7 @@ class LinkCard {
             card.style.transform =
                 `translate3d(${x}px, 0, ${z}px) ` +
                 `translate(-50%, -50%) ` +
+                `rotateY(${facing}deg) ` +
                 `scale(${scale})`;
 
             card.style.opacity =
