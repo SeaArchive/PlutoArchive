@@ -24,8 +24,7 @@ class LinkCard {
             planetWrapper.dataset.cardAngle || 0
         );
 
-        // The current HTML value is kept at 0.10, but the visual speed is
-        // intentionally increased for this prototype.
+        // Keep the current prototype speed increase.
         this.speed = Number(
             planetWrapper.dataset.cardSpeed || 0.18
         ) * 1.8;
@@ -38,7 +37,9 @@ class LinkCard {
             planetWrapper.dataset.cardDepth || 72
         );
 
-        this.hover = false;
+        // Only the card currently under the pointer is selected.
+        // The orbit pauses while any individual card is hovered.
+        this.hoveredCard = null;
 
         this.bindEvents();
         this.updateVisual();
@@ -50,11 +51,13 @@ class LinkCard {
         this.cards.forEach(card => {
 
             card.addEventListener("mouseenter", () => {
-                this.hover = true;
+                this.hoveredCard = card;
             });
 
             card.addEventListener("mouseleave", () => {
-                this.hover = false;
+                if (this.hoveredCard === card) {
+                    this.hoveredCard = null;
+                }
             });
 
         });
@@ -66,7 +69,7 @@ class LinkCard {
         if (!this.cards.length)
             return;
 
-        if (!this.hover) {
+        if (!this.hoveredCard) {
             this.angle += this.speed * dt;
         }
 
@@ -97,15 +100,20 @@ class LinkCard {
             );
 
             // Perspective: front cards are larger and clearer.
-            const scale =
-                0.55 + depth01 * 0.45;
+            let scale = 0.55 + depth01 * 0.45;
+            let opacity = 0.10 + depth01 * 0.90;
 
-            const opacity =
-                0.10 + depth01 * 0.90;
+            // Only the hovered card receives the selection treatment.
+            // Other 15 cards remain in their normal depth state.
+            if (card === this.hoveredCard) {
+                scale *= 1.28;
+                opacity = 1;
+            }
 
             // Keep rear cards behind the planet and front cards above it.
             const zIndex =
-                Math.round((depth01 - 0.5) * 200);
+                Math.round((depth01 - 0.5) * 200) +
+                (card === this.hoveredCard ? 1000 : 0);
 
             card.style.transform =
                 `translate3d(${x}px, 0, ${z}px) ` +
@@ -120,7 +128,7 @@ class LinkCard {
 
             card.classList.toggle(
                 "is-hovered",
-                this.hover
+                card === this.hoveredCard
             );
 
         });
