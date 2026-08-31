@@ -3,20 +3,21 @@
    orbit.css
 ========================================================== */
 
-.orbit{position:absolute;left:0;top:0;border-radius:50%;transform-style:preserve-3d;pointer-events:none;border:1px solid rgba(73,214,255,.10);box-shadow:0 0 12px rgba(0,160,255,.05),inset 0 0 20px rgba(0,100,255,.03);transition:border-color .45s ease,box-shadow .45s ease,opacity .45s ease;}
-.orbit::before{content:"";position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(73,214,255,.45),transparent 20%,transparent 70%,rgba(0,130,255,.18),transparent);mask:radial-gradient(transparent 98%,black 100%);opacity:.28;animation:orbitGlow 12s linear infinite;transition:opacity .45s ease;pointer-events:none;}
-.orbit::after{content:"";position:absolute;inset:8%;border-radius:50%;border:1px dashed rgba(80,180,255,.045);animation:orbitSlowRotate 40s linear infinite;transition:border-color .45s ease,opacity .45s ease;pointer-events:none;}
+.orbit{position:absolute;left:0;top:0;border-radius:50%;transform-style:preserve-3d;pointer-events:none;border:1px solid rgba(73,214,255,.10);box-shadow:0 0 12px rgba(0,160,255,.05),inset 0 0 20px rgba(0,100,255,.03);transition:border-color .45s ease,box-shadow .45s ease,opacity .45s ease;z-index:30;}
+.orbit::before{content:"";position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(73,214,255,.45),transparent 20%,transparent 70%,rgba(0,130,255,.18),transparent);mask:radial-gradient(transparent 98%,black 100%);opacity:.28;animation:orbitGlow 12s linear infinite;transition:opacity .45s ease;pointer-events:none;z-index:0;}
+.orbit::after{content:"";position:absolute;inset:8%;border-radius:50%;border:1px dashed rgba(80,180,255,.045);animation:orbitSlowRotate 40s linear infinite;transition:border-color .45s ease,opacity .45s ease;pointer-events:none;z-index:0;}
 .orbit.is-selected{border-color:rgba(73,214,255,.28);box-shadow:0 0 18px rgba(0,160,255,.12),0 0 45px rgba(0,110,255,.06),inset 0 0 25px rgba(0,100,255,.06);}
 .orbit.is-selected::before{opacity:.75;}
 .orbit.is-selected::after{border-color:rgba(80,190,255,.11);}
 .orbit:nth-child(1){opacity:1}.orbit:nth-child(2){opacity:.78}.orbit:nth-child(3){opacity:.55}
 
-.planet-wrapper{position:absolute;transform-style:preserve-3d;display:flex;justify-content:center;align-items:center;pointer-events:none;z-index:20;}
-.planet-wrapper .planet{position:relative;z-index:21;}
-.orbit .planet-wrapper::before{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:#49d6ff;box-shadow:0 0 8px #49d6ff,0 0 20px rgba(0,150,255,.8);z-index:22;}
-.planet-orbit-trail{z-index:2!important;pointer-events:none!important;}
+/* Planet must stay above orbit trails and orbit decoration. */
+.planet-wrapper{position:absolute;transform-style:preserve-3d;display:block;pointer-events:none;z-index:50;}
+.planet-wrapper .planet{position:absolute;z-index:60;pointer-events:auto;}
+.orbit .planet-wrapper::before{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:#49d6ff;box-shadow:0 0 8px #49d6ff,0 0 20px rgba(0,150,255,.8);z-index:61;pointer-events:none;}
+.planet-orbit-trail{z-index:10!important;pointer-events:none!important;}
 .planet-orbit-trail-line{mix-blend-mode:screen;}
 
 @keyframes orbitGlow{from{rotate:0deg}to{rotate:360deg}}
-@keyframes orbitSlowRotate{from{rotate:0deg}to{rotate:-360deg}}
+@keyframes orbitSlowRotate{from{rotate:360deg}to{rotate:0deg}}
 @media(max-width:768px){.orbit{border-color:rgba(73,214,255,.06)}.orbit::before{opacity:.18}}
