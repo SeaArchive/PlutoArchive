@@ -1,10 +1,127 @@
-/* Pluto Archive - orbit.js */
+/*
+============================================================
+Pluto Archive
+orbit.js
+============================================================
+*/
+
 "use strict";
+
 class Orbit {
- constructor(element){this.element=element;this.radius=Number(element.dataset.radius||200);this.baseSpeed=Number(element.dataset.speed||.1)*1.8;this.tilt=Number(element.dataset.tilt||0);this.rotation=0;this.currentSpeed=this.baseSpeed;this.targetSpeed=this.baseSpeed;this.hoverCount=0;this.enabled=true;this.selected=false;this.planets=[];this.trailCanvas=document.createElement("canvas");this.trailCanvas.className="planet-orbit-trails";Object.assign(this.trailCanvas.style,{position:"absolute",left:"0",top:"0",width:"100%",height:"100%",pointerEvents:"none",zIndex:"1",display:"block"});this.element.appendChild(this.trailCanvas);element.querySelectorAll(".planet-wrapper").forEach(w=>this.planets.push(new Planet(w,this)));this.initialize();window.addEventListener("resize",()=>this.resizeTrailCanvas(),{passive:true})}
- initialize(){this.element.style.width=`${this.radius*2}px`;this.element.style.height=`${this.radius*2}px`;this.element.style.left="50%";this.element.style.top="50%";this.element.style.transform=`translate(-50%,-50%) rotateX(${this.tilt}deg)`;this.resizeTrailCanvas()}
- resizeTrailCanvas(){const rect=this.element.getBoundingClientRect();const cssW=Math.max(1,rect.width),cssH=Math.max(1,rect.height),d=Math.min(window.devicePixelRatio||1,2);this.trailCanvas.width=Math.round(cssW*d);this.trailCanvas.height=Math.round(cssH*d);const c=this.trailCanvas.getContext("2d");c.setTransform(d,0,0,d,0,0);this.canvasW=cssW;this.canvasH=cssH;this.canvasCX=cssW/2;this.canvasCY=cssH/2}
- update(dt){if(!this.enabled)return;this.currentSpeed=damp(this.currentSpeed,this.targetSpeed,5,dt/60);this.rotation+=this.currentSpeed*dt;this.updatePlanets(dt);this.renderTrails()}
- updatePlanets(dt){for(const p of this.planets){const a=radians(p.baseAngle+this.rotation*p.orbitMultiplier);p.setPosition(Math.cos(a)*this.radius+this.radius,Math.sin(a)*this.radius+this.radius);p.update(dt)}}
- renderTrails(){const c=this.trailCanvas.getContext("2d");if(!c)return;const w=this.canvasW||this.radius*2,h=this.canvasH||this.radius*2,cx=this.canvasCX||this.radius,cy=this.canvasCY||this.radius;c.clearRect(0,0,w,h);c.lineCap="round";c.lineJoin="round";const trails=[{arc:3.15,width:6,alpha:.92,back:0},{arc:1.95,width:4,alpha:.68,back:.035},{arc:1.02,width:2.8,alpha:.52,back:.075}];for(const p of this.planets){const head=radians(p.baseAngle+this.rotation*p.orbitMultiplier);for(const t of trails){const n=100,start=head-t.back,end=start-t.arc,g=c.createLinearGradient(cx+Math.cos(start)*this.radius,cy+Math.sin(start)*this.radius,cx+Math.cos(end)*this.radius,cy+Math.sin(end)*this.radius);g.addColorStop(0,`rgba(79,216,255,${t.alpha})`);g.addColorStop(.3,`rgba(79,216,255,${t.alpha*.72})`);g.addColorStop(.72,`rgba(79,216,255,${t.alpha*.28})`);g.addColorStop(1,"rgba(79,216,255,0)");c.beginPath();for(let i=0;i<=n;i++){const a=start+(end-start)*i/n,x=cx+Math.cos(a)*this.radius,y=cy+Math.sin(a)*this.radius;i?c.lineTo(x,y):c.moveTo(x,y)}c.strokeStyle=g;c.lineWidth=t.width;c.shadowBlur=14;c.shadowColor=`rgba(79,216,255,${t.alpha*.8})`;c.stroke()}}c.shadowBlur=0}
- setSpeed(s){this.targetSpeed=s} resetSpeed(){this.targetSpeed=this.baseSpeed} requestSlow(){this.hoverCount++;this.targetSpeed=this.baseSpeed*.05} releaseSlow(){this.hoverCount--;if(this.hoverCount<=0){this.hoverCount=0;this.targetSpeed=this.baseSpeed}} setSelected(s){this.selected=s;this.element.classList.toggle("is-selected",s)} addPlanet(w){const p=new Planet(w,this);this.planets.push(p);return p} removePlanet(p){const i=this.planets.indexOf(p);if(i!==-1)this.planets.splice(i,1)} getPlanet(n){return this.planets.find(p=>p.name===n)} enable(){this.enabled=true} disable(){this.enabled=false}}
+
+    constructor(element) {
+
+        this.element = element;
+
+        this.radius = Number(element.dataset.radius || 200);
+        this.baseSpeed = Number(element.dataset.speed || 0.1) * 1.8;
+        this.tilt = Number(element.dataset.tilt || 0);
+        this.rotation = 0;
+
+        this.currentSpeed = this.baseSpeed;
+        this.targetSpeed = this.baseSpeed;
+
+        this.hoverCount = 0;
+        this.enabled = true;
+        this.selected = false;
+        this.planets = [];
+
+        const wrappers = element.querySelectorAll(".planet-wrapper");
+
+        wrappers.forEach(wrapper => {
+            const planet = new Planet(wrapper, this);
+            this.planets.push(planet);
+        });
+
+        this.initialize();
+    }
+
+    initialize() {
+        this.element.style.width = `${this.radius * 2}px`;
+        this.element.style.height = `${this.radius * 2}px`;
+        this.element.style.left = "50%";
+        this.element.style.top = "50%";
+        this.element.style.transform =
+            `translate(-50%, -50%) rotateX(${this.tilt}deg)`;
+    }
+
+    update(dt) {
+        if (!this.enabled) return;
+
+        this.currentSpeed = damp(
+            this.currentSpeed,
+            this.targetSpeed,
+            5,
+            dt / 60
+        );
+
+        this.rotation += this.currentSpeed * dt;
+        this.updatePlanets(dt);
+    }
+
+    updatePlanets(dt) {
+        for (const planet of this.planets) {
+            const angle = radians(
+                planet.baseAngle +
+                this.rotation * planet.orbitMultiplier
+            );
+
+            const x = Math.cos(angle) * this.radius + this.radius;
+            const y = Math.sin(angle) * this.radius + this.radius;
+
+            planet.setPosition(x, y);
+            planet.update(dt);
+        }
+    }
+
+    setSpeed(speed) {
+        this.targetSpeed = speed;
+    }
+
+    resetSpeed() {
+        this.targetSpeed = this.baseSpeed;
+    }
+
+    requestSlow() {
+        this.hoverCount++;
+        this.targetSpeed = this.baseSpeed * 0.05;
+    }
+
+    releaseSlow() {
+        this.hoverCount--;
+        if (this.hoverCount <= 0) {
+            this.hoverCount = 0;
+            this.targetSpeed = this.baseSpeed;
+        }
+    }
+
+    setSelected(selected) {
+        this.selected = selected;
+        this.element.classList.toggle("is-selected", selected);
+    }
+
+    addPlanet(wrapper) {
+        const planet = new Planet(wrapper, this);
+        this.planets.push(planet);
+        return planet;
+    }
+
+    removePlanet(planet) {
+        const index = this.planets.indexOf(planet);
+        if (index === -1) return;
+        this.planets.splice(index, 1);
+    }
+
+    getPlanet(name) {
+        return this.planets.find(p => p.name === name);
+    }
+
+    enable() {
+        this.enabled = true;
+    }
+
+    disable() {
+        this.enabled = false;
+    }
+
+}
