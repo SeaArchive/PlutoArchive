@@ -14,6 +14,7 @@ class Engine {
         this.mouse = window.mouse;
         this.orbits = [];
         this.planets = [];
+        this.satellites = [];
         this.lastTime = performance.now();
         this.deltaTime = 0;
         this.time = 0;
@@ -32,6 +33,13 @@ class Engine {
             orbit.planets.forEach(planet => {
                 this.planets.push(planet);
             });
+        });
+
+        // Links Planet satellite
+        document.querySelectorAll(".planet-wrapper").forEach(wrapper => {
+            if (wrapper.querySelector(".link-satellite")) {
+                this.satellites.push(new Satellite(wrapper));
+            }
         });
     }
 
@@ -67,6 +75,10 @@ class Engine {
 
         for (const orbit of this.orbits) {
             orbit.update(dt);
+        }
+
+        for (const satellite of this.satellites) {
+            satellite.update(dt);
         }
     }
 
