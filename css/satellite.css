@@ -1,0 +1,55 @@
+/* ==========================================================
+   Pluto Archive
+   Links Planet Satellite
+========================================================== */
+
+.link-satellite-orbit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    transform-style: preserve-3d;
+    perspective: 700px;
+}
+
+.link-satellite {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-sizing: border-box;
+    background:
+        radial-gradient(circle at 32% 28%, rgba(150,230,255,.75), transparent 28%),
+        radial-gradient(circle at center, #122431 0%, #050a10 68%, #000 100%);
+    border: 1px solid rgba(73,214,255,.55);
+    box-shadow:
+        0 0 9px rgba(73,214,255,.45),
+        inset -4px -5px 8px rgba(0,0,0,.75),
+        inset 3px 3px 6px rgba(90,220,255,.18);
+    transform-style: preserve-3d;
+    will-change: transform, opacity;
+}
+
+.link-satellite::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 7px;
+    border: 1px solid rgba(73,214,255,.18);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) rotateX(70deg);
+    box-shadow: 0 0 7px rgba(73,214,255,.12);
+}
+
+@media(max-width:768px) {
+    .link-satellite {
+        width: 14px;
+        height: 14px;
+    }
+}
