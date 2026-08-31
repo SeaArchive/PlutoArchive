@@ -8,193 +8,92 @@ orbit.js
 "use strict";
 
 class Orbit {
-
     constructor(element) {
-
         this.element = element;
-
         this.radius = Number(element.dataset.radius || 200);
         this.baseSpeed = Number(element.dataset.speed || 0.1);
         this.tilt = Number(element.dataset.tilt || 0);
         this.rotation = 0;
-
         this.currentSpeed = this.baseSpeed;
         this.targetSpeed = this.baseSpeed;
-
         this.hoverCount = 0;
         this.enabled = true;
         this.selected = false;
         this.planets = [];
-
-        this.trailLength = 18;
-        this.trailTimer = 0;
-        this.trails = new Map();
-
-        const wrappers = element.querySelectorAll(".planet-wrapper");
-
-        wrappers.forEach(wrapper => {
-            const planet = new Planet(wrapper, this);
-            this.planets.push(planet);
-            this.createTrail(planet);
-        });
-
+        this.trailCanvas = document.createElement("canvas");
+        this.trailCanvas.className = "planet-orbit-trails";
+        this.trailCanvas.setAttribute("aria-hidden", "true");
+        Object.assign(this.trailCanvas.style,{position:"absolute",inset:"0",width:"100%",height:"100%",pointerEvents:"none",zIndex:"1"});
+        this.element.appendChild(this.trailCanvas);
+        element.querySelectorAll(".planet-wrapper").forEach(wrapper=>this.planets.push(new Planet(wrapper,this)));
         this.initialize();
     }
-
-    initialize() {
-        this.element.style.width = `${this.radius * 2}px`;
-        this.element.style.height = `${this.radius * 2}px`;
-        this.element.style.left = "50%";
-        this.element.style.top = "50%";
-        this.element.style.transform =
-            `translate(-50%, -50%) rotateX(${this.tilt}deg)`;
+    initialize(){
+        this.element.style.width=`${this.radius*2}px`;
+        this.element.style.height=`${this.radius*2}px`;
+        this.element.style.left="50%";
+        this.element.style.top="50%";
+        this.element.style.transform=`translate(-50%,-50%) rotateX(${this.tilt}deg)`;
+        this.resizeTrailCanvas();
     }
-
-    createTrail(planet) {
-
-        const points = [];
-
-        for (let i = 0; i < this.trailLength; i++) {
-            const point = document.createElement("span");
-            point.className = "planet-orbit-trail";
-            point.setAttribute("aria-hidden", "true");
-            point.style.position = "absolute";
-            point.style.width = "3px";
-            point.style.height = "3px";
-            point.style.borderRadius = "50%";
-            point.style.pointerEvents = "none";
-            point.style.transform = "translate(-50%, -50%)";
-            point.style.opacity = "0";
-            point.style.background = "rgba(79, 216, 255, 0.9)";
-            point.style.boxShadow = "0 0 6px rgba(79, 216, 255, 0.8)";
-            this.element.appendChild(point);
-            points.push({ element: point, x: 0, y: 0 });
-        }
-
-        this.trails.set(planet, points);
+    resizeTrailCanvas(){
+        const dpr=Math.min(window.devicePixelRatio||1,2);
+        this.trailCanvas.width=Math.round(this.radius*2*dpr);
+        this.trailCanvas.height=Math.round(this.radius*2*dpr);
+        this.trailCanvas.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
     }
-
-    update(dt) {
-        if (!this.enabled) return;
-
-        this.currentSpeed = damp(
-            this.currentSpeed,
-            this.targetSpeed,
-            5,
-            dt / 60
-        );
-
-        this.rotation += this.currentSpeed * dt;
+    update(dt){
+        if(!this.enabled)return;
+        this.currentSpeed=damp(this.currentSpeed,this.targetSpeed,5,dt/60);
+        this.rotation+=this.currentSpeed*dt;
         this.updatePlanets(dt);
-
-        this.trailTimer += dt;
-        if (this.trailTimer >= 2) {
-            this.trailTimer = 0;
-            this.recordTrailPositions();
-        }
-
         this.renderTrails();
     }
-
-    updatePlanets(dt) {
-        for (const planet of this.planets) {
-            const angle = radians(
-                planet.baseAngle +
-                this.rotation * planet.orbitMultiplier
-            );
-
-            const x = Math.cos(angle) * this.radius + this.radius;
-            const y = Math.sin(angle) * this.radius + this.radius;
-
-            planet.setPosition(x, y);
+    updatePlanets(dt){
+        for(const planet of this.planets){
+            const angle=radians(planet.baseAngle+this.rotation*planet.orbitMultiplier);
+            planet.setPosition(Math.cos(angle)*this.radius+this.radius,Math.sin(angle)*this.radius+this.radius);
             planet.update(dt);
         }
     }
-
-    recordTrailPositions() {
-        for (const planet of this.planets) {
-            const points = this.trails.get(planet);
-            if (!points) continue;
-
-            for (let i = points.length - 1; i > 0; i--) {
-                points[i].x = points[i - 1].x;
-                points[i].y = points[i - 1].y;
+    renderTrails(){
+        const ctx=this.trailCanvas.getContext("2d"),size=this.radius*2,cx=this.radius,cy=this.radius;
+        ctx.clearRect(0,0,size,size);
+        const trails=[
+            {length:1.75,width:3.2,alpha:.62},
+            {length:.92,width:2.35,alpha:.48},
+            {length:.48,width:1.7,alpha:.38}
+        ];
+        for(const planet of this.planets){
+            const head=radians(planet.baseAngle+this.rotation*planet.orbitMultiplier);
+            for(const trail of trails){
+                const segments=56;
+                for(let i=0;i<segments;i++){
+                    const a0=head-(i/segments)*trail.length;
+                    const a1=head-((i+1)/segments)*trail.length;
+                    const fade=Math.pow(1-i/segments,1.65);
+                    ctx.beginPath();
+                    ctx.moveTo(cx+Math.cos(a0)*this.radius,cy+Math.sin(a0)*this.radius);
+                    ctx.lineTo(cx+Math.cos(a1)*this.radius,cy+Math.sin(a1)*this.radius);
+                    ctx.lineWidth=trail.width*(.55+.45*fade);
+                    ctx.lineCap="round";
+                    ctx.strokeStyle=`rgba(79,216,255,${trail.alpha*fade})`;
+                    ctx.shadowBlur=8*fade;
+                    ctx.shadowColor=`rgba(79,216,255,${.8*fade})`;
+                    ctx.stroke();
+                }
             }
-
-            points[0].x = planet.x;
-            points[0].y = planet.y;
         }
+        ctx.shadowBlur=0;
     }
-
-    renderTrails() {
-        for (const points of this.trails.values()) {
-            points.forEach((point, index) => {
-                const fade = 1 - index / points.length;
-                point.element.style.left = `${point.x}px`;
-                point.element.style.top = `${point.y}px`;
-                point.element.style.opacity =
-                    point.x === 0 && point.y === 0
-                        ? "0"
-                        : String((fade * fade * 0.38).toFixed(3));
-                point.element.style.transform =
-                    `translate(-50%, -50%) scale(${0.35 + fade * 0.65})`;
-            });
-        }
-    }
-
-    setSpeed(speed) {
-        this.targetSpeed = speed;
-    }
-
-    resetSpeed() {
-        this.targetSpeed = this.baseSpeed;
-    }
-
-    requestSlow() {
-        this.hoverCount++;
-        this.targetSpeed = this.baseSpeed * 0.05;
-    }
-
-    releaseSlow() {
-        this.hoverCount--;
-        if (this.hoverCount <= 0) {
-            this.hoverCount = 0;
-            this.targetSpeed = this.baseSpeed;
-        }
-    }
-
-    setSelected(selected) {
-        this.selected = selected;
-        this.element.classList.toggle("is-selected", selected);
-    }
-
-    addPlanet(wrapper) {
-        const planet = new Planet(wrapper, this);
-        this.planets.push(planet);
-        this.createTrail(planet);
-        return planet;
-    }
-
-    removePlanet(planet) {
-        const index = this.planets.indexOf(planet);
-        if (index === -1) return;
-
-        const points = this.trails.get(planet) || [];
-        points.forEach(point => point.element.remove());
-        this.trails.delete(planet);
-        this.planets.splice(index, 1);
-    }
-
-    getPlanet(name) {
-        return this.planets.find(p => p.name === name);
-    }
-
-    enable() {
-        this.enabled = true;
-    }
-
-    disable() {
-        this.enabled = false;
-    }
-
+    setSpeed(speed){this.targetSpeed=speed;}
+    resetSpeed(){this.targetSpeed=this.baseSpeed;}
+    requestSlow(){this.hoverCount++;this.targetSpeed=this.baseSpeed*.05;}
+    releaseSlow(){this.hoverCount--;if(this.hoverCount<=0){this.hoverCount=0;this.targetSpeed=this.baseSpeed;}}
+    setSelected(selected){this.selected=selected;this.element.classList.toggle("is-selected",selected);}
+    addPlanet(wrapper){const planet=new Planet(wrapper,this);this.planets.push(planet);return planet;}
+    removePlanet(planet){const index=this.planets.indexOf(planet);if(index!==-1)this.planets.splice(index,1);}
+    getPlanet(name){return this.planets.find(p=>p.name===name);}
+    enable(){this.enabled=true;}
+    disable(){this.enabled=false;}
 }
