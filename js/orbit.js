@@ -1,12 +1,200 @@
-/* Pluto Archive orbit.js */
+/*
+============================================================
+Pluto Archive
+orbit.js
+============================================================
+*/
+
 "use strict";
+
 class Orbit {
- constructor(element){this.element=element;this.radius=Number(element.dataset.radius||200);this.baseSpeed=Number(element.dataset.speed||.1);this.tilt=Number(element.dataset.tilt||0);this.rotation=0;this.currentSpeed=this.baseSpeed;this.targetSpeed=this.baseSpeed;this.hoverCount=0;this.enabled=true;this.selected=false;this.planets=[];this.trailTimer=0;this.trails=new Map();this.trailLayers=[{length:180,width:3.2,opacity:.82,radiusScale:1,glow:12},{length:105,width:2.2,opacity:.58,radiusScale:1.014,glow:9},{length:55,width:1.5,opacity:.42,radiusScale:.986,glow:7}];element.querySelectorAll(".planet-wrapper").forEach(w=>{const p=new Planet(w,this);this.planets.push(p);this.createTrails(p)});this.initialize()}
- initialize(){this.element.style.width=`${this.radius*2}px`;this.element.style.height=`${this.radius*2}px`;this.element.style.left="50%";this.element.style.top="50%";this.element.style.transform=`translate(-50%,-50%) rotateX(${this.tilt}deg)`}
- createTrails(planet){const layers=[];for(const layer of this.trailLayers){const segments=[];for(let i=0;i<layer.length;i++){const e=document.createElement("span");e.className="planet-orbit-trail planet-orbit-trail-line";e.setAttribute("aria-hidden","true");Object.assign(e.style,{position:"absolute",height:`${layer.width}px`,borderRadius:"999px",pointerEvents:"none",opacity:"0",background:"rgba(79,216,255,.98)",boxShadow:`0 0 ${layer.glow}px rgba(79,216,255,.9)`,transformOrigin:"0 50%",zIndex:"1"});this.element.appendChild(e);segments.push({element:e,x:0,y:0,initialized:false})}layers.push({config:layer,points:segments})}this.trails.set(planet,layers)}
- update(dt){if(!this.enabled)return;this.currentSpeed=damp(this.currentSpeed,this.targetSpeed,5,dt/60);this.rotation+=this.currentSpeed*dt;this.updatePlanets(dt);this.trailTimer+=dt;if(this.trailTimer>=.25){this.trailTimer=0;this.recordTrailPositions()}this.renderTrails()}
- updatePlanets(dt){for(const p of this.planets){const a=radians(p.baseAngle+this.rotation*p.orbitMultiplier);p.setPosition(Math.cos(a)*this.radius+this.radius,Math.sin(a)*this.radius+this.radius);p.update(dt)}}
- recordTrailPositions(){for(const p of this.planets){const layers=this.trails.get(p);if(!layers)continue;const a=radians(p.baseAngle+this.rotation*p.orbitMultiplier);const px=Math.cos(a)*this.radius+this.radius,py=Math.sin(a)*this.radius+this.radius;for(const layer of layers){const {points,config}=layer;for(let i=points.length-1;i>0;i--){points[i].x=points[i-1].x;points[i].y=points[i-1].y;points[i].initialized=points[i-1].initialized}points[0].x=this.radius+(px-this.radius)*config.radiusScale;points[0].y=this.radius+(py-this.radius)*config.radiusScale;points[0].initialized=true}}}}
- renderTrails(){for(const layers of this.trails.values())for(const layer of layers){const {points,config}=layer;for(let i=0;i<points.length;i++){const p=points[i],next=points[i+1];if(!p.initialized||!next||!next.initialized){p.element.style.opacity="0";continue}const f=1-i/points.length;const dx=next.x-p.x,dy=next.y-p.y;const len=Math.sqrt(dx*dx+dy*dy);const angle=Math.atan2(dy,dx)*180/Math.PI;p.element.style.left=`${p.x}px`;p.element.style.top=`${p.y}px`;p.element.style.width=`${Math.max(1,len+1)}px`;p.element.style.opacity=String((f*f*config.opacity).toFixed(3));p.element.style.transform=`translateY(-50%) rotate(${angle}deg) scaleX(${.45+f*.55})`}}}
- setSpeed(s){this.targetSpeed=s} resetSpeed(){this.targetSpeed=this.baseSpeed} requestSlow(){this.hoverCount++;this.targetSpeed=this.baseSpeed*.05} releaseSlow(){this.hoverCount--;if(this.hoverCount<=0){this.hoverCount=0;this.targetSpeed=this.baseSpeed}} setSelected(s){this.selected=s;this.element.classList.toggle("is-selected",s)} addPlanet(w){const p=new Planet(w,this);this.planets.push(p);this.createTrails(p);return p} removePlanet(p){const i=this.planets.indexOf(p);if(i===-1)return;(this.trails.get(p)||[]).forEach(l=>l.points.forEach(x=>x.element.remove()));this.trails.delete(p);this.planets.splice(i,1)} getPlanet(n){return this.planets.find(p=>p.name===n)} enable(){this.enabled=true} disable(){this.enabled=false}
+
+    constructor(element) {
+
+        this.element = element;
+
+        this.radius = Number(element.dataset.radius || 200);
+        this.baseSpeed = Number(element.dataset.speed || 0.1);
+        this.tilt = Number(element.dataset.tilt || 0);
+        this.rotation = 0;
+
+        this.currentSpeed = this.baseSpeed;
+        this.targetSpeed = this.baseSpeed;
+
+        this.hoverCount = 0;
+        this.enabled = true;
+        this.selected = false;
+        this.planets = [];
+
+        this.trailLength = 18;
+        this.trailTimer = 0;
+        this.trails = new Map();
+
+        const wrappers = element.querySelectorAll(".planet-wrapper");
+
+        wrappers.forEach(wrapper => {
+            const planet = new Planet(wrapper, this);
+            this.planets.push(planet);
+            this.createTrail(planet);
+        });
+
+        this.initialize();
+    }
+
+    initialize() {
+        this.element.style.width = `${this.radius * 2}px`;
+        this.element.style.height = `${this.radius * 2}px`;
+        this.element.style.left = "50%";
+        this.element.style.top = "50%";
+        this.element.style.transform =
+            `translate(-50%, -50%) rotateX(${this.tilt}deg)`;
+    }
+
+    createTrail(planet) {
+
+        const points = [];
+
+        for (let i = 0; i < this.trailLength; i++) {
+            const point = document.createElement("span");
+            point.className = "planet-orbit-trail";
+            point.setAttribute("aria-hidden", "true");
+            point.style.position = "absolute";
+            point.style.width = "3px";
+            point.style.height = "3px";
+            point.style.borderRadius = "50%";
+            point.style.pointerEvents = "none";
+            point.style.transform = "translate(-50%, -50%)";
+            point.style.opacity = "0";
+            point.style.background = "rgba(79, 216, 255, 0.9)";
+            point.style.boxShadow = "0 0 6px rgba(79, 216, 255, 0.8)";
+            this.element.appendChild(point);
+            points.push({ element: point, x: 0, y: 0 });
+        }
+
+        this.trails.set(planet, points);
+    }
+
+    update(dt) {
+        if (!this.enabled) return;
+
+        this.currentSpeed = damp(
+            this.currentSpeed,
+            this.targetSpeed,
+            5,
+            dt / 60
+        );
+
+        this.rotation += this.currentSpeed * dt;
+        this.updatePlanets(dt);
+
+        this.trailTimer += dt;
+        if (this.trailTimer >= 2) {
+            this.trailTimer = 0;
+            this.recordTrailPositions();
+        }
+
+        this.renderTrails();
+    }
+
+    updatePlanets(dt) {
+        for (const planet of this.planets) {
+            const angle = radians(
+                planet.baseAngle +
+                this.rotation * planet.orbitMultiplier
+            );
+
+            const x = Math.cos(angle) * this.radius + this.radius;
+            const y = Math.sin(angle) * this.radius + this.radius;
+
+            planet.setPosition(x, y);
+            planet.update(dt);
+        }
+    }
+
+    recordTrailPositions() {
+        for (const planet of this.planets) {
+            const points = this.trails.get(planet);
+            if (!points) continue;
+
+            for (let i = points.length - 1; i > 0; i--) {
+                points[i].x = points[i - 1].x;
+                points[i].y = points[i - 1].y;
+            }
+
+            points[0].x = planet.x;
+            points[0].y = planet.y;
+        }
+    }
+
+    renderTrails() {
+        for (const points of this.trails.values()) {
+            points.forEach((point, index) => {
+                const fade = 1 - index / points.length;
+                point.element.style.left = `${point.x}px`;
+                point.element.style.top = `${point.y}px`;
+                point.element.style.opacity =
+                    point.x === 0 && point.y === 0
+                        ? "0"
+                        : String((fade * fade * 0.38).toFixed(3));
+                point.element.style.transform =
+                    `translate(-50%, -50%) scale(${0.35 + fade * 0.65})`;
+            });
+        }
+    }
+
+    setSpeed(speed) {
+        this.targetSpeed = speed;
+    }
+
+    resetSpeed() {
+        this.targetSpeed = this.baseSpeed;
+    }
+
+    requestSlow() {
+        this.hoverCount++;
+        this.targetSpeed = this.baseSpeed * 0.05;
+    }
+
+    releaseSlow() {
+        this.hoverCount--;
+        if (this.hoverCount <= 0) {
+            this.hoverCount = 0;
+            this.targetSpeed = this.baseSpeed;
+        }
+    }
+
+    setSelected(selected) {
+        this.selected = selected;
+        this.element.classList.toggle("is-selected", selected);
+    }
+
+    addPlanet(wrapper) {
+        const planet = new Planet(wrapper, this);
+        this.planets.push(planet);
+        this.createTrail(planet);
+        return planet;
+    }
+
+    removePlanet(planet) {
+        const index = this.planets.indexOf(planet);
+        if (index === -1) return;
+
+        const points = this.trails.get(planet) || [];
+        points.forEach(point => point.element.remove());
+        this.trails.delete(planet);
+        this.planets.splice(index, 1);
+    }
+
+    getPlanet(name) {
+        return this.planets.find(p => p.name === name);
+    }
+
+    enable() {
+        this.enabled = true;
+    }
+
+    disable() {
+        this.enabled = false;
+    }
+
 }
