@@ -3,19 +3,13 @@
    planet.css
 ========================================================== */
 
-.planet{position:absolute;left:50%;top:50%;width:70px;height:70px;border-radius:50%;overflow:visible;background:radial-gradient(circle at 35% 30%,rgba(90,180,255,.35),transparent 18%),radial-gradient(circle at 65% 70%,rgba(0,70,120,.35),transparent 35%),radial-gradient(circle at center,#101820 0%,#05080d 55%,#000 100%);border:1px solid rgba(73,214,255,.25);box-shadow:inset -12px -15px 25px rgba(0,0,0,.8),inset 8px 8px 18px rgba(80,180,255,.12),0 0 15px rgba(0,150,255,.25);transform:translate(-50%,-50%);transition:transform .35s ease,box-shadow .35s ease;cursor:pointer;pointer-events:auto;transform-style:preserve-3d}
+.planet{position:absolute;left:50%;top:50%;width:70px;height:70px;border-radius:50%;overflow:visible;background:radial-gradient(circle at 35% 30%,rgba(90,180,255,.35),transparent 18%),radial-gradient(circle at 65% 70%,rgba(0,70,120,.35),transparent 35%),radial-gradient(circle at center,#101820 0%,#05080d 55%,#000 100%);border:1px solid rgba(73,214,255,.25);box-shadow:inset -12px -15px 25px rgba(0,0,0,.8),inset 8px 8px 18px rgba(80,180,255,.12),0 0 15px rgba(0,150,255,.25);transform:translate(-50%,-50%);transition:transform .35s ease,box-shadow .35s ease;cursor:pointer;pointer-events:auto;transform-style:preserve-3d;opacity:1}
 .planet::before{content:"";position:absolute;inset:8%;border-radius:50%;background:repeating-radial-gradient(circle,rgba(255,255,255,.02) 0px,rgba(255,255,255,.02) 2px,transparent 3px,transparent 8px);opacity:.35;mix-blend-mode:screen}
 .planet-highlight{position:absolute;width:45%;height:45%;top:10%;left:15%;border-radius:50%;background:radial-gradient(circle,rgba(120,220,255,.8),rgba(50,150,255,.15) 45%,transparent 70%);filter:blur(4px);opacity:.55;pointer-events:none}
 .planet:hover{transform:translate(-50%,-50%) scale(1.35);box-shadow:inset -15px -20px 30px rgba(0,0,0,.85),inset 10px 10px 20px rgba(90,220,255,.25),0 0 35px rgba(73,214,255,.65),0 0 90px rgba(0,100,255,.35)}
 .planet:active{transform:translate(-50%,-50%) scale(1.15)}
-
-/* ==========================================================
-   Saturn Ring
-   Links satellite orbit: same X/Z plane, with perspective.
-========================================================== */
 .planet-ring{position:absolute;left:50%;top:50%;width:210%;height:210%;transform:translate(-50%,-50%) rotateX(72deg);transform-origin:center center;border-radius:50%;border:2px solid rgba(100,190,255,.34);box-shadow:0 0 12px rgba(73,214,255,.18);pointer-events:none;transform-style:preserve-3d}
 .planet-ring::before{content:"";position:absolute;inset:15%;border-radius:50%;border:1px solid rgba(255,255,255,.10)}
-
 .planet-label{color:#cdeeff;font-size:.75rem;letter-spacing:.25em;text-transform:uppercase;text-shadow:0 0 8px rgba(73,214,255,.7);opacity:0;transition:opacity .3s ease,transform .3s ease}
 .planet-wrapper[data-size="42"] .planet{width:42px;height:42px}
 .planet-wrapper[data-size="50"] .planet{width:50px;height:50px}
