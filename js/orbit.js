@@ -21,7 +21,7 @@ class Orbit {
         this.enabled = true;
         this.selected = false;
         this.planets = [];
-        this.trailLength = 90;
+        this.trailLength = 900;
         this.trailTimer = 0;
         this.trails = new Map();
 
@@ -48,15 +48,9 @@ class Orbit {
             element.className = "planet-orbit-trail";
             element.setAttribute("aria-hidden", "true");
             Object.assign(element.style, {
-                position: "absolute",
-                width: "3px",
-                height: "3px",
-                borderRadius: "50%",
-                pointerEvents: "none",
-                opacity: "0",
-                background: "rgba(79,216,255,.9)",
-                boxShadow: "0 0 7px rgba(79,216,255,.7)",
-                zIndex: "1"
+                position: "absolute", width: "3px", height: "3px", borderRadius: "50%",
+                pointerEvents: "none", opacity: "0", background: "rgba(79,216,255,.9)",
+                boxShadow: "0 0 7px rgba(79,216,255,.7)", zIndex: "1"
             });
             this.element.appendChild(element);
             points.push({ element, x: 0, y: 0, initialized: false });
@@ -70,7 +64,7 @@ class Orbit {
         this.rotation += this.currentSpeed * dt;
         this.updatePlanets(dt);
         this.trailTimer += dt;
-        if (this.trailTimer >= 0.5) {
+        if (this.trailTimer >= 0.1) {
             this.trailTimer = 0;
             this.recordTrailPositions();
         }
@@ -105,10 +99,7 @@ class Orbit {
     renderTrails() {
         for (const points of this.trails.values()) {
             points.forEach((point, index) => {
-                if (!point.initialized) {
-                    point.element.style.opacity = "0";
-                    return;
-                }
+                if (!point.initialized) { point.element.style.opacity = "0"; return; }
                 const fade = 1 - index / points.length;
                 point.element.style.left = `${point.x}px`;
                 point.element.style.top = `${point.y}px`;
@@ -122,30 +113,10 @@ class Orbit {
     setSpeed(speed) { this.targetSpeed = speed; }
     resetSpeed() { this.targetSpeed = this.baseSpeed; }
     requestSlow() { this.hoverCount++; this.targetSpeed = this.baseSpeed * 0.05; }
-    releaseSlow() {
-        this.hoverCount--;
-        if (this.hoverCount <= 0) {
-            this.hoverCount = 0;
-            this.targetSpeed = this.baseSpeed;
-        }
-    }
-    setSelected(selected) {
-        this.selected = selected;
-        this.element.classList.toggle("is-selected", selected);
-    }
-    addPlanet(wrapper) {
-        const planet = new Planet(wrapper, this);
-        this.planets.push(planet);
-        this.createTrail(planet);
-        return planet;
-    }
-    removePlanet(planet) {
-        const index = this.planets.indexOf(planet);
-        if (index === -1) return;
-        (this.trails.get(planet) || []).forEach(point => point.element.remove());
-        this.trails.delete(planet);
-        this.planets.splice(index, 1);
-    }
+    releaseSlow() { this.hoverCount--; if (this.hoverCount <= 0) { this.hoverCount = 0; this.targetSpeed = this.baseSpeed; } }
+    setSelected(selected) { this.selected = selected; this.element.classList.toggle("is-selected", selected); }
+    addPlanet(wrapper) { const planet = new Planet(wrapper, this); this.planets.push(planet); this.createTrail(planet); return planet; }
+    removePlanet(planet) { const index = this.planets.indexOf(planet); if (index === -1) return; (this.trails.get(planet) || []).forEach(point => point.element.remove()); this.trails.delete(planet); this.planets.splice(index, 1); }
     getPlanet(name) { return this.planets.find(p => p.name === name); }
     enable() { this.enabled = true; }
     disable() { this.enabled = false; }
