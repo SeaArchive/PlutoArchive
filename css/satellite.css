@@ -1,6 +1,6 @@
 /* ==========================================================
    Pluto Archive
-   Links Planet Satellite
+   Links Planet Satellites
 ========================================================== */
 
 .link-satellite-orbit {
@@ -22,16 +22,25 @@
     height: 18px;
     border-radius: 50%;
     box-sizing: border-box;
-    background:
-        radial-gradient(circle at 32% 28%, rgba(150,230,255,.75), transparent 28%),
-        radial-gradient(circle at center, #122431 0%, #050a10 68%, #000 100%);
+    background: radial-gradient(circle at 32% 28%, rgba(150,230,255,.75), transparent 28%), radial-gradient(circle at center, #122431 0%, #050a10 68%, #000 100%);
     border: 1px solid rgba(73,214,255,.55);
-    box-shadow:
-        0 0 9px rgba(73,214,255,.45),
-        inset -4px -5px 8px rgba(0,0,0,.75),
-        inset 3px 3px 6px rgba(90,220,255,.18);
+    box-shadow: 0 0 9px rgba(73,214,255,.45), inset -4px -5px 8px rgba(0,0,0,.75), inset 3px 3px 6px rgba(90,220,255,.18);
     transform-style: preserve-3d;
     will-change: transform, opacity;
+}
+
+/* Second satellite: square and 20% of the original satellite size. */
+.link-satellite-orbit-2 .link-satellite-square {
+    width: 3.6px;
+    height: 3.6px;
+    border-radius: 0;
+    background: #050a10;
+    border: 1px solid rgba(73,214,255,.75);
+    box-shadow: 0 0 5px rgba(73,214,255,.65);
+}
+
+.link-satellite-orbit-2 .link-satellite-square::after {
+    display: none;
 }
 
 .link-satellite::after {
@@ -48,8 +57,6 @@
 }
 
 @media(max-width:768px) {
-    .link-satellite {
-        width: 14px;
-        height: 14px;
-    }
+    .link-satellite { width: 14px; height: 14px; }
+    .link-satellite-orbit-2 .link-satellite-square { width: 2.8px; height: 2.8px; }
 }
