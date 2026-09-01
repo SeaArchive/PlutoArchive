@@ -10,13 +10,13 @@ class Satellite {
         this.items = this.satellites.map((satellite, index) => {
             const second = satellite.classList.contains("link-satellite-square") || index === 1;
             const prefix = second ? "satellite2" : "satellite";
-            return { satellite, angle:Number(planetWrapper.dataset[`${prefix}Angle`]||(second?145:0)), speed:Number(planetWrapper.dataset[`${prefix}Speed`]||(second?.34:.42))*1.4*(second?4:1), radius:Number(planetWrapper.dataset[`${prefix}Radius`]||(second?48:78)), depth:Number(planetWrapper.dataset[`${prefix}Depth`]||(second?34:52)), trailLength:210, trailTimer:0, trail:[] };
+            return { satellite, angle:Number(planetWrapper.dataset[`${prefix}Angle`]||(second?145:0)), speed:Number(planetWrapper.dataset[`${prefix}Speed`]||(second?.34:.42))*1.4*(second?4:1), radius:Number(planetWrapper.dataset[`${prefix}Radius`]||(second?48:78)), depth:Number(planetWrapper.dataset[`${prefix}Depth`]||(second?34:52)), trailLength:63, trailTimer:0, trailInterval:.1, trail:[] };
         });
         this.items.forEach(item=>this.createWorldTrail(item));
         this.updateVisuals();
     }
     createWorldTrail(item){for(let i=0;i<item.trailLength;i++){const element=document.createElement("span"),gold=item.satellite.classList.contains("link-satellite-square");element.className="satellite-orbit-trail";Object.assign(element.style,{position:"absolute",width:"2.5px",height:"2.5px",borderRadius:"50%",pointerEvents:"none",background:gold?"rgba(255,210,90,.95)":"rgba(79,216,255,.95)",boxShadow:gold?"0 0 8px rgba(255,190,60,.9)":"0 0 8px rgba(79,216,255,.85)",opacity:"0",zIndex:"2"});this.world.appendChild(element);item.trail.push({element,x:0,y:0,z:0,initialized:false});}}
-    update(dt){if(!this.items.length)return;const planet=this.getPlanetWorldPosition();for(const item of this.items){item.angle+=item.speed*dt;item.trailTimer+=dt;if(item.trailTimer>=.5){item.trailTimer=0;this.recordWorldPosition(item,planet)}this.updateVisual(item);this.renderWorldTrail(item,planet)}}
+    update(dt){if(!this.items.length)return;const planet=this.getPlanetWorldPosition();for(const item of this.items){item.angle+=item.speed*dt;item.trailTimer+=dt;if(item.trailTimer>=item.trailInterval){item.trailTimer=0;this.recordWorldPosition(item,planet)}this.updateVisual(item);this.renderWorldTrail(item,planet)}}
     getPosition(item){const angle=radians(item.angle);return{x:Math.sin(angle)*item.radius,z:Math.cos(angle)*item.depth}}
     getPlanetWorldPosition(){return{x:this.wrapper.offsetLeft,y:this.wrapper.offsetTop}}
     getPlanetRadius(){const planet=this.wrapper.querySelector(".planet");return planet?Math.max(planet.offsetWidth,planet.offsetHeight)*.5:37}
