@@ -10,7 +10,7 @@ class Satellite {
         this.items = this.satellites.map((satellite, index) => {
             const second = satellite.classList.contains("link-satellite-square") || index === 1;
             const prefix = second ? "satellite2" : "satellite";
-            return { satellite, angle:Number(planetWrapper.dataset[`${prefix}Angle`]||(second?145:0)), speed:Number(planetWrapper.dataset[`${prefix}Speed`]||(second?.34:.42))*1.4*(second?4:1), radius:Number(planetWrapper.dataset[`${prefix}Radius`]||(second?48:78)), depth:Number(planetWrapper.dataset[`${prefix}Depth`]||(second?34:52)), trailLength:63, trailTimer:0, trailInterval:.1, trail:[] };
+            return { satellite, angle:Number(planetWrapper.dataset[`${prefix}Angle`]||(second?145:0)), speed:Number(planetWrapper.dataset[`${prefix}Speed`]||(second?.34:.42))*1.4*(second?4:1), radius:Number(planetWrapper.dataset[`${prefix}Radius`]||(second?48:78)), depth:Number(planetWrapper.dataset[`${prefix}Depth`]||(second?34:52)), trailLength:126, trailTimer:0, trailInterval:.1, trail:[] };
         });
         this.items.forEach(item=>this.createWorldTrail(item));
         this.updateVisuals();
