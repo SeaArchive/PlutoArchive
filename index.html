@@ -1,57 +1,26 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pluto Archive</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
-    <div id="background">
-        <div id="stars"></div>
-        <div id="nebula"></div>
-        <div id="vignette"></div>
-    </div>
-
-    <main id="universe">
-        <div id="camera">
-
-            <section id="core">
-                <div class="core-ring core-ring-1"></div>
-                <div class="core-ring core-ring-2"></div>
-                <div class="core-ring core-ring-3"></div>
-
-                <div id="core-center">
-                    <h1>PLUTO</h1>
-                    <p>ARCHIVE</p>
-                </div>
-            </section>
-
-            <!-- Links planet only. Other planets are temporarily removed. -->
-            <section class="orbit" data-radius="350" data-speed="0.08" data-tilt="-12">
-                <div class="planet-wrapper" data-name="Links" data-link="pages/links.html" data-angle="80" data-size="74" data-spin-speed="0.35" data-orbit-speed="0.65" data-satellite-angle="0" data-satellite-speed="0.42" data-satellite-radius="78" data-satellite-depth="52">
-                    <button class="planet"><div class="planet-highlight"></div></button>
-                    <div class="link-satellite-orbit" aria-hidden="true">
-                        <div class="link-satellite"></div>
-                    </div>
-                    <div class="planet-label">Links</div>
-                </div>
-            </section>
-
-        </div>
-    </main>
-
-    <script src="js/other.js"></script>
-    <script src="js/mouse.js"></script>
-    <script src="js/camera.js"></script>
-    <script src="js/planet.js"></script>
-    <script src="js/orbit.js"></script>
-    <script src="js/satellite.js"></script>
-    <script src="js/engine.js"></script>
-    <script src="js/main.js"></script>
-
-</body>
-</html>
+<div id="background"><div id="stars"></div><div id="nebula"></div><div id="vignette"></div></div>
+<main id="universe"><div id="camera">
+<section id="core">
+<div class="core-ring core-ring-1"></div><div class="core-ring core-ring-2"></div><div class="core-ring core-ring-3"></div>
+<div id="core-center"><h1>PLUTO</h1><p>ARCHIVE</p></div>
+</section>
+<section class="orbit" data-radius="350" data-speed="0.08" data-tilt="-12">
+<div class="planet-wrapper" data-name="Links" data-link="pages/links.html" data-angle="80" data-size="74" data-spin-speed="0.35" data-orbit-speed="0.65" data-satellite-angle="0" data-satellite-speed="0.42" data-satellite-radius="78" data-satellite-depth="52" data-satellite2-angle="145" data-satellite2-speed="0.34" data-satellite2-radius="48" data-satellite2-depth="34">
+<button class="planet"><div class="planet-highlight"></div></button>
+<div class="link-satellite-orbit" aria-hidden="true"><div class="link-satellite"></div></div>
+<div class="link-satellite-orbit link-satellite-orbit-2" aria-hidden="true"><div class="link-satellite link-satellite-square"></div></div>
+<div class="planet-label">Links</div>
+</div>
+</section>
+</div></main>
+<script src="js/other.js"></script><script src="js/mouse.js"></script><script src="js/camera.js"></script><script src="js/planet.js"></script><script src="js/orbit.js"></script><script src="js/satellite.js"></script><script src="js/engine.js"></script><script src="js/main.js"></script>
+</body></html>
