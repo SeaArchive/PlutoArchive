@@ -8,7 +8,8 @@
 </head>
 <body>
 <main class="link-page">
-  <div class="arrival-satellite" aria-hidden="true"><span></span></div>
+  <div class="arrival-satellite" aria-hidden="true"></div>
+  <div class="arrival-particles" aria-hidden="true"></div>
   <section class="link-cards" id="linkCards" aria-label="Links">
     <article class="link-card" data-link-id="link-01"></article>
     <article class="link-card" data-link-id="link-02"></article>
@@ -17,5 +18,20 @@
     <article class="link-card" data-link-id="link-05"></article>
   </section>
 </main>
+<script>
+(()=>{
+  const field=document.querySelector('.arrival-particles');
+  for(let i=0;i<85;i++){
+    const p=document.createElement('i');
+    p.className='arrival-particle';
+    p.style.setProperty('--x',`${Math.random()*42}vw`);
+    p.style.setProperty('--y',`${(Math.random()-.5)*260}px`);
+    p.style.setProperty('--delay',`${Math.random()*.95}s`);
+    p.style.setProperty('--size',`${1+Math.random()*3}px`);
+    p.style.setProperty('--duration',`${.7+Math.random()*1.1}s`);
+    field.appendChild(p);
+  }
+})();
+</script>
 </body>
 </html>
