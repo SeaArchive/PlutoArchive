@@ -86,14 +86,18 @@
       const z=-Math.cos(a)*radius;
       const depth=(Math.cos(a)+1)*0.5;
       const zIndex=Math.round(depth*100);
-      // 각 카드는 화면 중앙의 사용자를 향하도록 Y축만 회전한다.
-      // 앞쪽(z<0)에서는 카드의 앞면이 사용자를 향하고,
-      // 뒤쪽(z>0)에서는 카드가 반대 방향을 향하므로 흰 뒷면이 정면에 나타나지 않는다.
       const radialDeg=(a*180/Math.PI);
       const scale=0.88+(depth*0.16);
+      const card=wrapper.querySelector('.link-card');
+
+      // 사용자의 시점은 원의 중심이다. z<0만 사용자 앞쪽이므로 보이고,
+      // z>=0인 카드는 사용자 뒤쪽에 있으므로 화면에서 완전히 숨긴다.
+      const visible=z<0;
       wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,0,${z}px) rotateY(${radialDeg}deg)`;
       wrapper.style.zIndex=zIndex;
-      wrapper.querySelector('.link-card').style.setProperty('--depth-scale',scale.toFixed(3));
+      wrapper.style.visibility=visible?'visible':'hidden';
+      wrapper.style.pointerEvents=visible?'auto':'none';
+      card.style.setProperty('--depth-scale',scale.toFixed(3));
     });
   };
 
