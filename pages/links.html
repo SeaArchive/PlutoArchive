@@ -39,7 +39,8 @@
     const progress=i/(count-1), x=108-(progress*145)+((Math.random()-.5)*8), y=(Math.random()-.5)*300;
     p.style.setProperty('--start-x',`${x}vw`); p.style.setProperty('--start-y',`${y}px`);
     p.style.setProperty('--drift-x',`${35+Math.random()*110}px`); p.style.setProperty('--drift-y',`${(Math.random()-.5)*90}px`);
-    p.style.setProperty('--delay',`${progress*.7+Math.random()*.18}s`); p.style.setProperty('--size',`${1+Math.random()*3}px`); p.style.setProperty('--duration',`${3.2+Math.random()*2}s`);
+    p.style.setProperty('--delay',`${progress*.7+Math.random()*.18}s`); p.style.setProperty('--size',`${1+Math.random()*3}px`);
+    p.style.setProperty('--duration','3600s');
     field.appendChild(p);
   }
 
@@ -65,36 +66,24 @@
     const count=cards.length;
     cards.forEach((wrapper,index)=>{
       const a=angle+(index/count)*Math.PI*2;
-      const x=Math.sin(a)*radius;
-      const z=-Math.cos(a)*radius;
-      const depth=(Math.cos(a)+1)*0.5;
-      const card=wrapper.querySelector('.link-card');
-      const visible=z<0;
-      const radialDeg=(a*180/Math.PI);
-      const scale=0.88+(depth*0.16);
+      const x=Math.sin(a)*radius, z=-Math.cos(a)*radius;
+      const depth=(Math.cos(a)+1)*0.5, card=wrapper.querySelector('.link-card');
+      const visible=z<0, radialDeg=(a*180/Math.PI), scale=0.88+(depth*0.16);
       wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,0,${z}px) rotateY(${radialDeg}deg)`;
-      wrapper.style.zIndex=Math.round(depth*100);
-      wrapper.style.visibility=visible?'visible':'hidden';
-      wrapper.style.pointerEvents=visible?'auto':'none';
+      wrapper.style.zIndex=Math.round(depth*100); wrapper.style.visibility=visible?'visible':'hidden'; wrapper.style.pointerEvents=visible?'auto':'none';
       card.style.setProperty('--depth-scale',scale.toFixed(3));
     });
   };
 
   // 회전 중인 모든 앞쪽 카드에서 1/20초마다 빛 알갱이 하나를 방출한다.
   const emitLightParticle=()=>{
-    if(reduceMotion.matches) return;
+    if(reduceMotion.matches || speed<=0.00005) return;
     cards.forEach(wrapper=>{
       if(wrapper.style.visibility==='hidden') return;
-      const card=wrapper.querySelector('.link-card');
-      const rect=card.getBoundingClientRect();
-      const particle=document.createElement('i');
-      particle.className='orbit-light-particle';
-      particle.style.left=`${rect.left+rect.width/2}px`;
-      particle.style.top=`${rect.top+rect.height/2}px`;
-      particle.style.setProperty('--drift-x',`${(Math.random()-.5)*70}px`);
-      particle.style.setProperty('--drift-y',`${(Math.random()-.5)*70}px`);
-      particle.style.setProperty('--particle-size',`${0.8+Math.random()*1.8}px`);
-      lightField.appendChild(particle);
+      const card=wrapper.querySelector('.link-card'), rect=card.getBoundingClientRect(), particle=document.createElement('i');
+      particle.className='orbit-light-particle'; particle.style.left=`${rect.left+rect.width/2}px`; particle.style.top=`${rect.top+rect.height/2}px`;
+      particle.style.setProperty('--drift-x',`${(Math.random()-.5)*70}px`); particle.style.setProperty('--drift-y',`${(Math.random()-.5)*70}px`);
+      particle.style.setProperty('--particle-size',`${0.8+Math.random()*1.8}px`); lightField.appendChild(particle);
       window.setTimeout(()=>particle.remove(),3000);
     });
   };
