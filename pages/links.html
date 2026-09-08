@@ -98,8 +98,8 @@
     const dt=Math.min((now-lastTime)/16.6667,3);
     lastTime=now;
     const hovered=document.querySelector('.link-card.is-hovered');
-    const targetSpeed=reduceMotion.matches?0:(hovered?0.0035:0.018);
-    speed+=(targetSpeed-speed)*Math.min(1,0.055*dt);
+    const targetSpeed=reduceMotion.matches?0:(hovered?0:0.018);
+    speed+=(targetSpeed-speed)*Math.min(1,0.035*dt);
     angle+=speed*dt;
     render();
     requestAnimationFrame(tick);
