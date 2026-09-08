@@ -21,6 +21,9 @@ body{font-family:Arial,sans-serif;color:#fff}
 .card-image{display:block;width:100%;height:100%;object-fit:cover;opacity:0}
 .link-card-face:has(.card-image[src]) .card-image{opacity:1}
 
+/* 사용자의 시점에서는 원의 뒤쪽 절반을 가린다. */
+.link-card-position.is-behind{visibility:hidden;pointer-events:none}
+
 .arrival-particles{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
 .arrival-particle{position:absolute;left:var(--start-x);top:calc(50% + var(--start-y));width:var(--size);height:var(--size);border-radius:50%;background:rgba(79,216,255,.95);box-shadow:0 0 6px rgba(79,216,255,.9),0 0 14px rgba(79,216,255,.5);opacity:0;animation:particleScatter var(--duration) ease-out var(--delay) both}
 .arrival-particle:nth-child(3n){transform:scale(.65)}
