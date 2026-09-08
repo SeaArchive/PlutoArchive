@@ -86,7 +86,10 @@
       const z=-Math.cos(a)*radius;
       const depth=(Math.cos(a)+1)*0.5;
       const zIndex=Math.round(depth*100);
-      const radialDeg=(a*180/Math.PI)+180;
+      // 각 카드는 화면 중앙의 사용자를 향하도록 Y축만 회전한다.
+      // 앞쪽(z<0)에서는 카드의 앞면이 사용자를 향하고,
+      // 뒤쪽(z>0)에서는 카드가 반대 방향을 향하므로 흰 뒷면이 정면에 나타나지 않는다.
+      const radialDeg=(a*180/Math.PI);
       const scale=0.88+(depth*0.16);
       wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,0,${z}px) rotateY(${radialDeg}deg)`;
       wrapper.style.zIndex=zIndex;
