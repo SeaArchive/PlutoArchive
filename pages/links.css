@@ -29,6 +29,11 @@ body{font-family:Arial,sans-serif;color:#fff}
 .arrival-particle:nth-child(3n){transform:scale(.65)}
 .arrival-particle:nth-child(4n){filter:blur(.4px)}
 
+/* 회전 중인 카드가 1/20초마다 방출하는 빛 알갱이. */
+.orbit-light-particles{position:fixed;inset:0;z-index:9;pointer-events:none;overflow:hidden}
+.orbit-light-particle{position:absolute;width:var(--particle-size);height:var(--particle-size);margin:-50% 0 0 -50%;border-radius:50%;background:rgba(190,240,255,.98);box-shadow:0 0 4px rgba(150,230,255,.95),0 0 11px rgba(79,216,255,.8);opacity:0;animation:orbitLightScatter 3s ease-out forwards}
+@keyframes orbitLightScatter{0%{opacity:0;transform:translate(0,0) scale(.2)}8%{opacity:1;transform:translate(0,0) scale(1)}70%{opacity:.72}100%{opacity:0;transform:translate(var(--drift-x),var(--drift-y)) scale(.15)}}
+
 @keyframes particleScatter{0%{opacity:0;transform:translate(0,0) scale(.2)}8%{opacity:.95}25%{opacity:.85}100%{opacity:0;transform:translate(var(--drift-x),var(--drift-y)) scale(1)}}
 @keyframes cardsEnter{0%{opacity:0;transform:translateX(110vw)}100%{opacity:1;transform:translateX(0)}}
 
@@ -47,4 +52,5 @@ body{font-family:Arial,sans-serif;color:#fff}
   .link-cards.is-ready{animation:none}
   .link-card{transition:none}
   .arrival-particle{animation:none;opacity:0}
+  .orbit-light-particle{animation:none;opacity:0}
 }
