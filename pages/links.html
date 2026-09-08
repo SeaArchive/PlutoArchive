@@ -83,12 +83,12 @@
     cards.forEach((wrapper,index)=>{
       const a=angle+(index/count)*Math.PI*2;
       const x=Math.sin(a)*radius;
-      const y=-Math.cos(a)*radius;
+      const z=-Math.cos(a)*radius;
       const depth=(Math.cos(a)+1)*0.5;
       const zIndex=Math.round(depth*100);
       const radialDeg=(a*180/Math.PI)+180;
       const scale=0.88+(depth*0.16);
-      wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,${y}px,${depth*80}px) rotateZ(${radialDeg}deg)`;
+      wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,0,${z}px) rotateY(${radialDeg}deg)`;
       wrapper.style.zIndex=zIndex;
       wrapper.querySelector('.link-card').style.setProperty('--depth-scale',scale.toFixed(3));
     });
