@@ -9,7 +9,6 @@
 <body>
 <main class="link-page">
   <div class="arrival-particles" aria-hidden="true"></div>
-
   <div class="link-card-orbit" id="linkCardOrbit" aria-label="Links card orbit">
     <section class="link-cards" id="linkCards" aria-label="Links">
       <article class="link-card-position" data-index="0"><article class="link-card" data-link-id="link-01" tabindex="0" aria-label="Link card 1"><div class="link-card-inner"><div class="link-card-face link-card-back"><img class="card-image" data-card-back alt=""></div><div class="link-card-face link-card-front"><img class="card-image" data-card-front alt=""></div></div></article></article>
@@ -34,43 +33,24 @@
   const field=document.querySelector('.arrival-particles');
   const count=150;
   for(let i=0;i<count;i++){
-    const p=document.createElement('i');
-    p.className='arrival-particle';
-    const progress=i/(count-1);
-    const x=108-(progress*145)+((Math.random()-.5)*8);
-    const y=(Math.random()-.5)*300;
-    p.style.setProperty('--start-x',`${x}vw`);
-    p.style.setProperty('--start-y',`${y}px`);
-    p.style.setProperty('--drift-x',`${35+Math.random()*110}px`);
-    p.style.setProperty('--drift-y',`${(Math.random()-.5)*90}px`);
-    p.style.setProperty('--delay',`${progress*.7+Math.random()*.18}s`);
-    p.style.setProperty('--size',`${1+Math.random()*3}px`);
-    p.style.setProperty('--duration',`${3.2+Math.random()*2}s`);
+    const p=document.createElement('i'); p.className='arrival-particle';
+    const progress=i/(count-1), x=108-(progress*145)+((Math.random()-.5)*8), y=(Math.random()-.5)*300;
+    p.style.setProperty('--start-x',`${x}vw`); p.style.setProperty('--start-y',`${y}px`);
+    p.style.setProperty('--drift-x',`${35+Math.random()*110}px`); p.style.setProperty('--drift-y',`${(Math.random()-.5)*90}px`);
+    p.style.setProperty('--delay',`${progress*.7+Math.random()*.18}s`); p.style.setProperty('--size',`${1+Math.random()*3}px`); p.style.setProperty('--duration',`${3.2+Math.random()*2}s`);
     field.appendChild(p);
   }
 
   const cards=[...document.querySelectorAll('.link-card-position')];
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-  let angle=0;
-  let speed=0.018;
-  let lastTime=performance.now();
-  let radius=0;
+  let angle=0, speed=0.018, lastTime=performance.now(), radius=0;
 
-  const setImage=(img,path)=>{
-    if(!path) return;
-    img.src=path;
-    img.addEventListener('error',()=>img.removeAttribute('src'),{once:true});
-  };
-
+  const setImage=(img,path)=>{ if(!path)return; img.src=path; img.addEventListener('error',()=>img.removeAttribute('src'),{once:true}); };
   document.querySelectorAll('.link-card').forEach(card=>{
     setImage(card.querySelector('[data-card-front]'),card.dataset.frontImage||'');
     setImage(card.querySelector('[data-card-back]'),card.dataset.backImage||'');
-    const enter=()=>card.classList.add('is-hovered');
-    const leave=()=>card.classList.remove('is-hovered');
-    card.addEventListener('mouseenter',enter);
-    card.addEventListener('mouseleave',leave);
-    card.addEventListener('focusin',enter);
-    card.addEventListener('focusout',leave);
+    const enter=()=>card.classList.add('is-hovered'), leave=()=>card.classList.remove('is-hovered');
+    card.addEventListener('mouseenter',enter); card.addEventListener('mouseleave',leave); card.addEventListener('focusin',enter); card.addEventListener('focusout',leave);
   });
 
   const resize=()=>{
@@ -85,16 +65,12 @@
       const x=Math.sin(a)*radius;
       const z=-Math.cos(a)*radius;
       const depth=(Math.cos(a)+1)*0.5;
-      const zIndex=Math.round(depth*100);
+      const card=wrapper.querySelector('.link-card');
+      const visible=z<0;
       const radialDeg=(a*180/Math.PI);
       const scale=0.88+(depth*0.16);
-      const card=wrapper.querySelector('.link-card');
-
-      // 사용자의 시점은 원의 중심이다. z<0만 사용자 앞쪽이므로 보이고,
-      // z>=0인 카드는 사용자 뒤쪽에 있으므로 화면에서 완전히 숨긴다.
-      const visible=z<0;
       wrapper.style.transform=`translate(-50%,-50%) translate3d(${x}px,0,${z}px) rotateY(${radialDeg}deg)`;
-      wrapper.style.zIndex=zIndex;
+      wrapper.style.zIndex=Math.round(depth*100);
       wrapper.style.visibility=visible?'visible':'hidden';
       wrapper.style.pointerEvents=visible?'auto':'none';
       card.style.setProperty('--depth-scale',scale.toFixed(3));
@@ -102,20 +78,12 @@
   };
 
   const tick=(now)=>{
-    const dt=Math.min((now-lastTime)/16.6667,3);
-    lastTime=now;
+    const dt=Math.min((now-lastTime)/16.6667,3); lastTime=now;
     const hovered=document.querySelector('.link-card.is-hovered');
     const targetSpeed=reduceMotion.matches?0:(hovered?0:0.018);
-    speed+=(targetSpeed-speed)*Math.min(1,0.035*dt);
-    angle+=speed*dt;
-    render();
-    requestAnimationFrame(tick);
+    speed+=(targetSpeed-speed)*Math.min(1,0.035*dt); angle+=speed*dt; render(); requestAnimationFrame(tick);
   };
-
-  resize();
-  window.addEventListener('resize',resize,{passive:true});
-  render();
-  requestAnimationFrame(tick);
+  resize(); window.addEventListener('resize',resize,{passive:true}); render(); requestAnimationFrame(tick);
   requestAnimationFrame(()=>document.getElementById('linkCards').classList.add('is-ready'));
 })();
 </script>
