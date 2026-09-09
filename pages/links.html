@@ -8,8 +8,6 @@
 </head>
 <body>
 <main class="link-page">
-  <div class="arrival-particles" aria-hidden="true"></div>
-  <div class="orbit-light-particles" aria-hidden="true"></div>
   <div class="link-card-orbit" id="linkCardOrbit" aria-label="Links card orbit">
     <section class="link-cards" id="linkCards" aria-label="Links">
       <article class="link-card-position" data-index="0"><article class="link-card" data-link-id="link-01" tabindex="0" aria-label="Link card 1"><div class="link-card-inner"><div class="link-card-face link-card-back"><img class="card-image" data-card-back alt=""></div><div class="link-card-face link-card-front"><img class="card-image" data-card-front alt=""></div></div></article></article>
@@ -31,23 +29,9 @@
 </main>
 <script>
 (()=>{
-  const field=document.querySelector('.arrival-particles');
-  const lightField=document.querySelector('.orbit-light-particles');
-  const count=150;
-  for(let i=0;i<count;i++){
-    const p=document.createElement('i'); p.className='arrival-particle';
-    const progress=i/(count-1), x=108-(progress*145)+((Math.random()-.5)*8), y=(Math.random()-.5)*300;
-    p.style.setProperty('--start-x',`${x}vw`); p.style.setProperty('--start-y',`${y}px`);
-    p.style.setProperty('--drift-x',`${35+Math.random()*110}px`); p.style.setProperty('--drift-y',`${(Math.random()-.5)*90}px`);
-    p.style.setProperty('--delay',`${progress*.7+Math.random()*.18}s`); p.style.setProperty('--size',`${1+Math.random()*3}px`);
-    p.style.setProperty('--duration','3600s');
-    field.appendChild(p);
-  }
-
   const cards=[...document.querySelectorAll('.link-card-position')];
   const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   let angle=0, speed=0.018, lastTime=performance.now(), radius=0;
-  const lightInterval=50;
 
   const setImage=(img,path)=>{ if(!path)return; img.src=path; img.addEventListener('error',()=>img.removeAttribute('src'),{once:true}); };
   document.querySelectorAll('.link-card').forEach(card=>{
@@ -75,19 +59,6 @@
     });
   };
 
-  // 회전 중인 모든 앞쪽 카드에서 1/20초마다 빛 알갱이 하나를 방출한다.
-  const emitLightParticle=()=>{
-    if(reduceMotion.matches || speed<=0.00005) return;
-    cards.forEach(wrapper=>{
-      if(wrapper.style.visibility==='hidden') return;
-      const card=wrapper.querySelector('.link-card'), rect=card.getBoundingClientRect(), particle=document.createElement('i');
-      particle.className='orbit-light-particle'; particle.style.left=`${rect.left+rect.width/2}px`; particle.style.top=`${rect.top+rect.height/2}px`;
-      particle.style.setProperty('--drift-x',`${(Math.random()-.5)*70}px`); particle.style.setProperty('--drift-y',`${(Math.random()-.5)*70}px`);
-      particle.style.setProperty('--particle-size',`${0.8+Math.random()*1.8}px`); lightField.appendChild(particle);
-      window.setTimeout(()=>particle.remove(),3000);
-    });
-  };
-
   const tick=(now)=>{
     const dt=Math.min((now-lastTime)/16.6667,3); lastTime=now;
     const hovered=document.querySelector('.link-card.is-hovered');
@@ -96,7 +67,6 @@
   };
   resize(); window.addEventListener('resize',resize,{passive:true}); render(); requestAnimationFrame(tick);
   requestAnimationFrame(()=>document.getElementById('linkCards').classList.add('is-ready'));
-  window.setInterval(emitLightParticle,lightInterval);
 })();
 </script>
 </body>
