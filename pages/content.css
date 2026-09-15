@@ -30,7 +30,8 @@ body {
 }
 
 button,
-a { font: inherit; }
+a,
+input { font: inherit; }
 
 .arcade-shell {
   width: min(1440px, calc(100% - 56px));
@@ -58,9 +59,7 @@ a { font: inherit; }
   letter-spacing: .14em;
 }
 
-.header-copy {
-  padding: 28px 0 30px;
-}
+.header-copy { padding: 28px 0 30px; }
 
 .eyebrow,
 .panel-kicker,
@@ -68,7 +67,8 @@ a { font: inherit; }
 .game-index,
 .stat-label,
 .control-hint,
-.slot-label {
+.slot-label,
+.sensitivity-control > span {
   color: var(--cyan);
   font-size: 8px;
   letter-spacing: .16em;
@@ -217,7 +217,7 @@ a { font: inherit; }
 }
 
 .panel-description {
-  max-width: 390px;
+  max-width: 430px;
   color: var(--muted);
   font-size: 10px;
   line-height: 1.7;
@@ -231,16 +231,22 @@ a { font: inherit; }
   border: 1px solid var(--line);
 }
 
+.breach-stats { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
 .stat {
+  min-width: 0;
   padding: 11px 14px;
   border-right: 1px solid var(--line);
 }
+
 .stat:last-child { border-right: 0; }
+
 .stat-value {
   display: block;
   margin-top: 5px;
   font-size: 17px;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .primary-action,
@@ -255,6 +261,12 @@ a { font: inherit; }
   font-size: 9px;
 }
 
+.secondary-action {
+  border-color: rgba(105,119,138,.32);
+  background: rgba(105,119,138,.035);
+  color: var(--muted);
+}
+
 .primary-action:hover,
 .primary-action:focus-visible,
 .secondary-action:hover,
@@ -262,6 +274,7 @@ a { font: inherit; }
   outline: none;
   border-color: var(--cyan);
   background: rgba(73,214,255,.12);
+  color: var(--text);
 }
 
 .primary-action:disabled,
@@ -278,6 +291,15 @@ a { font: inherit; }
   margin-bottom: 14px;
 }
 
+.breach-toolbar { align-items: flex-end; }
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
 .game-message {
   min-height: 18px;
   color: var(--muted);
@@ -286,53 +308,122 @@ a { font: inherit; }
 }
 
 /* Archive Breach */
-.breach-board {
+.sensitivity-control {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: auto 82px;
+  align-items: center;
+  gap: 5px 10px;
+  margin-left: auto;
+}
+
+.sensitivity-control input {
+  width: 82px;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  outline: none;
+  background: rgba(3,8,13,.72);
+  color: var(--text);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sensitivity-control input:focus {
+  border-color: rgba(73,214,255,.55);
+}
+
+.sensitivity-control input:disabled { opacity: .55; }
+
+.sensitivity-control small {
+  grid-column: 1 / -1;
+  color: rgba(105,119,138,.7);
+  font-size: 8px;
+  letter-spacing: .035em;
+}
+
+.breach-recommendation {
+  min-height: 38px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid rgba(73,214,255,.38);
+  background: rgba(73,214,255,.025);
+  color: var(--muted);
+  font-size: 8px;
+  line-height: 1.6;
+  letter-spacing: .06em;
+}
+
+.breach-recommendation strong {
+  color: var(--cyan);
+  font-weight: 500;
+}
+
+.breach-board {
+  height: clamp(410px, 46vw, 570px);
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
   user-select: none;
+  cursor: crosshair;
+  background-color: rgba(3,8,13,.7);
+  background-image:
+    linear-gradient(to right, rgba(73,214,255,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(73,214,255,.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(73,214,255,.025), transparent 65%);
+  background-size: 10% 100%, 100% 12.5%, auto;
+}
+
+.breach-board.false-hit {
+  box-shadow: inset 0 0 0 1px rgba(255,95,115,.34);
 }
 
 .breach-node {
   position: relative;
-  aspect-ratio: 1.15;
+  width: clamp(18px, 45%, 46px);
+  aspect-ratio: 1;
+  padding: 0;
   border: 1px solid rgba(73,214,255,.12);
-  background:
-    linear-gradient(90deg, transparent 49%, rgba(73,214,255,.025) 50%, transparent 51%),
-    linear-gradient(transparent 49%, rgba(73,214,255,.025) 50%, transparent 51%),
-    rgba(4, 10, 16, .66);
-  color: rgba(105,119,138,.35);
-  cursor: default;
-  transition: transform 90ms ease, border-color 90ms ease, background 90ms ease;
+  border-radius: 50%;
+  background: rgba(73,214,255,.018);
+  color: transparent;
+  cursor: crosshair;
+  opacity: .2;
+  transition: transform 80ms ease, border-color 80ms ease, background 80ms ease, opacity 80ms ease;
 }
 
-.breach-node::before,
-.breach-node::after {
+.breach-node::before {
   content: "";
   position: absolute;
-  width: 9px;
-  height: 9px;
-  border-color: rgba(73,214,255,.25);
+  inset: 31%;
+  border: 1px solid rgba(73,214,255,.18);
+  border-radius: 50%;
 }
-.breach-node::before { left: 6px; top: 6px; border-left: 1px solid; border-top: 1px solid; }
-.breach-node::after { right: 6px; bottom: 6px; border-right: 1px solid; border-bottom: 1px solid; }
 
 .breach-node.corrupt {
-  border-color: rgba(255,95,115,.75);
-  background: rgba(255,95,115,.09);
-  color: #ff8b99;
-  cursor: crosshair;
-  box-shadow: inset 0 0 28px rgba(255,95,115,.06);
-  animation: breachPulse .62s ease-in-out infinite alternate;
+  border-color: rgba(255,95,115,.92);
+  background: radial-gradient(circle, rgba(255,155,166,.95) 0 11%, rgba(255,95,115,.24) 12% 42%, rgba(255,95,115,.08) 43% 100%);
+  color: #ffd8dd;
+  opacity: 1;
+  box-shadow: 0 0 18px rgba(255,95,115,.32), inset 0 0 12px rgba(255,95,115,.14);
+  animation: breachPulse .42s ease-in-out infinite alternate;
 }
 
-.breach-node.corrupt::before,
-.breach-node.corrupt::after { border-color: rgba(255,95,115,.65); }
+.breach-node.corrupt::before {
+  inset: 23%;
+  border-color: rgba(255,220,225,.7);
+}
 
 .breach-node.cleaned {
-  border-color: rgba(127,255,194,.6);
-  background: rgba(127,255,194,.06);
-  color: var(--success);
+  border-color: rgba(127,255,194,.72);
+  background: radial-gradient(circle, rgba(127,255,194,.85) 0 9%, rgba(127,255,194,.12) 10% 100%);
+  opacity: 1;
+  box-shadow: 0 0 14px rgba(127,255,194,.18);
 }
 
 .node-code {
@@ -340,16 +431,20 @@ a { font: inherit; }
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  font-size: 9px;
-  letter-spacing: .1em;
+  font-size: 0;
 }
 
 @keyframes breachPulse {
-  from { transform: scale(.99); }
-  to { transform: scale(1.015); }
+  from { transform: scale(.92); }
+  to { transform: scale(1.08); }
 }
 
 /* Rhythm */
+.rhythm-play-column {
+  width: 25%;
+  margin: 0 auto;
+}
+
 .rhythm-wrap {
   position: relative;
   overflow: hidden;
@@ -357,12 +452,50 @@ a { font: inherit; }
   border: 1px solid var(--line);
   background:
     linear-gradient(to bottom, rgba(73,214,255,.025), transparent 35%),
-    rgba(3, 8, 13, .7);
+    rgba(3, 8, 13, .78);
+  isolation: isolate;
+}
+
+.rhythm-starfield {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rhythm-star {
+  position: absolute;
+  width: var(--star-size, 3px);
+  height: var(--star-size, 3px);
+  border-radius: 50%;
+  background: rgba(238,245,255,.95);
+  box-shadow: 0 0 8px rgba(73,214,255,.72), 0 0 16px rgba(73,214,255,.18);
+  animation: rhythmStarTwinkle var(--twinkle-time, 1.8s) ease-in-out infinite alternate;
+}
+
+.rhythm-star::before,
+.rhythm-star::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(238,245,255,.55);
+  transform: translate(-50%, -50%);
+}
+
+.rhythm-star::before { width: calc(var(--star-size, 3px) * 3); height: 1px; }
+.rhythm-star::after { width: 1px; height: calc(var(--star-size, 3px) * 3); }
+
+@keyframes rhythmStarTwinkle {
+  from { opacity: .35; transform: scale(.7); }
+  to { opacity: 1; transform: scale(1.2); }
 }
 
 .rhythm-lanes {
   position: absolute;
   inset: 0;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
@@ -371,6 +504,7 @@ a { font: inherit; }
   position: relative;
   border-right: 1px solid var(--line);
 }
+
 .rhythm-lane:last-child { border-right: 0; }
 
 .lane-label {
@@ -385,6 +519,7 @@ a { font: inherit; }
 
 .hit-line {
   position: absolute;
+  z-index: 3;
   left: 0;
   right: 0;
   bottom: 48px;
@@ -399,7 +534,7 @@ a { font: inherit; }
   right: 12%;
   height: 12px;
   border: 1px solid rgba(73,214,255,.8);
-  background: rgba(73,214,255,.22);
+  background: rgba(73,214,255,.28);
   box-shadow: 0 0 12px rgba(73,214,255,.16);
   pointer-events: none;
 }
@@ -410,18 +545,19 @@ a { font: inherit; }
 .rhythm-controls {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-top: 8px;
 }
 
 .lane-button {
-  min-height: 48px;
+  min-height: 44px;
+  padding: 0;
   border: 1px solid var(--line);
   background: rgba(3,8,13,.72);
   color: var(--text);
   cursor: pointer;
-  font-size: 12px;
-  letter-spacing: .12em;
+  font-size: 11px;
+  letter-spacing: .08em;
 }
 
 .lane-button:active,
@@ -442,6 +578,13 @@ a { font: inherit; }
 
 .footer-line { flex: 1; height: 1px; background: var(--line); }
 
+@media (max-width: 1050px) {
+  .breach-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .breach-stats .stat:nth-child(3n) { border-right: 0; }
+  .breach-stats .stat:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+  .rhythm-play-column { width: 34%; }
+}
+
 @media (max-width: 860px) {
   .arcade-shell { width: min(100% - 28px, 760px); }
   .arcade-header { grid-template-columns: 1fr; }
@@ -459,6 +602,7 @@ a { font: inherit; }
   .game-select { margin: 0; }
   .reserved-slot { grid-column: 1 / -1; }
   .game-stage { padding: 24px 0; }
+  .rhythm-play-column { width: 42%; }
 }
 
 @media (max-width: 560px) {
@@ -467,12 +611,21 @@ a { font: inherit; }
   .reserved-slot { grid-column: auto; }
   .panel-head { flex-direction: column; }
   .panel-description { text-align: left; }
-  .game-stats { grid-template-columns: repeat(2, 1fr); }
-  .stat:nth-child(2) { border-right: 0; }
-  .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-  .breach-board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .rhythm-wrap { height: 330px; }
+  .game-stats,
+  .breach-stats { grid-template-columns: repeat(2, 1fr); }
+  .game-stats .stat,
+  .breach-stats .stat { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .game-stats .stat:nth-child(even),
+  .breach-stats .stat:nth-child(even) { border-right: 0; }
+  .game-stats .stat:nth-last-child(-n+2),
+  .breach-stats .stat:nth-last-child(-n+2) { border-bottom: 0; }
+  .breach-board { height: 420px; }
+  .breach-node { width: clamp(17px, 55%, 30px); }
+  .breach-toolbar,
   .game-toolbar { align-items: flex-start; flex-direction: column; }
+  .sensitivity-control { margin-left: 0; }
+  .rhythm-play-column { width: min(88%, 320px); }
+  .rhythm-wrap { height: 330px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
