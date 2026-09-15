@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contents | Pluto Archive</title>
+  <link rel="stylesheet" href="content.css">
+</head>
+<body>
+  <main class="arcade-shell">
+    <header class="arcade-header">
+      <a class="back-link" href="../index.html">← ARCHIVE</a>
+
+      <div class="header-copy">
+        <span class="eyebrow">PLUTO ARCHIVE / INTERACTIVE CONTENTS</span>
+        <h1>ARCADE</h1>
+        <p>Small system tests, signal games and archive anomalies.</p>
+      </div>
+
+      <div class="system-status">
+        <i></i>
+        <span>SIMULATION NODE / READY</span>
+      </div>
+    </header>
+
+    <section class="arcade-layout">
+      <aside class="game-library" aria-label="Game library">
+        <div class="library-heading">
+          <strong>GAME LIBRARY</strong>
+          <span>02 ACTIVE</span>
+        </div>
+
+        <button class="game-select active" type="button" data-game="breach" aria-pressed="true">
+          <span>
+            <span class="game-tag">SYSTEM / REACTION</span>
+            <strong>ARCHIVE BREACH</strong>
+          </span>
+          <span class="game-index">01</span>
+          <small>Corrupted nodes appear across the archive. Restore them before the breach spreads.</small>
+        </button>
+
+        <button class="game-select" type="button" data-game="rhythm" aria-pressed="false">
+          <span>
+            <span class="game-tag">SIGNAL / RHYTHM</span>
+            <strong>RHYTHM SIGNAL</strong>
+          </span>
+          <span class="game-index">02</span>
+          <small>Synchronize with a four-lane transmission using D, F, J, K or the touch controls.</small>
+        </button>
+
+        <div class="reserved-slot">
+          <span><span class="slot-label">SLOT 03+</span><br><br>RESERVED FOR FUTURE GAMES</span>
+        </div>
+      </aside>
+
+      <div class="game-stage">
+        <section class="game-panel active" data-panel="breach" aria-labelledby="breachTitle">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="panel-kicker">01 / SYSTEM RECOVERY TEST</span>
+              <h2 id="breachTitle">ARCHIVE BREACH</h2>
+            </div>
+            <p class="panel-description">
+              붉게 변한 오류 노드를 제한 시간 안에 제거하세요. 놓치거나 정상 노드를 잘못 누르면 점수가 감소하고 콤보가 초기화됩니다.
+            </p>
+          </div>
+
+          <div class="game-stats" aria-live="polite">
+            <div class="stat"><span class="stat-label">SCORE</span><span id="breachScore" class="stat-value">00000</span></div>
+            <div class="stat"><span class="stat-label">COMBO</span><span id="breachCombo" class="stat-value">x0</span></div>
+            <div class="stat"><span class="stat-label">TIME</span><span id="breachTime" class="stat-value">30s</span></div>
+            <div class="stat"><span class="stat-label">BEST</span><span id="breachBest" class="stat-value">00000</span></div>
+          </div>
+
+          <div class="game-toolbar">
+            <button id="breachStart" class="primary-action" type="button">START TEST</button>
+            <span id="breachMessage" class="game-message">STANDBY / TRACE CORRUPTED NODES</span>
+          </div>
+
+          <div id="breachBoard" class="breach-board" aria-label="Archive breach node grid"></div>
+        </section>
+
+        <section class="game-panel" data-panel="rhythm" aria-labelledby="rhythmTitle">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="panel-kicker">02 / SIGNAL SYNCHRONIZATION</span>
+              <h2 id="rhythmTitle">RHYTHM SIGNAL</h2>
+            </div>
+            <p class="panel-description">
+              신호가 판정선에 도착하는 순간 해당 레인을 입력하세요. 키보드는 D / F / J / K, 모바일에서는 하단 버튼을 사용합니다.
+            </p>
+          </div>
+
+          <div class="game-stats" aria-live="polite">
+            <div class="stat"><span class="stat-label">SCORE</span><span id="rhythmScore" class="stat-value">00000</span></div>
+            <div class="stat"><span class="stat-label">COMBO</span><span id="rhythmCombo" class="stat-value">x0</span></div>
+            <div class="stat"><span class="stat-label">TIME</span><span id="rhythmTime" class="stat-value">30s</span></div>
+            <div class="stat"><span class="stat-label">ACCURACY</span><span id="rhythmAccuracy" class="stat-value">100%</span></div>
+          </div>
+
+          <div class="game-toolbar">
+            <button id="rhythmStart" class="primary-action" type="button">START SIGNAL</button>
+            <span id="rhythmMessage" class="game-message">STANDBY / D F J K</span>
+          </div>
+
+          <div class="rhythm-wrap" aria-label="Four lane rhythm game">
+            <div class="rhythm-lanes">
+              <div class="rhythm-lane"><span class="lane-label">D</span></div>
+              <div class="rhythm-lane"><span class="lane-label">F</span></div>
+              <div class="rhythm-lane"><span class="lane-label">J</span></div>
+              <div class="rhythm-lane"><span class="lane-label">K</span></div>
+            </div>
+            <div class="hit-line"></div>
+          </div>
+
+          <div class="rhythm-controls" aria-label="Touch rhythm controls">
+            <button class="lane-button" type="button">D</button>
+            <button class="lane-button" type="button">F</button>
+            <button class="lane-button" type="button">J</button>
+            <button class="lane-button" type="button">K</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <footer class="arcade-footer">
+      <span>INTERACTIVE ARCHIVE / 02 MODULES</span>
+      <span class="footer-line"></span>
+      <span>PLUTO // 2026</span>
+    </footer>
+  </main>
+
+  <script src="content.js" defer></script>
+</body>
+</html>
