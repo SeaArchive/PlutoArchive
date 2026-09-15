@@ -119,6 +119,7 @@ body {
 
 .coordinates {
   display: flex;
+  align-items: center;
   gap: 30px;
   color: var(--muted);
   font-size: 8px;
@@ -137,6 +138,20 @@ body {
   border-radius: 50%;
   background: var(--cyan);
   box-shadow: 0 0 8px var(--cyan);
+}
+
+.owner-login {
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.owner-login:hover,
+.owner-login:focus-visible {
+  color: var(--cyan);
+  outline: none;
 }
 
 .hero {
@@ -467,6 +482,14 @@ body {
 
   .coordinates > span:first-child {
     display: none;
+  }
+
+  .coordinates {
+    gap: 14px;
+  }
+
+  .owner-login {
+    padding-left: 12px;
   }
 
   .hero {
