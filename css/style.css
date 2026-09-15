@@ -104,7 +104,7 @@ body {
   color: var(--text);
   text-decoration: none;
   font-size: 10px;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.18em;
 }
 
 .brand-mark {
@@ -120,7 +120,7 @@ body {
   gap: 30px;
   color: var(--muted);
   font-size: 8px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
 }
 
 .signal {
@@ -157,7 +157,7 @@ body {
   margin-bottom: 18px;
   color: var(--cyan);
   font-size: 9px;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.22em;
   opacity: 0.7;
 }
 
@@ -166,24 +166,24 @@ body {
   font-size: clamp(70px, 10vw, 148px);
   font-weight: 200;
   line-height: 0.75;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.045em;
   text-shadow: 0 0 40px rgba(73, 214, 255, 0.08);
 }
 
 .archive-title {
-  margin: 20px 0 0 7px;
+  margin: 20px 0 0 3px;
   color: rgba(238, 245, 255, 0.72);
   font-size: clamp(14px, 1.4vw, 21px);
-  letter-spacing: 0.65em;
+  letter-spacing: 0.32em;
 }
 
 .description {
   max-width: 360px;
-  margin: 32px 0 0 7px;
+  margin: 32px 0 0 3px;
   color: var(--muted);
   font-size: 10px;
   line-height: 1.9;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.045em;
 }
 
 .system {
@@ -298,7 +298,7 @@ body {
   white-space: nowrap;
   color: var(--text);
   font-size: 8px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
 }
 
 .pluto-label span {
@@ -380,7 +380,7 @@ body {
   grid-column: 1 / -1;
   color: rgba(105, 119, 138, 0.55);
   font-size: 8px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
 }
 
 .nav-copy {
@@ -393,13 +393,13 @@ body {
 .nav-copy strong {
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
 }
 
 .nav-copy small {
   color: var(--muted);
   font-size: 8px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.035em;
 }
 
 .nav-arrow {
@@ -421,7 +421,7 @@ body {
   gap: 16px;
   color: rgba(105, 119, 138, 0.48);
   font-size: 7px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.14em;
 }
 
 .footer-rule {
