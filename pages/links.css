@@ -1,69 +1,349 @@
-/* 모든 요소의 width/height 계산에 padding과 border를 포함시킨다. */
-*{box-sizing:border-box}
-/* 페이지 전체를 화면 크기로 고정하고 스크롤바를 제거한다. */
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
-/* 링크 페이지에서 사용할 기본 글꼴과 글자색이다. */
-body{font-family:Arial,sans-serif;color:#fff}
+@charset "UTF-8";
 
-/* 링크 카드 화면 전체를 고정하고 중앙 정렬한다. */
-/* perspective는 중앙을 기준으로 카드의 3D 깊이를 표현하기 위한 카메라 거리다. */
-.link-page{position:fixed;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;isolation:isolate;background:transparent;perspective:1400px;perspective-origin:50% 50%}
-/* 실제 배경을 순수한 검정으로 유지한다. */
-.link-page::before{content:"";position:fixed;inset:0;background:#000;z-index:-999;pointer-events:none}
-
-/* 모든 카드의 공전 중심점을 화면 정중앙에 둔다. */
-/* width/height가 0인 이유는 이 요소 자체가 크기를 가지는 박스가 아니라 3D 기준점이기 때문이다. */
-.link-card-orbit{position:absolute;left:50%;top:50%;width:0;height:0;z-index:10;transform-style:preserve-3d;transform-origin:0 0;pointer-events:none}
-/* 14장의 카드를 하나의 3D 공간에 배치하는 레이어다. */
-.link-cards{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d;transform-origin:0 0;pointer-events:none}
-
-/* 카드의 공전 위치를 담당하는 바깥쪽 요소다. */
-/* JavaScript가 translate3d와 rotateY를 이 요소에 직접 적용한다. */
-.link-card-position{position:absolute;left:0;top:0;width:180px;height:270px;transform-style:preserve-3d;transform-origin:50% 50%;pointer-events:none;will-change:transform}
-/* 실제 카드 본체다. */
-/* transform-style:preserve-3d를 통해 카드 앞/뒤 면을 3D로 유지한다. */
-.link-card{position:relative;width:100%;height:100%;border:0;background:transparent;transform-style:preserve-3d;perspective:1000px;pointer-events:auto;cursor:pointer;outline:none;transform:scale(var(--depth-scale,1)) rotateY(0deg);transition:transform .45s ease,filter .45s ease;will-change:transform}
-/* 마우스 호버, 키보드 포커스 또는 JavaScript의 is-hovered 상태에서 카드를 뒤집고 확대한다. */
-/* rotateY(180deg)는 카드 자체를 Y축으로 반 바퀴 회전시키며, filter는 발광 효과다. */
-.link-card:hover,.link-card:focus-visible,.link-card.is-hovered{transform:scale(calc(var(--depth-scale,1) * 1.12)) rotateY(180deg);filter:drop-shadow(0 0 10px rgba(79,216,255,.55)) drop-shadow(0 0 26px rgba(79,216,255,.28))}
-/* 키보드로 포커스한 카드가 어디인지 확인할 수 있도록 외곽선을 표시한다. */
-.link-card:focus-visible{outline:1px solid rgba(79,216,255,.9);outline-offset:6px}
-
-/* 카드 앞면과 뒷면을 함께 포함하는 3D 내부 레이어다. */
-.link-card-inner{position:absolute;inset:0;transform-style:preserve-3d}
-/* 카드의 앞/뒤 면에 공통으로 적용되는 구조다. */
-/* backface-visibility:hidden으로 뒤집힌 면이 반대 방향에서 비쳐 보이는 것을 막는다. */
-.link-card-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(79,216,255,.45);backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2px}
-/* 카드 뒷면: 검은색을 기본으로 사용한다. */
-.link-card-back{background:#000;box-shadow:inset 0 0 24px rgba(79,216,255,.05),0 0 18px rgba(79,216,255,.12);transform:rotateY(0deg)}
-/* 카드 앞면: 흰색을 사용하고 Y축으로 180도 돌려 뒷면과 반대 방향에 둔다. */
-.link-card-front{background:#fff;color:#000;box-shadow:inset 0 0 20px rgba(0,0,0,.06),0 0 18px rgba(255,255,255,.08);transform:rotateY(180deg)}
-/* 카드 이미지는 카드 전체를 채우며, 기본적으로 숨겨 둔다. */
-.card-image{display:block;width:100%;height:100%;object-fit:cover;opacity:0}
-/* 실제 src가 존재하는 이미지에만 표시 상태를 적용한다. */
-.link-card-face:has(.card-image[src]) .card-image{opacity:1}
-
-/* JavaScript가 inline style로 뒤쪽 카드를 숨기기 때문에 현재는 보조적인 상태 클래스다. */
-.link-card-position.is-behind{visibility:hidden;pointer-events:none}
-
-/* 1100px 이하에서는 카드 크기와 3D 카메라 거리를 줄인다. */
-@media(max-width:1100px){
-  /* 중간 화면에서는 카드 크기를 150×225px로 축소한다. */
-  .link-card-position{width:150px;height:225px}
-  /* 카드가 화면 밖으로 과도하게 퍼지지 않도록 perspective를 줄인다. */
-  .link-page{perspective:1200px;perspective-origin:50% 50%}
+:root {
+  --bg: #020305;
+  --panel: rgba(8, 14, 22, 0.72);
+  --line: rgba(73, 214, 255, 0.16);
+  --line-hot: rgba(73, 214, 255, 0.72);
+  --cyan: #49d6ff;
+  --text: #edf3ff;
+  --muted: #718095;
 }
 
-/* 820px 이하에서는 모바일용 크기와 perspective를 사용한다. */
-@media(max-width:820px){
-  /* 모바일 화면에서 3D 깊이감을 조금 줄인다. */
-  .link-page{perspective:1000px;perspective-origin:50% 50%}
-  /* 모바일에서는 카드 크기를 120×180px로 축소한다. */
-  .link-card-position{width:120px;height:180px}
+* {
+  box-sizing: border-box;
 }
 
-/* 사용자가 운영체제에서 모션 감소를 요청한 경우 카드 전환 애니메이션을 제거한다. */
-@media(prefers-reduced-motion:reduce){
-  /* 카드 뒤집기/확대 전환을 즉시 적용한다. */
-  .link-card{transition:none}
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at 75% 18%, rgba(73, 214, 255, 0.075), transparent 30%),
+    radial-gradient(circle at 18% 80%, rgba(40, 80, 130, 0.08), transparent 34%),
+    #020305;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image:
+    linear-gradient(rgba(73, 214, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(73, 214, 255, 0.025) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+.links-shell {
+  width: min(1320px, calc(100% - 64px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 42px 0 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.links-header {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  align-items: start;
+  gap: 28px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.back-link {
+  width: max-content;
+  padding: 9px 0;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  transition: color 180ms ease;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: var(--cyan);
+}
+
+.header-copy {
+  text-align: center;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--cyan);
+  font-size: 9px;
+  letter-spacing: 0.34em;
+  opacity: 0.68;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: 300;
+  line-height: 0.9;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-shadow: 0 0 30px rgba(73, 214, 255, 0.13);
+}
+
+.header-copy p {
+  margin: 15px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.status {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 9px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 9px var(--cyan);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.link-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 38px;
+  border: 1px solid var(--line);
+  background: var(--line);
+}
+
+.node {
+  --x: 50%;
+  --y: 50%;
+  position: relative;
+  min-height: 150px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  grid-template-rows: auto 1fr;
+  column-gap: 17px;
+  align-items: center;
+  overflow: hidden;
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(3, 7, 12, 0.96);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: nodeIn 420ms ease forwards;
+  animation-delay: var(--delay);
+  transition: background 220ms ease;
+}
+
+.node::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(220px circle at var(--x) var(--y), rgba(73, 214, 255, 0.13), transparent 70%);
+  transition: opacity 220ms ease;
+}
+
+.node::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 0;
+  background: var(--cyan);
+  box-shadow: 0 0 14px rgba(73, 214, 255, 0.7);
+  transition: height 220ms ease;
+}
+
+.node:hover,
+.node:focus-visible {
+  outline: none;
+  background: rgba(6, 15, 24, 0.98);
+}
+
+.node:hover::before,
+.node:focus-visible::before {
+  opacity: 1;
+}
+
+.node:hover::after,
+.node:focus-visible::after {
+  height: 100%;
+}
+
+.node-number {
+  grid-column: 1 / -1;
+  align-self: start;
+  color: rgba(113, 128, 149, 0.48);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+}
+
+.node-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(73, 214, 255, 0.22);
+  color: var(--cyan);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  background: rgba(73, 214, 255, 0.025);
+  transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.node:hover .node-icon,
+.node:focus-visible .node-icon {
+  border-color: var(--line-hot);
+  box-shadow: 0 0 18px rgba(73, 214, 255, 0.12), inset 0 0 14px rgba(73, 214, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.node-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.node-copy strong {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.node-copy small {
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.node-arrow {
+  align-self: center;
+  color: rgba(113, 128, 149, 0.5);
+  font-size: 15px;
+  transition: color 220ms ease, transform 220ms ease;
+}
+
+.node:hover .node-arrow,
+.node:focus-visible .node-arrow {
+  color: var(--cyan);
+  transform: translate(2px, -2px);
+}
+
+.node-featured {
+  background:
+    linear-gradient(135deg, rgba(73, 214, 255, 0.045), transparent 55%),
+    rgba(3, 7, 12, 0.96);
+}
+
+.links-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 25px;
+  color: rgba(113, 128, 149, 0.55);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+.footer-line {
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+@keyframes nodeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 980px) {
+  .links-shell {
+    width: min(100% - 36px, 760px);
+  }
+
+  .links-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .header-copy {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 20px;
+  }
+
+  .link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .links-shell {
+    width: calc(100% - 24px);
+    padding-top: 24px;
+  }
+
+  .links-header {
+    gap: 12px;
+    padding-bottom: 24px;
+  }
+
+  .link-grid {
+    grid-template-columns: 1fr;
+    margin-top: 24px;
+  }
+
+  .node {
+    min-height: 116px;
+    padding: 17px;
+  }
+
+  .links-footer {
+    padding: 20px 0 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
