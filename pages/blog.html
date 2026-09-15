@@ -35,6 +35,7 @@
         <div class="game-hud">
           <span>BGM <strong id="volumeText">0%</strong></span>
           <span>DIST <strong id="distanceText">-- TILE</strong></span>
+          <span>RITUAL <strong id="ritualText">0%</strong></span>
           <span class="hud-spacer"></span>
           <button id="audioToggle" class="audio-toggle" type="button">BGM / ON</button>
         </div>
@@ -68,6 +69,13 @@
           <div class="proximity-label"><span>FAR</span><span>NEAR</span></div>
         </section>
 
+        <section class="info-card ritual-card">
+          <h3>CENTRAL RESONANCE</h3>
+          <p id="ritualState">중앙 원 내부에서 머무르면 방주의 숨겨진 문양이 조금씩 반응합니다.</p>
+          <div class="ritual-meter" aria-hidden="true"><i id="ritualBar"></i></div>
+          <div class="proximity-label"><span>DORMANT</span><span>COMPLETE</span></div>
+        </section>
+
         <section class="info-card">
           <h3>ARCHIVE ROOMS</h3>
           <p>
@@ -91,7 +99,7 @@
       <h2 id="loreTitle">14TH LULLABY</h2>
       <p>
         방주의 중심에 남아 있는 악보. 이 오브젝트에 가까워질수록 공간 전체에 흐르는 자장가가 더 크게 들립니다.
-        현재 악보의 표기는 원작의 실제 음표 배열을 복제하지 않은 상징적인 도트 악보입니다.
+        오래 머무르면 중앙 원이 다른 신호에 반응하는 것처럼 보입니다.
       </p>
       <button id="loreClose" class="lore-close" type="button">CLOSE / ESC</button>
     </div>
