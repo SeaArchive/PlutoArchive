@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | Pluto Archive</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <main class="gallery-shell">
+    <header class="gallery-header">
+      <a class="back-link" href="../index.html">← ARCHIVE</a>
+
+      <div class="header-copy">
+        <span class="eyebrow">PLUTO ARCHIVE / VISUAL RECORDS</span>
+        <h1>GALLERY</h1>
+        <p>등록된 이미지와 기록을 보관하는 시각 아카이브입니다.</p>
+      </div>
+
+      <div id="ownerZone" class="owner-zone" aria-live="polite"></div>
+    </header>
+
+    <section class="gallery-meta" aria-label="Gallery status">
+      <span>VISUAL ARCHIVE</span>
+      <span class="meta-line"></span>
+      <span id="itemCount">00 VISUALS</span>
+    </section>
+
+    <section id="galleryGrid" class="gallery-grid" aria-live="polite">
+      <div class="loading-state">
+        <div>
+          <strong>LOADING ARCHIVE</strong>
+          <span>이미지 기록을 불러오는 중입니다.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="uploadDialog" class="upload-dialog">
+    <section class="upload-panel">
+      <header class="dialog-head">
+        <div>
+          <span>OWNER ACCESS / NEW VISUAL</span>
+          <h2>UPLOAD</h2>
+        </div>
+        <button id="uploadCloseButton" class="icon-button" type="button" aria-label="업로드 창 닫기">×</button>
+      </header>
+
+      <form id="uploadForm" class="upload-form" novalidate>
+        <label class="field">
+          <span>TITLE</span>
+          <input id="galleryTitle" type="text" maxlength="120" autocomplete="off" required placeholder="제목">
+        </label>
+
+        <label class="field">
+          <span>DESCRIPTION</span>
+          <textarea id="galleryDescription" maxlength="3000" placeholder="설명"></textarea>
+        </label>
+
+        <label id="fileDrop" class="file-drop">
+          <input id="galleryImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" required>
+          <div id="filePlaceholder" class="file-placeholder">
+            <strong>SELECT IMAGE</strong>
+            <span>클릭하거나 이미지를 이곳에 놓으세요 · 최대 15MB</span>
+          </div>
+          <img id="filePreview" class="file-preview" alt="업로드 이미지 미리보기" hidden>
+        </label>
+
+        <div class="form-footer">
+          <p id="uploadStatus" class="upload-status" role="status" aria-live="polite"></p>
+          <button id="publishButton" class="publish-button" type="submit">PUBLISH</button>
+        </div>
+      </form>
+    </section>
+  </dialog>
+
+  <dialog id="lightboxDialog" class="lightbox-dialog">
+    <section class="lightbox-layout">
+      <div class="lightbox-media">
+        <img id="lightboxImage" alt="">
+      </div>
+      <aside class="lightbox-info">
+        <button id="lightboxClose" class="icon-button" type="button" aria-label="이미지 보기 닫기">×</button>
+        <span id="lightboxIndex" class="lightbox-index">VISUAL / 01</span>
+        <h2 id="lightboxTitle" class="lightbox-title"></h2>
+        <p id="lightboxDescription" class="lightbox-description"></p>
+        <span id="lightboxDate" class="lightbox-date"></span>
+      </aside>
+    </section>
+  </dialog>
+
+  <script type="module" src="../js/gallery.js"></script>
+</body>
+</html>
