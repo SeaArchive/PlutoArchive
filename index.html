@@ -1,26 +1,132 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pluto Archive</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pluto Archive</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="background"><div id="stars"></div><div id="nebula"></div><div id="vignette"></div></div>
-<main id="universe"><div id="camera">
-<section id="core">
-<div class="core-ring core-ring-1"></div><div class="core-ring core-ring-2"></div><div class="core-ring core-ring-3"></div>
-<div id="core-center"><h1>PLUTO</h1><p>ARCHIVE</p></div>
-</section>
-<section class="orbit" data-radius="350" data-speed="0.08" data-tilt="-12">
-<div class="planet-wrapper" data-name="Links" data-link="pages/links.html" data-angle="80" data-size="74" data-spin-speed="0.35" data-orbit-speed="0.65" data-satellite-angle="0" data-satellite-speed="0.42" data-satellite-radius="78" data-satellite-depth="52" data-satellite2-angle="145" data-satellite2-speed="0.34" data-satellite2-radius="48" data-satellite2-depth="34">
-<button class="planet"><div class="planet-highlight"></div></button>
-<div class="link-satellite-orbit" aria-hidden="true"><div class="link-satellite"></div></div>
-<div class="link-satellite-orbit link-satellite-orbit-2" aria-hidden="true"><div class="link-satellite link-satellite-square"></div></div>
-<div class="planet-label">Links</div>
-</div>
-</section>
-</div></main>
-<script src="js/other.js"></script><script src="js/mouse.js"></script><script src="js/camera.js"></script><script src="js/planet.js"></script><script src="js/orbit.js"></script><script src="js/satellite.js"></script><script src="js/engine.js"></script><script src="js/main.js"></script>
-</body></html>
+  <div class="space" aria-hidden="true">
+    <div class="stars stars-a"></div>
+    <div class="stars stars-b"></div>
+    <div class="nebula"></div>
+  </div>
+
+  <main class="archive-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"></span>
+        <span>PLUTO ARCHIVE</span>
+      </a>
+
+      <div class="coordinates">
+        <span>SECTOR / PA-01</span>
+        <span class="signal"><i></i> SIGNAL STABLE</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="kicker">PERSONAL DIGITAL ARCHIVE</span>
+        <h1>PLUTO</h1>
+        <p class="archive-title">ARCHIVE</p>
+        <p class="description">
+          A private orbit of records, projects, fragments and external nodes.
+        </p>
+      </div>
+
+      <div class="system" aria-hidden="true">
+        <div class="orbit orbit-outer"></div>
+        <div class="orbit orbit-middle"></div>
+        <div class="orbit orbit-inner"></div>
+        <div class="axis axis-x"></div>
+        <div class="axis axis-y"></div>
+
+        <div class="pluto">
+          <div class="pluto-glow"></div>
+          <div class="pluto-body"></div>
+          <div class="pluto-label">
+            <strong>PLUTO</strong>
+            <span>134340</span>
+          </div>
+        </div>
+
+        <span class="satellite satellite-one"></span>
+        <span class="satellite satellite-two"></span>
+      </div>
+    </section>
+
+    <nav class="archive-nav" aria-label="Archive sections">
+      <a class="nav-item nav-active" href="pages/links.html">
+        <span class="nav-index">01</span>
+        <span class="nav-copy">
+          <strong>LINKS</strong>
+          <small>External nodes</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+
+      <a class="nav-item" href="pages/gallery.html">
+        <span class="nav-index">02</span>
+        <span class="nav-copy">
+          <strong>GALLERY</strong>
+          <small>Visual records</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+
+      <a class="nav-item" href="pages/project.html">
+        <span class="nav-index">03</span>
+        <span class="nav-copy">
+          <strong>PROJECTS</strong>
+          <small>Active works</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+
+      <a class="nav-item" href="pages/blog.html">
+        <span class="nav-index">04</span>
+        <span class="nav-copy">
+          <strong>LOG</strong>
+          <small>Archive entries</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+
+      <a class="nav-item" href="pages/about.html">
+        <span class="nav-index">05</span>
+        <span class="nav-copy">
+          <strong>ABOUT</strong>
+          <small>Identity file</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+
+      <a class="nav-item" href="pages/contact.html">
+        <span class="nav-index">06</span>
+        <span class="nav-copy">
+          <strong>CONTACT</strong>
+          <small>Transmission</small>
+        </span>
+        <span class="nav-arrow">↗</span>
+      </a>
+    </nav>
+
+    <footer class="footer">
+      <span>ARCHIVE STATUS / ONLINE</span>
+      <span class="footer-rule"></span>
+      <span>PLUTO // 2026</span>
+    </footer>
+  </main>
+
+  <script>
+    const root = document.documentElement;
+
+    window.addEventListener('pointermove', event => {
+      root.style.setProperty('--pointer-x', `${event.clientX}px`);
+      root.style.setProperty('--pointer-y', `${event.clientY}px`);
+    }, { passive: true });
+  </script>
+</body>
+</html>
