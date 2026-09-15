@@ -1,0 +1,247 @@
+@charset "UTF-8";
+
+.space-effects {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translate3d(var(--sky-x, 0px), var(--sky-y, 0px), 0);
+  transition: transform 900ms ease-out;
+}
+
+.spark-star {
+  position: absolute;
+  width: var(--spark-size, 2px);
+  height: var(--spark-size, 2px);
+  border-radius: 50%;
+  background: rgba(235, 248, 255, 0.95);
+  box-shadow:
+    0 0 4px rgba(235, 248, 255, 0.85),
+    0 0 11px rgba(73, 214, 255, 0.38);
+  opacity: 0.18;
+  animation: sparkTwinkle var(--spark-duration, 4s) ease-in-out infinite;
+  animation-delay: var(--spark-delay, 0s);
+}
+
+.spark-star::before,
+.spark-star::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(218, 246, 255, 0.55);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+.spark-star::before {
+  width: 10px;
+  height: 1px;
+}
+
+.spark-star::after {
+  width: 1px;
+  height: 10px;
+}
+
+.spark-star.spark-bright::before,
+.spark-star.spark-bright::after {
+  opacity: 0.55;
+}
+
+.constellation {
+  position: absolute;
+  width: var(--constellation-width, 210px);
+  overflow: visible;
+  color: rgba(94, 202, 239, 0.34);
+  filter: drop-shadow(0 0 5px rgba(73, 214, 255, 0.13));
+  opacity: 0;
+  animation:
+    constellationReveal var(--constellation-cycle, 22s) ease-in-out infinite,
+    constellationDrift var(--constellation-drift, 28s) ease-in-out infinite alternate;
+  animation-delay: var(--constellation-delay, 0s);
+}
+
+.constellation line,
+.constellation polyline {
+  vector-effect: non-scaling-stroke;
+  stroke: currentColor;
+  stroke-width: 0.75;
+  stroke-dasharray: 2 4;
+}
+
+.constellation circle {
+  fill: rgba(225, 247, 255, 0.8);
+  stroke: rgba(73, 214, 255, 0.38);
+  stroke-width: 0.8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: constellationStar 3.6s ease-in-out infinite;
+}
+
+.constellation circle:nth-of-type(2n) {
+  animation-delay: -1.3s;
+}
+
+.constellation circle:nth-of-type(3n) {
+  animation-delay: -2.1s;
+}
+
+.constellation text {
+  fill: rgba(105, 119, 138, 0.46);
+  font: 6px Arial, Helvetica, sans-serif;
+  letter-spacing: 1.4px;
+}
+
+.constellation-orion {
+  left: 3.5vw;
+  top: 13vh;
+  --constellation-width: 190px;
+  --constellation-delay: -4s;
+  --constellation-cycle: 24s;
+  transform: rotate(-8deg);
+}
+
+.constellation-lyra {
+  right: 4vw;
+  top: 11vh;
+  --constellation-width: 150px;
+  --constellation-delay: -13s;
+  --constellation-cycle: 27s;
+  transform: rotate(12deg);
+}
+
+.constellation-cygnus {
+  right: 8vw;
+  bottom: 22vh;
+  --constellation-width: 225px;
+  --constellation-delay: -19s;
+  --constellation-cycle: 31s;
+  transform: rotate(-18deg);
+}
+
+.meteor {
+  position: absolute;
+  left: var(--meteor-x, 50vw);
+  top: var(--meteor-y, 12vh);
+  width: var(--meteor-length, 150px);
+  height: 1px;
+  border-radius: 999px;
+  opacity: 0;
+  transform-origin: right center;
+  transform: rotate(var(--meteor-angle, -32deg)) translate3d(0, 0, 0);
+  background: linear-gradient(90deg, transparent 0%, rgba(113, 222, 255, 0.08) 35%, rgba(221, 248, 255, 0.84) 92%, #ffffff 100%);
+  filter: drop-shadow(0 0 4px rgba(73, 214, 255, 0.55));
+  animation: meteorFall var(--meteor-duration, 1.25s) cubic-bezier(.18,.62,.38,1) forwards;
+}
+
+.meteor::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  box-shadow:
+    0 0 5px #fff,
+    0 0 12px rgba(73, 214, 255, 0.9),
+    0 0 24px rgba(73, 214, 255, 0.4);
+}
+
+.sky-flash {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: 0;
+  background: white;
+  box-shadow: 0 0 8px #fff, 0 0 24px rgba(73, 214, 255, 0.7);
+  animation: skyFlash 1.8s ease-out forwards;
+}
+
+@keyframes sparkTwinkle {
+  0%, 100% {
+    opacity: 0.12;
+    transform: scale(0.72);
+  }
+  45% {
+    opacity: 0.78;
+    transform: scale(1.18);
+  }
+  58% {
+    opacity: 0.42;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes constellationReveal {
+  0%, 13%, 100% { opacity: 0.025; }
+  28%, 66% { opacity: 0.24; }
+  78% { opacity: 0.09; }
+}
+
+@keyframes constellationDrift {
+  from { margin-top: -5px; margin-left: -3px; }
+  to { margin-top: 7px; margin-left: 5px; }
+}
+
+@keyframes constellationStar {
+  0%, 100% { opacity: 0.38; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1.28); }
+}
+
+@keyframes meteorFall {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--meteor-angle, -32deg)) translate3d(0, 0, 0) scaleX(0.3);
+  }
+  9% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--meteor-angle, -32deg)) translate3d(var(--meteor-travel, -62vw), 0, 0) scaleX(1);
+  }
+}
+
+@keyframes skyFlash {
+  0% { opacity: 0; transform: scale(0.4); }
+  18% { opacity: 0.95; transform: scale(1.7); }
+  34% { opacity: 0.22; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(0.45); }
+}
+
+@media (max-width: 720px) {
+  .constellation {
+    opacity: 0 !important;
+  }
+
+  .spark-star:nth-child(n+15) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meteor,
+  .sky-flash {
+    display: none !important;
+  }
+
+  .space-effects,
+  .spark-star,
+  .constellation,
+  .constellation circle {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .constellation {
+    opacity: 0.1;
+  }
+}
