@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hidden Archive | Pluto Archive</title>
+  <style>
+    :root {
+      --bg: #020205;
+      --text: #eeeaf8;
+      --muted: #817b92;
+      --violet: #b299ff;
+      --gold: #dbc990;
+      --line: rgba(178,153,255,.2);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(178,153,255,.08), transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(219,201,144,.025), transparent 56%),
+        #020205;
+    }
+
+    .hidden-shell {
+      position: relative;
+      width: min(820px, 100%);
+      min-height: 520px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      background: rgba(4,4,9,.74);
+      overflow: hidden;
+    }
+
+    .circle,
+    .circle::before,
+    .circle::after {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border: 1px solid rgba(178,153,255,.18);
+      border-radius: 50%;
+      content: "";
+      transform: translate(-50%, -50%);
+    }
+
+    .circle {
+      width: 390px;
+      height: 390px;
+      animation: rotate 34s linear infinite;
+    }
+
+    .circle::before {
+      width: 310px;
+      height: 310px;
+      border-color: rgba(219,201,144,.16);
+    }
+
+    .circle::after {
+      width: 210px;
+      height: 210px;
+      border-style: dashed;
+    }
+
+    .runes {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: rgba(219,201,144,.25);
+      font: 18px Georgia, serif;
+      letter-spacing: 1.4em;
+      transform: translateX(.7em);
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      width: min(520px, calc(100% - 42px));
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--violet);
+      font-size: 8px;
+      letter-spacing: .22em;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(38px, 8vw, 76px);
+      font-weight: 200;
+      letter-spacing: .1em;
+    }
+
+    p {
+      margin: 0 auto;
+      max-width: 420px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.9;
+      letter-spacing: .04em;
+    }
+
+    .divider {
+      width: 110px;
+      height: 1px;
+      margin: 24px auto;
+      background: linear-gradient(90deg, transparent, rgba(219,201,144,.6), transparent);
+    }
+
+    .return-link {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 8px;
+      letter-spacing: .16em;
+    }
+
+    .return-link:hover,
+    .return-link:focus-visible {
+      outline: none;
+      border-color: rgba(178,153,255,.55);
+      color: #fff;
+    }
+
+    @keyframes rotate {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    @media (max-width: 560px) {
+      .hidden-shell { min-height: 460px; }
+      .circle { width: 300px; height: 300px; }
+      .circle::before { width: 238px; height: 238px; }
+      .circle::after { width: 158px; height: 158px; }
+      .runes { font-size: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .circle { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="hidden-shell">
+    <div class="circle" aria-hidden="true"></div>
+    <div class="runes" aria-hidden="true">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>
+
+    <section class="content">
+      <span class="eyebrow">UNNUMBERED RECORD / HIDDEN ARCHIVE</span>
+      <h1>THE OTHER PAGE</h1>
+      <p>
+        The circle answered after a full resonance cycle.
+        This page is not listed among the ordinary archive rooms.
+      </p>
+      <div class="divider"></div>
+      <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
+    </section>
+  </main>
+
+  <script>
+    if (sessionStorage.getItem('plutoArkHiddenUnlocked') !== '1') {
+      window.location.replace('blog.html');
+    }
+  </script>
+</body>
+</html>
