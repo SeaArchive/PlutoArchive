@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log | Pluto Archive</title>
+  <link rel="stylesheet" href="blog.css">
+</head>
+<body>
+  <main class="ark-shell">
+    <header class="ark-header">
+      <a class="back-link" href="../index.html">← ARCHIVE</a>
+
+      <div class="header-copy">
+        <span class="eyebrow">PLUTO ARCHIVE / ARK LOG SYSTEM</span>
+        <h1>PLUTO ARK</h1>
+        <p>Explore the archive with WASD. The central score is the heart of this space.</p>
+      </div>
+
+      <div class="ark-status" aria-label="Ark status">
+        <span>SECTOR</span><strong>ARK-01</strong>
+        <span>POSITION</span><strong>UNKNOWN</strong>
+        <span>SIGNAL</span><strong>STABLE</strong>
+      </div>
+    </header>
+
+    <section class="ark-layout">
+      <div class="game-frame">
+        <div class="canvas-wrap">
+          <canvas id="arkCanvas" tabindex="0" aria-label="Pluto Ark top-down exploration area"></canvas>
+          <div class="game-overlay" aria-hidden="true"></div>
+          <div id="interactionPanel" class="interaction-panel" aria-live="polite"></div>
+        </div>
+
+        <div class="game-hud">
+          <span>BGM <strong id="volumeText">0%</strong></span>
+          <span>DIST <strong id="distanceText">-- TILE</strong></span>
+          <span class="hud-spacer"></span>
+          <button id="audioToggle" class="audio-toggle" type="button">BGM / ON</button>
+        </div>
+
+        <div class="touch-controls" aria-label="Touch movement controls">
+          <button class="up" type="button" data-move="w">W</button>
+          <button class="left" type="button" data-move="a">A</button>
+          <button class="down" type="button" data-move="s">S</button>
+          <button class="right" type="button" data-move="d">D</button>
+        </div>
+      </div>
+
+      <aside class="ark-sidebar">
+        <section class="info-card">
+          <h2>CONTROL</h2>
+          <div class="control-grid">
+            <span class="key">WASD</span><span>MOVE</span>
+            <span class="key">SHIFT</span><span>RUN</span>
+            <span class="key">E</span><span>EXAMINE</span>
+            <span class="key">ESC</span><span>CLOSE</span>
+          </div>
+        </section>
+
+        <section class="info-card">
+          <h3>LULLABY SIGNAL</h3>
+          <p>
+            중앙 홀의 악보에 가까워질수록 자장가가 선명해집니다.
+            첫 이동 입력이나 화면 클릭 이후 음악이 재생됩니다.
+          </p>
+          <div class="proximity-meter" aria-hidden="true"><i id="proximityBar"></i></div>
+          <div class="proximity-label"><span>FAR</span><span>NEAR</span></div>
+        </section>
+
+        <section class="info-card">
+          <h3>ARCHIVE ROOMS</h3>
+          <p>
+            R-01부터 R-04까지의 방은 앞으로 LOG 기록이 연결될 자리입니다.
+            현재는 중앙 방주와 악보 상호작용을 먼저 구현했습니다.
+          </p>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="ark-footer">
+      <span>ARK TRANSPORT SYSTEM / ACTIVE</span>
+      <span class="footer-line"></span>
+      <span>PLUTO // 2026</span>
+    </footer>
+  </main>
+
+  <div id="loreModal" class="lore-modal" role="dialog" aria-modal="true" aria-labelledby="loreTitle">
+    <div class="lore-card">
+      <span class="tag">CENTRAL OBJECT / LULLABY SCORE</span>
+      <h2 id="loreTitle">14TH LULLABY</h2>
+      <p>
+        방주의 중심에 남아 있는 악보. 이 오브젝트에 가까워질수록 공간 전체에 흐르는 자장가가 더 크게 들립니다.
+        현재 악보의 표기는 원작의 실제 음표 배열을 복제하지 않은 상징적인 도트 악보입니다.
+      </p>
+      <button id="loreClose" class="lore-close" type="button">CLOSE / ESC</button>
+    </div>
+  </div>
+
+  <audio id="arkBgm" src="../audio/ark-theme.mp3" loop preload="auto"></audio>
+  <script src="blog.js" defer></script>
+</body>
+</html>
