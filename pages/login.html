@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Login | Pluto Archive</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <main class="login-shell">
+    <a class="back-link" href="../index.html">← ARCHIVE</a>
+
+    <section class="login-panel" aria-labelledby="loginTitle">
+      <div class="login-heading">
+        <span class="eyebrow">PLUTO ARCHIVE / OWNER ACCESS</span>
+        <h1 id="loginTitle">LOGIN</h1>
+        <p>관리자 전용 접근입니다.</p>
+      </div>
+
+      <form id="loginForm" class="login-form" novalidate>
+        <label class="field">
+          <span>EMAIL</span>
+          <input id="email" name="email" type="email" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+          <span>PASSWORD</span>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </label>
+
+        <button id="loginButton" type="submit">AUTHENTICATE</button>
+        <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <script type="module">
+    import { getOwnerSession, signInOwner } from "../js/admin-auth.js";
+
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const button = document.getElementById("loginButton");
+    const status = document.getElementById("loginStatus");
+
+    const params = new URLSearchParams(window.location.search);
+    const requestedNext = params.get("next");
+    const fallbackNext = "../index.html";
+
+    const existing = await getOwnerSession();
+    if (existing.admin) {
+      status.textContent = "OWNER SESSION ACTIVE";
+      button.textContent = "RETURN TO ARCHIVE";
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        window.location.href = requestedNext || fallbackNext;
+      }, { once: true });
+    } else {
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+          status.textContent = "EMAIL과 PASSWORD를 입력하세요.";
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "VERIFYING...";
+        status.textContent = "";
+
+        const result = await signInOwner(email, password);
+
+        if (!result.ok) {
+          passwordInput.value = "";
+          button.disabled = false;
+          button.textContent = "AUTHENTICATE";
+          status.textContent = result.reason === "not_admin"
+            ? "관리자 계정이 아닙니다."
+            : "로그인 정보가 올바르지 않습니다.";
+          return;
+        }
+
+        status.textContent = "ACCESS GRANTED";
+        window.setTimeout(() => {
+          window.location.href = requestedNext || fallbackNext;
+        }, 180);
+      });
+    }
+  </script>
+</body>
+</html>
