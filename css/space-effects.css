@@ -6,7 +6,7 @@
   overflow: hidden;
   pointer-events: none;
   transform: translate3d(var(--sky-x, 0px), var(--sky-y, 0px), 0);
-  transition: transform 900ms ease-out;
+  will-change: transform;
 }
 
 .spark-star {
@@ -14,13 +14,15 @@
   width: var(--spark-size, 2px);
   height: var(--spark-size, 2px);
   border-radius: 50%;
-  background: rgba(235, 248, 255, 0.95);
+  background: rgba(235, 248, 255, 0.96);
   box-shadow:
-    0 0 4px rgba(235, 248, 255, 0.85),
-    0 0 11px rgba(73, 214, 255, 0.38);
+    0 0 4px rgba(235, 248, 255, 0.88),
+    0 0 12px rgba(73, 214, 255, 0.44),
+    0 0 26px rgba(137, 119, 255, calc(.08 * var(--spark-depth, 1)));
   opacity: 0.18;
-  animation: sparkTwinkle var(--spark-duration, 4s) ease-in-out infinite;
+  animation: sparkTwinkle var(--spark-duration, 4s) cubic-bezier(.37,0,.23,1) infinite;
   animation-delay: var(--spark-delay, 0s);
+  will-change: transform, opacity;
 }
 
 .spark-star::before,
@@ -29,66 +31,64 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  background: rgba(218, 246, 255, 0.55);
+  background: rgba(218, 246, 255, 0.62);
   transform: translate(-50%, -50%);
   opacity: 0;
 }
 
 .spark-star::before {
-  width: 10px;
+  width: calc(8px + var(--spark-size, 2px) * 2.4);
   height: 1px;
 }
 
 .spark-star::after {
   width: 1px;
-  height: 10px;
+  height: calc(8px + var(--spark-size, 2px) * 2.4);
 }
 
 .spark-star.spark-bright::before,
 .spark-star.spark-bright::after {
-  opacity: 0.55;
+  opacity: 0.62;
 }
 
 .constellation {
   position: absolute;
   width: var(--constellation-width, 210px);
   overflow: visible;
-  color: rgba(94, 202, 239, 0.34);
-  filter: drop-shadow(0 0 5px rgba(73, 214, 255, 0.13));
+  color: rgba(94, 202, 239, 0.39);
+  filter:
+    drop-shadow(0 0 5px rgba(73, 214, 255, 0.17))
+    drop-shadow(0 0 14px rgba(134, 112, 255, 0.05));
   opacity: 0;
   animation:
-    constellationReveal var(--constellation-cycle, 22s) ease-in-out infinite,
-    constellationDrift var(--constellation-drift, 28s) ease-in-out infinite alternate;
+    constellationReveal var(--constellation-cycle, 22s) cubic-bezier(.37,0,.23,1) infinite,
+    constellationDrift var(--constellation-drift, 28s) cubic-bezier(.37,0,.23,1) infinite alternate;
   animation-delay: var(--constellation-delay, 0s);
+  will-change: transform, opacity;
 }
 
 .constellation line,
 .constellation polyline {
   vector-effect: non-scaling-stroke;
   stroke: currentColor;
-  stroke-width: 0.75;
+  stroke-width: 0.85;
   stroke-dasharray: 2 4;
 }
 
 .constellation circle {
-  fill: rgba(225, 247, 255, 0.8);
-  stroke: rgba(73, 214, 255, 0.38);
+  fill: rgba(225, 247, 255, 0.88);
+  stroke: rgba(73, 214, 255, 0.45);
   stroke-width: 0.8;
   transform-box: fill-box;
   transform-origin: center;
-  animation: constellationStar 3.6s ease-in-out infinite;
+  animation: constellationStar 3.8s cubic-bezier(.37,0,.23,1) infinite;
 }
 
-.constellation circle:nth-of-type(2n) {
-  animation-delay: -1.3s;
-}
-
-.constellation circle:nth-of-type(3n) {
-  animation-delay: -2.1s;
-}
+.constellation circle:nth-of-type(2n) { animation-delay: -1.3s; }
+.constellation circle:nth-of-type(3n) { animation-delay: -2.1s; }
 
 .constellation text {
-  fill: rgba(105, 119, 138, 0.46);
+  fill: rgba(117, 139, 164, 0.56);
   font: 6px Arial, Helvetica, sans-serif;
   letter-spacing: 1.4px;
 }
@@ -120,6 +120,26 @@
   transform: rotate(-18deg);
 }
 
+.constellation-cassiopeia {
+  left: 10vw;
+  bottom: 16vh;
+  --constellation-width: 175px;
+  --constellation-delay: -9s;
+  --constellation-cycle: 29s;
+  --constellation-drift: 34s;
+  transform: rotate(7deg);
+}
+
+.constellation-andromeda {
+  left: 48vw;
+  top: 5vh;
+  --constellation-width: 205px;
+  --constellation-delay: -21s;
+  --constellation-cycle: 34s;
+  --constellation-drift: 31s;
+  transform: rotate(-4deg);
+}
+
 .meteor {
   position: absolute;
   left: var(--meteor-x, 50vw);
@@ -130,9 +150,30 @@
   opacity: 0;
   transform-origin: right center;
   transform: rotate(var(--meteor-angle, -32deg)) translate3d(0, 0, 0);
-  background: linear-gradient(90deg, transparent 0%, rgba(113, 222, 255, 0.08) 35%, rgba(221, 248, 255, 0.84) 92%, #ffffff 100%);
-  filter: drop-shadow(0 0 4px rgba(73, 214, 255, 0.55));
-  animation: meteorFall var(--meteor-duration, 1.25s) cubic-bezier(.18,.62,.38,1) forwards;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(93, 170, 220, 0.025) 18%,
+    rgba(113, 222, 255, 0.11) 45%,
+    rgba(221, 248, 255, 0.90) 92%,
+    #ffffff 100%);
+  filter:
+    drop-shadow(0 0 4px rgba(73, 214, 255, 0.65))
+    drop-shadow(0 0 12px rgba(129, 110, 255, 0.12));
+  animation: meteorFall var(--meteor-duration, 1.25s) cubic-bezier(.14,.68,.29,1) forwards;
+  will-change: transform, opacity;
+}
+
+.meteor::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 56%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, transparent, rgba(73,214,255,.16));
+  filter: blur(3px);
+  opacity: .65;
 }
 
 .meteor::after {
@@ -147,8 +188,8 @@
   background: #fff;
   box-shadow:
     0 0 5px #fff,
-    0 0 12px rgba(73, 214, 255, 0.9),
-    0 0 24px rgba(73, 214, 255, 0.4);
+    0 0 12px rgba(73, 214, 255, 0.95),
+    0 0 26px rgba(73, 214, 255, 0.46);
 }
 
 .sky-flash {
@@ -158,71 +199,76 @@
   border-radius: 50%;
   opacity: 0;
   background: white;
-  box-shadow: 0 0 8px #fff, 0 0 24px rgba(73, 214, 255, 0.7);
-  animation: skyFlash 1.8s ease-out forwards;
+  box-shadow:
+    0 0 8px #fff,
+    0 0 24px rgba(73, 214, 255, 0.75),
+    0 0 52px rgba(160, 135, 255, .22);
+  animation: skyFlash 2.1s cubic-bezier(.14,.68,.29,1) forwards;
 }
 
 @keyframes sparkTwinkle {
   0%, 100% {
-    opacity: 0.12;
-    transform: scale(0.72);
+    opacity: 0.10;
+    transform: scale(0.68);
   }
-  45% {
-    opacity: 0.78;
-    transform: scale(1.18);
+  38% {
+    opacity: 0.82;
+    transform: scale(1.22);
   }
-  58% {
-    opacity: 0.42;
-    transform: scale(0.94);
+  62% {
+    opacity: 0.38;
+    transform: scale(0.91);
   }
 }
 
 @keyframes constellationReveal {
-  0%, 13%, 100% { opacity: 0.025; }
-  28%, 66% { opacity: 0.24; }
-  78% { opacity: 0.09; }
+  0%, 12%, 100% { opacity: 0.025; }
+  31%, 66% { opacity: 0.29; }
+  82% { opacity: 0.08; }
 }
 
 @keyframes constellationDrift {
-  from { margin-top: -5px; margin-left: -3px; }
-  to { margin-top: 7px; margin-left: 5px; }
+  from { translate: -4px -6px; }
+  to { translate: 6px 8px; }
 }
 
 @keyframes constellationStar {
-  0%, 100% { opacity: 0.38; transform: scale(0.82); }
-  50% { opacity: 1; transform: scale(1.28); }
+  0%, 100% { opacity: 0.34; transform: scale(0.78); }
+  44% { opacity: 1; transform: scale(1.34); }
+  70% { opacity: .58; transform: scale(.96); }
 }
 
 @keyframes meteorFall {
   0% {
     opacity: 0;
-    transform: rotate(var(--meteor-angle, -32deg)) translate3d(0, 0, 0) scaleX(0.3);
+    transform: rotate(var(--meteor-angle, -32deg)) translate3d(0, 0, 0) scaleX(0.24);
   }
-  9% {
-    opacity: 1;
-  }
-  72% {
-    opacity: 0.92;
-  }
+  8% { opacity: 1; }
+  68% { opacity: 0.95; }
   100% {
     opacity: 0;
-    transform: rotate(var(--meteor-angle, -32deg)) translate3d(var(--meteor-travel, -62vw), 0, 0) scaleX(1);
+    transform: rotate(var(--meteor-angle, -32deg)) translate3d(var(--meteor-travel, -62vw), 0, 0) scaleX(1.03);
   }
 }
 
 @keyframes skyFlash {
-  0% { opacity: 0; transform: scale(0.4); }
-  18% { opacity: 0.95; transform: scale(1.7); }
-  34% { opacity: 0.22; transform: scale(0.85); }
-  100% { opacity: 0; transform: scale(0.45); }
+  0% { opacity: 0; transform: scale(0.35); }
+  16% { opacity: 1; transform: scale(1.85); }
+  38% { opacity: 0.20; transform: scale(0.92); }
+  100% { opacity: 0; transform: scale(0.5); }
 }
 
 @media (max-width: 720px) {
   .constellation {
-    opacity: 0 !important;
+    filter: drop-shadow(0 0 4px rgba(73, 214, 255, 0.13));
   }
 
-  .spark-star:nth-child(n+15) {
+  .constellation-cassiopeia,
+  .constellation-andromeda {
+    display: none;
+  }
+
+  .spark-star:nth-child(n+39) {
     display: none;
   }
 }
@@ -238,10 +284,9 @@
   .constellation,
   .constellation circle {
     animation: none !important;
-    transition: none !important;
   }
 
   .constellation {
-    opacity: 0.1;
+    opacity: 0.12;
   }
 }
