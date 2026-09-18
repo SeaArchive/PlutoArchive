@@ -3,6 +3,7 @@
 
   const root = document.documentElement;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FRAME_INTERVAL = 1000 / 60;
 
   const target = {
     x: window.innerWidth * .5,
@@ -19,6 +20,7 @@
   };
 
   let lastTime = performance.now();
+  let lastRenderTime = 0;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -67,8 +69,14 @@
   }, { passive: true });
 
   function frame(now) {
+    if (now - lastRenderTime < FRAME_INTERVAL) {
+      requestAnimationFrame(frame);
+      return;
+    }
+
     const dt = Math.min(50, Math.max(1, now - lastTime));
     lastTime = now;
+    lastRenderTime = now;
 
     if (reducedMotion) {
       current.x = target.x;
