@@ -490,26 +490,47 @@ drawLighting = function drawLightingOptimized() {
   const width = camera.w + 4;
   const height = camera.h + 4;
 
-  const gradient = ctx.createRadialGradient(player.x, player.y, 110, player.x, player.y, 380);
-  gradient.addColorStop(0, 'rgba(0,0,0,0)');
-  gradient.addColorStop(.68, 'rgba(0,0,0,.035)');
-  gradient.addColorStop(1, 'rgba(0,0,0,.18)');
-  ctx.fillStyle = gradient;
+  // Clear visibility around the player, then transition into a dense dark-space fog.
+  const clearRadius = 155;
+  const softRadius = 255;
+  const fogRadius = 390;
+  const fog = ctx.createRadialGradient(
+    player.x, player.y, clearRadius,
+    player.x, player.y, fogRadius
+  );
+  fog.addColorStop(0, 'rgba(1,3,9,0)');
+  fog.addColorStop(.34, 'rgba(1,3,9,.08)');
+  fog.addColorStop(.62, 'rgba(1,3,9,.38)');
+  fog.addColorStop(.82, 'rgba(1,3,9,.66)');
+  fog.addColorStop(1, 'rgba(0,1,5,.82)');
+
+  ctx.fillStyle = fog;
   ctx.fillRect(left, top, width, height);
 
-  if (perfInView(score.x, score.y, 230)) {
+  // A second cheap veil deepens the far corners without blurring the clear center.
+  const veil = ctx.createRadialGradient(
+    player.x, player.y, softRadius,
+    player.x, player.y, Math.max(camera.w, camera.h) * .82
+  );
+  veil.addColorStop(0, 'rgba(2,4,10,0)');
+  veil.addColorStop(1, 'rgba(0,1,4,.22)');
+  ctx.fillStyle = veil;
+  ctx.fillRect(left, top, width, height);
+
+  // Pluto may still leak a subtle glow through the fog when nearby.
+  if (perfInView(score.x, score.y, 220)) {
     const scoreGlow = ctx.createRadialGradient(
-      score.x, score.y, 24,
-      score.x, score.y, ritualComplete ? 210 : 165
+      score.x, score.y, 18,
+      score.x, score.y, ritualComplete ? 180 : 140
     );
-    scoreGlow.addColorStop(0, ritualComplete ? 'rgba(178,153,255,.10)' : 'rgba(115,145,205,.055)');
+    scoreGlow.addColorStop(0, ritualComplete ? 'rgba(178,153,255,.085)' : 'rgba(115,145,205,.045)');
     scoreGlow.addColorStop(1, 'rgba(80,100,160,0)');
     ctx.fillStyle = scoreGlow;
     ctx.fillRect(
-      Math.max(left, score.x - 230),
-      Math.max(top, score.y - 230),
-      460,
-      460
+      Math.max(left, score.x - 200),
+      Math.max(top, score.y - 200),
+      400,
+      400
     );
   }
 };
