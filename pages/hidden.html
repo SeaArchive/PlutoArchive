@@ -273,6 +273,36 @@
       background: rgba(72,82,103,.15);
     }
 
+    .spacer-card {
+      height: calc(var(--card-h) * .58);
+      margin-top: calc(var(--card-h) * -.29);
+    }
+
+    .spacer-face {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(205,226,255,.18);
+      border-radius: 1px;
+      background:
+        linear-gradient(145deg, rgba(210,230,255,.055), rgba(130,165,210,.018));
+      box-shadow:
+        inset 0 0 9px rgba(190,220,255,.025),
+        0 0 7px rgba(150,190,235,.03);
+      backface-visibility: visible;
+      -webkit-backface-visibility: visible;
+    }
+
+    .spacer-face::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      transform: translate(-50%, -50%);
+      background: rgba(215,232,255,.12);
+    }
+
     .core-glow {
       position: absolute;
       left: 50%;
@@ -421,7 +451,7 @@
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-      <div class="status">27 NODES / 3 CARD RINGS / PRECESSING AXES</div>
+      <div class="status">27 NODES / 3 CARD RINGS / TRANSLUCENT INTERSTITIAL PANELS</div>
     </div>
   </main>
 
@@ -582,7 +612,11 @@
     }
 
     function createCardRing(ring, ringIndex) {
+      const angleStep = Math.PI * 2 / ring.count;
+
       for (let i = 0; i < ring.count; i += 1) {
+        const baseAngle = angleStep * i + ring.phase;
+
         const card = document.createElement('div');
         card.className = `orbit-card ring-${ringIndex + 1}`;
 
@@ -600,7 +634,25 @@
           element: card,
           ring,
           ringIndex,
-          baseAngle: Math.PI * 2 * i / ring.count + ring.phase
+          baseAngle,
+          isSpacer: false
+        });
+
+        // A smaller translucent card floats halfway between each pair.
+        const spacer = document.createElement('div');
+        spacer.className = `orbit-card spacer-card ring-${ringIndex + 1}`;
+
+        const spacerFace = document.createElement('div');
+        spacerFace.className = 'spacer-face';
+        spacer.appendChild(spacerFace);
+        orbitField.appendChild(spacer);
+
+        ringCards.push({
+          element: spacer,
+          ring,
+          ringIndex,
+          baseAngle: baseAngle + angleStep * .5,
+          isSpacer: true
         });
       }
     }
@@ -651,12 +703,17 @@
         const right = normalizeVector(crossVector(up, inward));
         up = normalizeVector(crossVector(inward, right));
 
-        // Tangent rectangles meet at their side edges, forming one continuous ring.
+        // Keep the main cards separated. A smaller translucent card occupies
+        // part of each gap without fully closing it.
         const connectedWidth =
           2 * scaledRadius * Math.tan(Math.PI / ring.count) + .7;
+        const displayWidth = item.isSpacer
+          ? connectedWidth * .18
+          : connectedWidth * .68;
+
         item.element.style.setProperty(
           '--card-width',
-          `${connectedWidth}px`
+          `${displayWidth}px`
         );
 
         item.element.style.transform =
@@ -672,7 +729,9 @@
           0,
           1
         );
-        item.element.style.opacity = (0.58 + depth * 0.42).toFixed(3);
+        item.element.style.opacity = item.isSpacer
+          ? (0.16 + depth * 0.20).toFixed(3)
+          : (0.58 + depth * 0.42).toFixed(3);
       });
     }
 
