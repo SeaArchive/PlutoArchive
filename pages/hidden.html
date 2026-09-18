@@ -200,53 +200,78 @@
     }
 
     .orbit-card {
+      --card-width: var(--card-w);
       position: absolute;
-      left: calc(var(--card-w) / -2);
-      top: calc(var(--card-h) / -2);
-      width: var(--card-w);
+      left: 0;
+      top: 0;
+      width: var(--card-width);
       height: var(--card-h);
+      margin-left: calc(var(--card-width) / -2);
+      margin-top: calc(var(--card-h) / -2);
       transform-style: preserve-3d;
+      transform-origin: 50% 50%;
       will-change: transform;
     }
 
-    .orbit-card-face {
+    .orbit-card-side {
       position: absolute;
       inset: 0;
-      border: 1px solid rgba(255,255,255,.84);
-      border-radius: 2px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.98), rgba(225,231,242,.90));
-      box-shadow:
-        0 0 10px rgba(222,232,255,.14),
-        inset 0 0 0 1px rgba(255,255,255,.35);
-      backface-visibility: visible;
-      opacity: .90;
+      border-radius: 1px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
-    .orbit-card-face::before,
-    .orbit-card-face::after {
+    /* +Z always points toward the large cube, so this is the inward face. */
+    .orbit-card-side.inward {
+      transform: translateZ(.45px);
+      border: 1px solid rgba(155,175,205,.34);
+      background:
+        linear-gradient(145deg, rgba(18,22,30,.96), rgba(0,0,0,.995)),
+        #000;
+      box-shadow:
+        inset 0 0 10px rgba(130,175,220,.04),
+        0 0 7px rgba(0,0,0,.26);
+    }
+
+    /* The reverse face looks away from the cube and remains white. */
+    .orbit-card-side.outward {
+      transform: rotateY(180deg) translateZ(.45px);
+      border: 1px solid rgba(255,255,255,.92);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.995), rgba(226,232,242,.97));
+      box-shadow:
+        0 0 8px rgba(225,235,255,.12),
+        inset 0 0 0 1px rgba(255,255,255,.30);
+    }
+
+    .orbit-card-side::before,
+    .orbit-card-side::after {
       content: "";
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(80,90,112,.16);
+      height: 1px;
     }
 
-    .orbit-card-face::before {
+    .orbit-card-side::before {
       top: 9px;
       width: 42%;
-      height: 1px;
     }
 
-    .orbit-card-face::after {
+    .orbit-card-side::after {
       bottom: 8px;
       width: 58%;
-      height: 1px;
     }
 
-    .orbit-card.ring-1 .orbit-card-face { opacity: .96; }
-    .orbit-card.ring-2 .orbit-card-face { opacity: .83; }
-    .orbit-card.ring-3 .orbit-card-face { opacity: .72; }
+    .orbit-card-side.inward::before,
+    .orbit-card-side.inward::after {
+      background: rgba(150,180,215,.10);
+    }
+
+    .orbit-card-side.outward::before,
+    .orbit-card-side.outward::after {
+      background: rgba(72,82,103,.15);
+    }
 
     .core-glow {
       position: absolute;
@@ -471,7 +496,7 @@
     const ringCards = [];
     const RINGS = [
       {
-        count: 12,
+        count: 30,
         radius: 150,
         phase: 0.10,
         spinSpeed: .00048,
@@ -483,7 +508,7 @@
         tiltZ: 0
       },
       {
-        count: 14,
+        count: 36,
         radius: 184,
         phase: 1.35,
         spinSpeed: -.00039,
@@ -495,7 +520,7 @@
         tiltZ: 10
       },
       {
-        count: 16,
+        count: 42,
         radius: 218,
         phase: 2.20,
         spinSpeed: .00031,
@@ -530,14 +555,36 @@
       return { x, y, z };
     }
 
+    function normalizeVector(vector) {
+      const length = Math.hypot(vector.x, vector.y, vector.z) || 1;
+      return {
+        x: vector.x / length,
+        y: vector.y / length,
+        z: vector.z / length
+      };
+    }
+
+    function crossVector(a, b) {
+      return {
+        x: a.y * b.z - a.z * b.y,
+        y: a.z * b.x - a.x * b.z,
+        z: a.x * b.y - a.y * b.x
+      };
+    }
+
     function createCardRing(ring, ringIndex) {
       for (let i = 0; i < ring.count; i += 1) {
         const card = document.createElement('div');
         card.className = `orbit-card ring-${ringIndex + 1}`;
 
-        const face = document.createElement('div');
-        face.className = 'orbit-card-face';
-        card.appendChild(face);
+        const inward = document.createElement('div');
+        inward.className = 'orbit-card-side inward';
+
+        const outward = document.createElement('div');
+        outward.className = 'orbit-card-side outward';
+
+        card.appendChild(inward);
+        card.appendChild(outward);
         orbitField.appendChild(card);
 
         ringCards.push({
@@ -561,31 +608,54 @@
         const orbitalAngle =
           item.baseAngle + time * ring.spinSpeed * freeze;
 
-        // Local ring begins in the X/Y plane, orbiting around its own Z axis.
+        const scaledRadius = ring.radius * mobileScale;
+
+        // Start with a circular ring in the local X/Y plane.
         let position = {
-          x: Math.cos(orbitalAngle) * ring.radius * mobileScale,
-          y: Math.sin(orbitalAngle) * ring.radius * mobileScale,
+          x: Math.cos(orbitalAngle) * scaledRadius,
+          y: Math.sin(orbitalAngle) * scaledRadius,
           z: 0
         };
 
-        // The ring's axis orientation itself precesses around the shared cube center.
+        // The ring axis itself slowly precesses around the cube center.
         const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
         const ry = deg(ring.tiltY) + time * ring.precessY * freeze;
         const rz = deg(ring.tiltZ) + time * ring.precessZ * freeze;
+
         position = rotateVector(position, rx, ry, rz);
 
-        // Face the large cube's exact center.
-        const dirX = -position.x;
-        const dirY = -position.y;
-        const dirZ = -position.z;
-        const yaw = Math.atan2(dirX, dirZ) * 180 / Math.PI;
-        const pitch = -Math.atan2(
-          dirY,
-          Math.hypot(dirX, dirZ)
-        ) * 180 / Math.PI;
+        // Local +Z of every card points inward toward the large cube.
+        const inward = normalizeVector({
+          x: -position.x,
+          y: -position.y,
+          z: -position.z
+        });
+
+        // The card's vertical center axis is always parallel to the ring axis,
+        // including when that axis is diagonal in 3D space.
+        let up = normalizeVector(
+          rotateVector({ x: 0, y: 0, z: 1 }, rx, ry, rz)
+        );
+
+        // Build an orthonormal card basis:
+        // X = tangent around the ring, Y = ring axis, Z = inward normal.
+        const right = normalizeVector(crossVector(up, inward));
+        up = normalizeVector(crossVector(inward, right));
+
+        // Tangent rectangles meet at their side edges, forming one continuous ring.
+        const connectedWidth =
+          2 * scaledRadius * Math.tan(Math.PI / ring.count) + .7;
+        item.element.style.setProperty(
+          '--card-width',
+          `${connectedWidth}px`
+        );
 
         item.element.style.transform =
-          `translate3d(${position.x}px, ${position.y}px, ${position.z}px) rotateY(${yaw}deg) rotateX(${pitch}deg)`;
+          `matrix3d(` +
+          `${right.x},${right.y},${right.z},0,` +
+          `${up.x},${up.y},${up.z},0,` +
+          `${inward.x},${inward.y},${inward.z},0,` +
+          `${position.x},${position.y},${position.z},1)`;
       });
     }
 
