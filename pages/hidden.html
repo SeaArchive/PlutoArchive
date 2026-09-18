@@ -50,8 +50,8 @@
       position: fixed;
       inset: 0;
       overflow: hidden;
-      perspective: 1000px;
-      perspective-origin: 50% 48%;
+      perspective: 650px;
+      perspective-origin: 50% 46%;
     }
 
     .hidden-world::before,
@@ -85,7 +85,7 @@
       width: 1px;
       height: 1px;
       transform-style: preserve-3d;
-      transform: translate3d(-50%, -50%, 0);
+      transform: translate3d(-50%, -50%, -24px);
     }
 
     .assembly {
@@ -360,6 +360,11 @@
     }
 
     @media (max-width: 640px) {
+      .hidden-world {
+        perspective: 560px;
+        perspective-origin: 50% 47%;
+      }
+
       :root {
         --cube-size: 35px;
         --cube-step: 43px;
@@ -533,6 +538,10 @@
       }
     ];
 
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
     function deg(value) {
       return value * Math.PI / 180;
     }
@@ -656,6 +665,14 @@
           `${up.x},${up.y},${up.z},0,` +
           `${inward.x},${inward.y},${inward.z},0,` +
           `${position.x},${position.y},${position.z},1)`;
+
+        // Near cards stay bright while far cards recede slightly into the scene.
+        const depth = clamp(
+          (position.z / scaledRadius + 1) * .5,
+          0,
+          1
+        );
+        item.element.style.opacity = (0.58 + depth * 0.42).toFixed(3);
       });
     }
 
