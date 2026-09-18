@@ -3,6 +3,7 @@
   if (!space) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FRAME_INTERVAL = 1000 / 60;
   const layer = document.createElement('div');
   layer.className = 'space-effects';
   space.appendChild(layer);
@@ -160,6 +161,7 @@
   let currentX = 0;
   let currentY = 0;
   let lastFrame = performance.now();
+  let lastRenderFrame = 0;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -185,8 +187,14 @@
   });
 
   function animateSky(now) {
+    if (now - lastRenderFrame < FRAME_INTERVAL) {
+      requestAnimationFrame(animateSky);
+      return;
+    }
+
     const dt = Math.min(50, Math.max(1, now - lastFrame));
     lastFrame = now;
+    lastRenderFrame = now;
 
     currentX = approach(currentX, targetX, dt, 8);
     currentY = approach(currentY, targetY, dt, 6);
