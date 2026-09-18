@@ -52,6 +52,12 @@ const score = {
   radius: 28
 };
 
+const exitDoor = {
+  x: 50,
+  y: WORLD_H - 56,
+  radius: 78
+};
+
 const ritualStars = [
   [-92,-34],[-68,-76],[-30,-96],[10,-86],[48,-68],[88,-30],
   [96,12],[73,58],[34,92],[-8,98],[-48,78],[-86,48],
@@ -184,12 +190,24 @@ function updateAudio(dt) {
   distanceText.textContent = `${tileDistance.toFixed(1)} TILE`;
   proximityBar.style.width = `${Math.round(proximity * 100)}%`;
 
-  const near = dist < 66;
-  interaction.classList.toggle('visible', near && !modalOpen);
-  interaction.classList.toggle('unlocked', near && ritualComplete);
-  interaction.textContent = near
-    ? (ritualComplete ? 'E  /  OPEN THE HIDDEN PAGE' : 'E  /  EXAMINE THE LULLABY SCORE')
-    : '';
+  const nearScore = dist < 66;
+  const exitDist = Math.hypot(player.x - exitDoor.x, player.y - exitDoor.y);
+  const nearExit = exitDist < exitDoor.radius;
+  const showInteraction = (nearExit || nearScore) && !modalOpen;
+
+  interaction.classList.toggle('visible', showInteraction);
+  interaction.classList.toggle('unlocked', nearScore && ritualComplete && !nearExit);
+  interaction.classList.toggle('exit-door', nearExit);
+
+  if (nearExit) {
+    interaction.textContent = 'E  /  RETURN TO MAIN ARCHIVE';
+  } else if (nearScore) {
+    interaction.textContent = ritualComplete
+      ? 'E  /  OPEN THE HIDDEN PAGE'
+      : 'E  /  EXAMINE THE LULLABY SCORE';
+  } else {
+    interaction.textContent = '';
+  }
 }
 
 function updateRitual(dt) {
@@ -271,6 +289,58 @@ function drawWalls() {
     ctx.strokeStyle = 'rgba(73,214,255,.08)';
     ctx.strokeRect(px + .5, py + .5, TILE - 1, TILE - 1);
   });
+}
+
+function drawExitDoor(time) {
+  const pulse = 0.5 + Math.sin(time * 0.0044) * 0.5;
+  const x = exitDoor.x;
+  const y = exitDoor.y;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalCompositeOperation = 'lighter';
+
+  const halo = ctx.createRadialGradient(0, 0, 4, 0, 0, 74);
+  halo.addColorStop(0, `rgba(120,230,255,${0.18 + pulse * 0.12})`);
+  halo.addColorStop(0.45, `rgba(73,214,255,${0.08 + pulse * 0.08})`);
+  halo.addColorStop(1, 'rgba(73,214,255,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(0, 0, 74, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowColor = 'rgba(73,214,255,.95)';
+  ctx.shadowBlur = 12 + pulse * 12;
+  ctx.fillStyle = `rgba(148,235,255,${0.12 + pulse * 0.08})`;
+  ctx.fillRect(-18, -30, 36, 52);
+
+  ctx.strokeStyle = `rgba(188,246,255,${0.56 + pulse * 0.34})`;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-18.5, -30.5, 37, 53);
+
+  ctx.strokeStyle = `rgba(73,214,255,${0.32 + pulse * 0.30})`;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(-13.5, -25.5, 27, 43);
+
+  ctx.fillStyle = `rgba(231,252,255,${0.64 + pulse * 0.30})`;
+  ctx.fillRect(9, -4, 2, 2);
+
+  for (let i = 0; i < 8; i += 1) {
+    const angle = i * 2.399963 + time * (0.0007 + (i % 3) * 0.00008);
+    const radius = 30 + (i % 4) * 7 + Math.sin(time * 0.002 + i) * 4;
+    const px = Math.cos(angle) * radius;
+    const py = Math.sin(angle) * radius - 4;
+    ctx.fillStyle = `rgba(202,247,255,${0.24 + pulse * 0.42})`;
+    ctx.fillRect(Math.round(px), Math.round(py), 2, 2);
+  }
+
+  ctx.shadowBlur = 0;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.font = '7px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = `rgba(164,225,239,${0.48 + pulse * 0.28})`;
+  ctx.fillText('EXIT', 0, 34);
+  ctx.restore();
 }
 
 function drawDoors() {
@@ -574,6 +644,7 @@ function render(time) {
   drawScore(time);
   drawPlayer();
   drawLighting();
+  drawExitDoor(time);
 }
 
 function loop(now) {
@@ -599,8 +670,17 @@ function closeLore() {
 }
 
 function interactCenter() {
+  if (modalOpen) return;
+
+  const exitDist = Math.hypot(player.x - exitDoor.x, player.y - exitDoor.y);
+  if (exitDist < exitDoor.radius) {
+    keys.clear();
+    window.location.href = '../index.html';
+    return;
+  }
+
   const dist = Math.hypot(player.x - score.x, player.y - score.y);
-  if (dist >= 66 || modalOpen) return;
+  if (dist >= 66) return;
 
   if (ritualComplete) {
     sessionStorage.setItem('plutoArkHiddenUnlocked', '1');
