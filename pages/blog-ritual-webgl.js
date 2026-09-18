@@ -1,6 +1,6 @@
 // Direct GPU ritual renderer for Pluto Ark.
-// The WebGL canvas is composited by the browser as its own layer, avoiding the
-// old WebGL -> Canvas2D drawImage transfer that caused uneven frame pacing.
+// Optimized for stable frame pacing: independent compositor layer, cached DOM
+// geometry, visibility culling, lower fill-rate and cheaper procedural shading.
 
 (() => {
   'use strict';
@@ -12,9 +12,9 @@
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const compact = Math.min(window.innerWidth, window.innerHeight) < 720;
-  const GPU_SIZE = reducedMotion ? 512 : (compact ? 704 : 896);
-  const SIGIL_COUNT = reducedMotion ? 72 : (compact ? 132 : 192);
-  const RING_SEGMENTS = reducedMotion ? 256 : 448;
+  const GPU_SIZE = reducedMotion ? 384 : (compact ? 576 : 768);
+  const SIGIL_COUNT = reducedMotion ? 48 : (compact ? 96 : 128);
+  const RING_SEGMENTS = reducedMotion ? 160 : (compact ? 224 : 320);
   const DISPLAY_SIZE = compact ? 470 : 550;
   const TAU = Math.PI * 2;
 
@@ -33,16 +33,15 @@
     pointerEvents: 'none',
     transformOrigin: '0 0',
     willChange: 'transform, opacity',
-    mixBlendMode: 'screen',
     opacity: '0',
-    contain: 'layout paint style',
+    contain: 'strict',
     backfaceVisibility: 'hidden'
   });
   wrap.appendChild(gpuCanvas);
 
   const gl = gpuCanvas.getContext('webgl2', {
     alpha: true,
-    antialias: true,
+    antialias: false,
     depth: false,
     stencil: false,
     desynchronized: true,
@@ -106,7 +105,7 @@
     void main(){
       float angle=aAngle+uRotation;
       vec3 p=vec3(cos(angle)*uRadius,sin(angle)*uRadius,0.0);
-      vec3 tilt=uTilt+vec3(sin(uTime*.19+uPrecess)*.045,cos(uTime*.13+uPrecess)*.038,0.0);
+      vec3 tilt=uTilt+vec3(sin(uTime*.19+uPrecess)*.040,cos(uTime*.13+uPrecess)*.034,0.0);
       p=rotZ(tilt.z)*rotY(tilt.y)*rotX(tilt.x)*p;
       p=rotY(-.24)*rotX(.34)*p;
       float cd=3.35;
@@ -118,7 +117,7 @@
   `;
 
   const ringFragment = `#version 300 es
-    precision highp float;
+    precision mediump float;
     uniform vec3 uColor;
     uniform float uAlpha;
     uniform float uProgress;
@@ -129,12 +128,12 @@
     void main(){
       float dash=1.0;
       if(uDash>.5){
-        float f=fract(vArc*(18.0+uDash*16.0));
-        dash=smoothstep(.05,.16,f)*(1.0-smoothstep(.66,.91,f));
+        float f=fract(vArc*(16.0+uDash*14.0));
+        dash=smoothstep(.05,.15,f)*(1.0-smoothstep(.68,.90,f));
       }
       float reveal=smoothstep(.035,.60,uProgress);
-      float shimmer=.76+.24*sin(vArc*31.0+uProgress*9.0);
-      float alpha=uAlpha*reveal*dash*(.24+vDepth*.76)*shimmer;
+      float shimmer=.80+.20*sin(vArc*25.0+uProgress*8.0);
+      float alpha=uAlpha*reveal*dash*(.26+vDepth*.74)*shimmer;
       outColor=vec4(uColor,alpha);
     }
   `;
@@ -166,12 +165,12 @@
       vAlpha=smoothstep(.18,.70,uProgress)*(.23+depth*.77);
       vTone=lane/3.0;
       vShape=mod(floor(aSigil.w/4.0),4.0);
-      gl_PointSize=uPixelScale*persp*(3.0+uProgress*3.4+depth*2.0);
+      gl_PointSize=uPixelScale*persp*(3.0+uProgress*3.0+depth*1.8);
     }
   `;
 
   const sigilFragment = `#version 300 es
-    precision highp float;
+    precision mediump float;
     in float vAlpha;
     in float vTone;
     in float vShape;
@@ -183,9 +182,9 @@
       if(vShape<.5){
         mask=1.0-smoothstep(.70,1.0,ax+ay);
       }else if(vShape<1.5){
-        mask=max(exp(-ax*14.0)*(1.0-smoothstep(.35,1.0,ay)),exp(-ay*14.0)*(1.0-smoothstep(.35,1.0,ax)));
+        mask=max((1.0-smoothstep(.03,.13,ax))*(1.0-smoothstep(.38,1.0,ay)),(1.0-smoothstep(.03,.13,ay))*(1.0-smoothstep(.38,1.0,ax)));
       }else if(vShape<2.5){
-        mask=1.0-smoothstep(.10,.24,abs(d-.58));
+        mask=1.0-smoothstep(.10,.25,abs(d-.58));
       }else{
         float chevron=abs(ay-(.50-ax*.48));
         mask=(1.0-smoothstep(.04,.15,chevron))*(1.0-smoothstep(.82,1.0,ax));
@@ -201,71 +200,74 @@
   `;
 
   const veilVertex = `#version 300 es
-    precision highp float;
+    precision mediump float;
     layout(location=0) in vec2 aPosition;
     out vec2 vUv;
     void main(){vUv=aPosition*.5+.5;gl_Position=vec4(aPosition,.96,1.0);}
   `;
 
   const veilFragment = `#version 300 es
-    precision highp float;
+    precision mediump float;
     uniform float uTime;
     uniform float uProgress;
     uniform float uComplete;
     in vec2 vUv;
     out vec4 outColor;
 
-    float ring(float r,float at,float w){return 1.0-smoothstep(w,w*2.25,abs(r-at));}
-    float band(float r,float lo,float hi){return smoothstep(lo,lo+.012,r)*(1.0-smoothstep(hi-.012,hi,r));}
+    float ring(float r,float at,float w){return 1.0-smoothstep(w,w*2.15,abs(r-at));}
+    float band(float r,float lo,float hi){return smoothstep(lo,lo+.014,r)*(1.0-smoothstep(hi-.014,hi,r));}
 
     void main(){
       vec2 p=(vUv-.5)*2.0;
       float r=length(p);
+      if(r>.955) discard;
       float a=atan(p.y,p.x);
       float prog=smoothstep(.015,.46,uProgress);
       float t=uTime;
 
       float rings=0.0;
-      rings+=ring(r,.18,.005)*.80;
-      rings+=ring(r,.29,.006)*.72;
-      rings+=ring(r,.41,.006)*.88;
-      rings+=ring(r,.53,.006)*.62;
-      rings+=ring(r,.65,.005)*.82;
-      rings+=ring(r,.78,.006)*.60;
-      rings+=ring(r,.90,.005)*.72;
+      rings+=ring(r,.19,.006)*.82;
+      rings+=ring(r,.32,.006)*.70;
+      rings+=ring(r,.45,.006)*.90;
+      rings+=ring(r,.59,.006)*.68;
+      rings+=ring(r,.73,.006)*.82;
+      rings+=ring(r,.88,.006)*.70;
 
-      float spokes12=pow(max(0.0,cos(a*12.0+t*.12)),30.0)*band(r,.22,.86);
-      float spokes24=pow(max(0.0,cos(a*24.0-t*.09)),44.0)*band(r,.46,.92);
-      float spokes36=pow(max(0.0,cos(a*36.0+t*.055)),58.0)*band(r,.64,.94);
+      float c12=abs(cos(a*12.0+t*.11));
+      float c24=abs(cos(a*24.0-t*.075));
+      float c6=cos(a*6.0-t*.13);
+      float c8=cos(a*8.0+t*.09);
+      float spokes12=smoothstep(.955,.995,c12)*band(r,.23,.84);
+      float spokes24=smoothstep(.973,.998,c24)*band(r,.50,.91);
 
-      float ticks72=step(.74,fract((a/6.28318530718+t*.018)*72.0))*band(r,.86,.94);
-      float ticks48=step(.80,fract((-a/6.28318530718+t*.015)*48.0))*band(r,.69,.77);
+      float ticks72=step(.78,fract((a/6.28318530718+t*.016)*72.0))*band(r,.86,.94);
+      float ticks48=step(.83,fract((-a/6.28318530718+t*.013)*48.0))*band(r,.68,.77);
 
-      float petals=pow(abs(cos(a*6.0+t*.10)),13.0)*band(r,.31,.56);
-      float star6=1.0-smoothstep(.018,.050,abs(r-(.24+.055*cos(a*6.0-t*.16))));
-      float star8=1.0-smoothstep(.015,.043,abs(r-(.43+.060*cos(a*8.0+t*.10))));
+      float star6=1.0-smoothstep(.020,.052,abs(r-(.25+.054*c6)));
+      float star8=1.0-smoothstep(.018,.047,abs(r-(.44+.058*c8)));
 
-      float arcs=0.0;
-      float arcPattern=fract((a/6.28318530718)+t*.025+r*.85);
-      arcs+=(1.0-smoothstep(.05,.13,abs(arcPattern-.25)))*band(r,.56,.61);
-      arcs+=(1.0-smoothstep(.05,.13,abs(fract(arcPattern+.47)-.25)))*band(r,.80,.84);
+      float arcPattern=fract(a/6.28318530718+t*.022+r*.78);
+      float arcs=(1.0-smoothstep(.045,.125,abs(arcPattern-.25)))*band(r,.57,.62);
+      arcs+=(1.0-smoothstep(.045,.125,abs(fract(arcPattern+.47)-.25)))*band(r,.79,.84);
 
-      float core=pow(max(0.0,1.0-r*2.2),3.2);
-      float halo=pow(max(0.0,1.0-r),3.6);
-      float pulse=.78+.22*sin(t*1.65);
+      float core=max(0.0,1.0-r*2.25);
+      core*=core*core;
+      float halo=max(0.0,1.0-r);
+      halo*=halo*halo;
+      float pulse=.80+.20*sin(t*1.55);
 
       vec3 cyan=vec3(.26,.78,1.0);
       vec3 violet=vec3(.57,.38,1.0);
       vec3 gold=vec3(1.0,.79,.34);
       vec3 pearl=vec3(.82,.94,1.0);
 
-      vec3 color=violet*(rings*.21+halo*.040+star8*.085);
-      color+=cyan*(spokes12*.13+spokes24*.10+star6*.10+core*.13);
-      color+=gold*(spokes36*.065+ticks48*.13+ticks72*.15+petals*.055);
-      color+=pearl*arcs*.075;
+      vec3 color=violet*(rings*.22+halo*.040+star8*.09);
+      color+=cyan*(spokes12*.14+spokes24*.105+star6*.105+core*.14);
+      color+=gold*(ticks48*.14+ticks72*.16);
+      color+=pearl*arcs*.08;
 
-      float alpha=rings*.13+spokes12*.07+spokes24*.06+spokes36*.045+ticks48*.07+ticks72*.08+petals*.04+star6*.06+star8*.055+arcs*.045+halo*.028+core*.09;
-      alpha*=prog*mix(.82,1.24,uComplete)*pulse;
+      float alpha=rings*.135+spokes12*.075+spokes24*.062+ticks48*.075+ticks72*.085+star6*.065+star8*.06+arcs*.05+halo*.03+core*.095;
+      alpha*=prog*mix(.82,1.22,uComplete)*pulse;
       outColor=vec4(color,alpha);
     }
   `;
@@ -364,7 +366,40 @@
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 
   let available = true;
+  let metrics = null;
+  let metricsPending = false;
   let lastCssSize = 0;
+  let lastTransform = '';
+  let lastOpacity = -1;
+
+  function updateMetrics() {
+    metricsPending = false;
+    const rect = gameCanvas.getBoundingClientRect();
+    const wrapRect = wrap.getBoundingClientRect();
+    metrics = {
+      width: Math.max(1, rect.width),
+      height: Math.max(1, rect.height),
+      offsetX: rect.left - wrapRect.left,
+      offsetY: rect.top - wrapRect.top,
+      wrapWidth: wrapRect.width,
+      wrapHeight: wrapRect.height
+    };
+  }
+
+  function scheduleMetricsUpdate() {
+    if (metricsPending) return;
+    metricsPending = true;
+    requestAnimationFrame(updateMetrics);
+  }
+
+  updateMetrics();
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(scheduleMetricsUpdate);
+    observer.observe(gameCanvas);
+    observer.observe(wrap);
+  }
+  window.addEventListener('resize', scheduleMetricsUpdate, { passive: true });
+
   gpuCanvas.addEventListener('webglcontextlost', event => {
     event.preventDefault();
     available = false;
@@ -379,28 +414,48 @@
     return .22;
   }
 
+  function setOpacity(value) {
+    const next = Math.max(0, Math.min(1, value));
+    if (Math.abs(next - lastOpacity) < .008) return;
+    lastOpacity = next;
+    gpuCanvas.style.opacity = next.toFixed(3);
+  }
+
   function placeLayer(progress) {
-    const rect = gameCanvas.getBoundingClientRect();
-    const wrapRect = wrap.getBoundingClientRect();
-    const sx = rect.width / Math.max(1, camera.w);
-    const sy = rect.height / Math.max(1, camera.h);
-    const centerX = rect.left - wrapRect.left + (score.x - camera.x) * sx;
-    const centerY = rect.top - wrapRect.top + (score.y - camera.y) * sy;
+    if (!metrics) updateMetrics();
+    const sx = metrics.width / Math.max(1, camera.w);
+    const sy = metrics.height / Math.max(1, camera.h);
+    const centerX = metrics.offsetX + (score.x - camera.x) * sx;
+    const centerY = metrics.offsetY + (score.y - camera.y) * sy;
     const cssSize = DISPLAY_SIZE * (sx + sy) * .5;
 
     if (Math.abs(cssSize - lastCssSize) > .35) {
       lastCssSize = cssSize;
-      gpuCanvas.style.width = `${cssSize.toFixed(2)}px`;
-      gpuCanvas.style.height = `${cssSize.toFixed(2)}px`;
+      const value = `${cssSize.toFixed(2)}px`;
+      gpuCanvas.style.width = value;
+      gpuCanvas.style.height = value;
     }
 
-    gpuCanvas.style.transform = `translate3d(${(centerX - cssSize * .5).toFixed(2)}px, ${(centerY - cssSize * .5).toFixed(2)}px, 0)`;
-    const visible = centerX > -cssSize && centerX < wrapRect.width + cssSize && centerY > -cssSize && centerY < wrapRect.height + cssSize;
-    gpuCanvas.style.opacity = visible ? String(Math.min(1, (.78 + progress * .22) * fogVisibility())) : '0';
+    const x = centerX - cssSize * .5;
+    const y = centerY - cssSize * .5;
+    const transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0)`;
+    if (transform !== lastTransform) {
+      lastTransform = transform;
+      gpuCanvas.style.transform = transform;
+    }
+
+    const visible = centerX > -cssSize && centerX < metrics.wrapWidth + cssSize && centerY > -cssSize && centerY < metrics.wrapHeight + cssSize;
+    if (!visible) {
+      setOpacity(0);
+      return false;
+    }
+
+    setOpacity((.80 + progress * .20) * fogVisibility());
+    return true;
   }
 
   function renderGpu(timeMs, progress, complete) {
-    if (!available) return false;
+    if (!available || document.hidden) return false;
     const time = timeMs * .001;
     const completed = complete ? 1 : 0;
     const pixelScale = GPU_SIZE / 640;
@@ -419,25 +474,25 @@
     gl.uniform1f(ringUniforms.time, time);
     gl.uniform1f(ringUniforms.progress, progress);
     gl.bindVertexArray(ringVao);
-    rings.forEach((ring, index) => {
+    for (let index = 0; index < rings.length; index += 1) {
+      const ring = rings[index];
       const gate = Math.max(0, Math.min(1, (progress - index * .035) / Math.max(.001, 1 - index * .035)));
-      if (gate <= .002) return;
+      if (gate <= .002) continue;
+
       gl.uniform1f(ringUniforms.rotation, ring.p + time * ring.s);
       gl.uniform3f(ringUniforms.tilt, ring.t[0], ring.t[1], ring.t[2]);
       gl.uniform1f(ringUniforms.precess, ring.p + index * .71);
       gl.uniform3f(ringUniforms.color, ring.c[0], ring.c[1], ring.c[2]);
       gl.uniform1f(ringUniforms.dash, ring.d);
 
-      gl.uniform1f(ringUniforms.radius, ring.r - .0065);
-      gl.uniform1f(ringUniforms.alpha, ring.a * .18 * gate);
-      gl.drawArrays(gl.LINE_STRIP, 0, RING_SEGMENTS + 1);
-      gl.uniform1f(ringUniforms.radius, ring.r + .0065);
+      gl.uniform1f(ringUniforms.radius, ring.r + .0075);
+      gl.uniform1f(ringUniforms.alpha, ring.a * .16 * gate);
       gl.drawArrays(gl.LINE_STRIP, 0, RING_SEGMENTS + 1);
 
       gl.uniform1f(ringUniforms.radius, ring.r);
-      gl.uniform1f(ringUniforms.alpha, ring.a * (.64 + gate * .55) * (complete ? 1.13 : 1));
+      gl.uniform1f(ringUniforms.alpha, ring.a * (.65 + gate * .54) * (complete ? 1.12 : 1));
       gl.drawArrays(gl.LINE_STRIP, 0, RING_SEGMENTS + 1);
-    });
+    }
 
     gl.useProgram(sigilProgram);
     gl.uniform1f(sigilUniforms.time, time);
@@ -453,13 +508,15 @@
   drawRitual = function drawRitualGpuDirect(time) {
     const progress = Math.max(0, Math.min(1, ritualTime / RITUAL_DURATION));
     if (progress <= 0) {
-      gpuCanvas.style.opacity = '0';
+      setOpacity(0);
       return;
     }
 
-    placeLayer(progress);
+    const visible = placeLayer(progress);
+    if (!visible) return;
+
     if (!renderGpu(time, progress, ritualComplete)) {
-      gpuCanvas.style.opacity = '0';
+      setOpacity(0);
       if (previousDrawRitual) previousDrawRitual(time);
     }
   };
