@@ -522,3 +522,10 @@ body {
     bottom: 122px;
   }
 }
+
+
+.interaction-panel.world-object {
+  border-color: rgba(121,184,220,.50);
+  color: #e8f7ff;
+  box-shadow: 0 0 22px rgba(73,214,255,.09);
+}
