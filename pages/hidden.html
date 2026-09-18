@@ -88,14 +88,24 @@
       transform: translate3d(-50%, -50%, -24px);
     }
 
-    .assembly {
+    .assembly,
+    .orbit-field,
+    .orbit-ring {
       position: absolute;
       left: 0;
       top: 0;
       width: 1px;
       height: 1px;
       transform-style: preserve-3d;
+    }
+
+    .assembly,
+    .orbit-ring {
       will-change: transform;
+    }
+
+    .orbit-field {
+      pointer-events: none;
     }
 
     .cube-node {
@@ -126,6 +136,7 @@
         inset 0 0 16px rgba(170,200,255,.035),
         0 0 12px rgba(178,153,255,.025);
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .face::after {
@@ -189,16 +200,6 @@
       border-color: rgba(180,235,255,.20);
     }
 
-    .orbit-field {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1px;
-      height: 1px;
-      transform-style: preserve-3d;
-      pointer-events: none;
-    }
-
     .orbit-card {
       --card-width: var(--card-w);
       --depth-alpha: 1;
@@ -224,7 +225,6 @@
       transform-style: preserve-3d;
     }
 
-    /* +Z always points toward the large cube, so this is the inward face. */
     .orbit-card-side.inward {
       transform: translateZ(.45px);
       border: 1px solid rgba(155,175,205,.34);
@@ -236,7 +236,6 @@
         0 0 7px rgba(0,0,0,.26);
     }
 
-    /* The reverse face looks away from the cube and remains white. */
     .orbit-card-side.outward {
       transform: translateZ(-.45px) rotateY(180deg);
       border: 1px solid rgba(255,255,255,.92);
@@ -455,7 +454,7 @@
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-      <div class="status">27 NODES / 3 CARD RINGS / TRANSLUCENT INTERSTITIAL PANELS</div>
+      <div class="status">27 NODES / 3 CACHED CARD RINGS / PRECESSING AXES</div>
     </div>
   </main>
 
@@ -464,16 +463,51 @@
     const orbitField = document.getElementById('orbitField');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const nodes = [];
+    const TAU = Math.PI * 2;
+    const HALF_PI = Math.PI * .5;
     const GRID = 3;
     const HALF = 1;
     const MOVE_RANGE = 9;
     const ROTATE_RANGE = 10;
+    const DEPTH_UPDATE_FRAMES = 4;
+
+    // A small sine cache trades a little memory for fewer trigonometric calls
+    // during the 27 independent cube motions.
+    const SIN_LUT_SIZE = 8192;
+    const SIN_LUT_MASK = SIN_LUT_SIZE - 1;
+    const SIN_LUT = new Float32Array(SIN_LUT_SIZE + 1);
+    for (let i = 0; i <= SIN_LUT_SIZE; i += 1) {
+      SIN_LUT[i] = Math.sin((i / SIN_LUT_SIZE) * TAU);
+    }
+
+    function fastSin(angle) {
+      let scaled = angle * SIN_LUT_SIZE / TAU;
+      scaled -= Math.floor(scaled / SIN_LUT_SIZE) * SIN_LUT_SIZE;
+      const index = scaled | 0;
+      const fraction = scaled - index;
+      const a = SIN_LUT[index & SIN_LUT_MASK];
+      const b = SIN_LUT[(index + 1) & SIN_LUT_MASK];
+      return a + (b - a) * fraction;
+    }
+
+    function fastCos(angle) {
+      return fastSin(angle + HALF_PI);
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function deg(value) {
+      return value * Math.PI / 180;
+    }
 
     function seeded(index, channel) {
       const value = Math.sin(index * 91.17 + channel * 43.71) * 43758.5453;
       return value - Math.floor(value);
     }
+
+    const nodes = [];
 
     function makeCube(index, gx, gy, gz) {
       const node = document.createElement('div');
@@ -500,9 +534,9 @@
         baseX: gx,
         baseY: gy,
         baseZ: gz,
-        phaseX: seeded(index, 1) * Math.PI * 2,
-        phaseY: seeded(index, 2) * Math.PI * 2,
-        phaseZ: seeded(index, 3) * Math.PI * 2,
+        phaseX: seeded(index, 1) * TAU,
+        phaseY: seeded(index, 2) * TAU,
+        phaseZ: seeded(index, 3) * TAU,
         speedX: .00045 + seeded(index, 4) * .00055,
         speedY: .00042 + seeded(index, 5) * .00058,
         speedZ: .00038 + seeded(index, 6) * .00062,
@@ -515,29 +549,21 @@
       });
     }
 
-    let index = 0;
+    let cubeIndex = 0;
     for (let z = -HALF; z <= HALF; z += 1) {
       for (let y = -HALF; y <= HALF; y += 1) {
         for (let x = -HALF; x <= HALF; x += 1) {
-          makeCube(index, x, y, z);
-          index += 1;
+          makeCube(cubeIndex, x, y, z);
+          cubeIndex += 1;
         }
       }
     }
 
-    function getStep() {
-      return parseFloat(
-        getComputedStyle(document.documentElement)
-          .getPropertyValue('--cube-step')
-      ) || 54;
-    }
-
-    const ringCards = [];
     const RINGS = [
       {
         count: 30,
         radius: 150,
-        phase: 0.10,
+        phase: .10,
         spinSpeed: .00048,
         precessX: .00011,
         precessY: .00017,
@@ -572,177 +598,136 @@
       }
     ];
 
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
+    function eulerBasis(rx, ry, rz) {
+      const cx = fastCos(rx);
+      const sx = fastSin(rx);
+      const cy = fastCos(ry);
+      const sy = fastSin(ry);
+      const cz = fastCos(rz);
+      const sz = fastSin(rz);
 
-    function deg(value) {
-      return value * Math.PI / 180;
-    }
-
-    function rotateVector(vector, rx, ry, rz) {
-      let { x, y, z } = vector;
-
-      let cos = Math.cos(rx);
-      let sin = Math.sin(rx);
-      [y, z] = [y * cos - z * sin, y * sin + z * cos];
-
-      cos = Math.cos(ry);
-      sin = Math.sin(ry);
-      [x, z] = [x * cos + z * sin, -x * sin + z * cos];
-
-      cos = Math.cos(rz);
-      sin = Math.sin(rz);
-      [x, y] = [x * cos - y * sin, x * sin + y * cos];
-
-      return { x, y, z };
-    }
-
-    function normalizeVector(vector) {
-      const length = Math.hypot(vector.x, vector.y, vector.z) || 1;
       return {
-        x: vector.x / length,
-        y: vector.y / length,
-        z: vector.z / length
+        x: {
+          x: cz * cy,
+          y: sz * cy,
+          z: -sy
+        },
+        y: {
+          x: cz * sy * sx - sz * cx,
+          y: sz * sy * sx + cz * cx,
+          z: cy * sx
+        },
+        z: {
+          x: cz * sy * cx + sz * sx,
+          y: sz * sy * cx - cz * sx,
+          z: cy * cx
+        }
       };
     }
 
-    function crossVector(a, b) {
-      return {
-        x: a.y * b.z - a.z * b.y,
-        y: a.z * b.x - a.x * b.z,
-        z: a.x * b.y - a.y * b.x
+    function createOrbitCard(ring, ringIndex, baseAngle, isSpacer) {
+      const card = document.createElement('div');
+      card.className = isSpacer
+        ? `orbit-card spacer-card ring-${ringIndex + 1}`
+        : `orbit-card ring-${ringIndex + 1}`;
+
+      if (isSpacer) {
+        const face = document.createElement('div');
+        face.className = 'spacer-face';
+        card.appendChild(face);
+      } else {
+        const inward = document.createElement('div');
+        inward.className = 'orbit-card-side inward';
+        const outward = document.createElement('div');
+        outward.className = 'orbit-card-side outward';
+        card.appendChild(inward);
+        card.appendChild(outward);
+      }
+
+      const item = {
+        element: card,
+        isSpacer,
+        baseAngle,
+        baseCos: Math.cos(baseAngle),
+        baseSin: Math.sin(baseAngle),
+        lastDepthBucket: -1
       };
+
+      ring.items.push(item);
+      return item;
     }
 
     function createCardRing(ring, ringIndex) {
-      const angleStep = Math.PI * 2 / ring.count;
+      ring.items = [];
+      ring.group = document.createElement('div');
+      ring.group.className = `orbit-ring orbit-ring-${ringIndex + 1}`;
+      orbitField.appendChild(ring.group);
+
+      const fragment = document.createDocumentFragment();
+      const angleStep = TAU / ring.count;
 
       for (let i = 0; i < ring.count; i += 1) {
         const baseAngle = angleStep * i + ring.phase;
-
-        const card = document.createElement('div');
-        card.className = `orbit-card ring-${ringIndex + 1}`;
-
-        const inward = document.createElement('div');
-        inward.className = 'orbit-card-side inward';
-
-        const outward = document.createElement('div');
-        outward.className = 'orbit-card-side outward';
-
-        card.appendChild(inward);
-        card.appendChild(outward);
-        orbitField.appendChild(card);
-
-        ringCards.push({
-          element: card,
-          ring,
-          ringIndex,
-          baseAngle,
-          isSpacer: false
-        });
-
-        // A smaller translucent card floats halfway between each pair.
-        const spacer = document.createElement('div');
-        spacer.className = `orbit-card spacer-card ring-${ringIndex + 1}`;
-
-        const spacerFace = document.createElement('div');
-        spacerFace.className = 'spacer-face';
-        spacer.appendChild(spacerFace);
-        orbitField.appendChild(spacer);
-
-        ringCards.push({
-          element: spacer,
-          ring,
-          ringIndex,
-          baseAngle: baseAngle + angleStep * .5,
-          isSpacer: true
-        });
+        const card = createOrbitCard(ring, ringIndex, baseAngle, false);
+        const spacer = createOrbitCard(ring, ringIndex, baseAngle + angleStep * .5, true);
+        fragment.appendChild(card.element);
+        fragment.appendChild(spacer.element);
       }
+
+      ring.group.appendChild(fragment);
     }
 
     RINGS.forEach(createCardRing);
 
-    function updateCardRings(time) {
-      const mobileScale = window.innerWidth <= 640 ? .78 : 1;
+    let cubeStep = 54;
+    let mobileScale = 1;
 
-      ringCards.forEach(item => {
-        const ring = item.ring;
-        const freeze = reducedMotion ? 0 : 1;
+    function applyStaticCardLayout(ring) {
+      const radius = ring.scaledRadius;
+      const connectedWidth = 2 * radius * Math.tan(Math.PI / ring.count) + .7;
 
-        const orbitalAngle =
-          item.baseAngle + time * ring.spinSpeed * freeze;
-
-        const scaledRadius = ring.radius * mobileScale;
-
-        // Start with a circular ring in the local X/Y plane.
-        let position = {
-          x: Math.cos(orbitalAngle) * scaledRadius,
-          y: Math.sin(orbitalAngle) * scaledRadius,
-          z: 0
-        };
-
-        // The ring axis itself slowly precesses around the cube center.
-        const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
-        const ry = deg(ring.tiltY) + time * ring.precessY * freeze;
-        const rz = deg(ring.tiltZ) + time * ring.precessZ * freeze;
-
-        position = rotateVector(position, rx, ry, rz);
-
-        // Local +Z of every card points inward toward the large cube.
-        const inward = normalizeVector({
-          x: -position.x,
-          y: -position.y,
-          z: -position.z
-        });
-
-        // The card's vertical center axis is always parallel to the ring axis,
-        // including when that axis is diagonal in 3D space.
-        let up = normalizeVector(
-          rotateVector({ x: 0, y: 0, z: 1 }, rx, ry, rz)
-        );
-
-        // Build an orthonormal card basis:
-        // X = tangent around the ring, Y = ring axis, Z = inward normal.
-        const right = normalizeVector(crossVector(up, inward));
-        up = normalizeVector(crossVector(inward, right));
-
-        // Keep the main cards separated. A smaller translucent card occupies
-        // part of each gap without fully closing it.
-        const connectedWidth =
-          2 * scaledRadius * Math.tan(Math.PI / ring.count) + .7;
-        const displayWidth = item.isSpacer
+      ring.items.forEach(item => {
+        const ca = item.baseCos;
+        const sa = item.baseSin;
+        const width = item.isSpacer
           ? connectedWidth * .18
           : connectedWidth * .68;
 
-        item.element.style.setProperty(
-          '--card-width',
-          `${displayWidth}px`
-        );
+        item.element.style.setProperty('--card-width', `${width}px`);
+
+        // Local ring basis: X=tangent, Y=ring axis, Z=inward to center.
+        const rightX = sa;
+        const rightY = -ca;
+        const inwardX = -ca;
+        const inwardY = -sa;
+        const px = ca * radius;
+        const py = sa * radius;
 
         item.element.style.transform =
           `matrix3d(` +
-          `${right.x},${right.y},${right.z},0,` +
-          `${up.x},${up.y},${up.z},0,` +
-          `${inward.x},${inward.y},${inward.z},0,` +
-          `${position.x},${position.y},${position.z},1)`;
-
-        // Near cards stay bright while far cards recede slightly into the scene.
-        const depth = clamp(
-          (position.z / scaledRadius + 1) * .5,
-          0,
-          1
-        );
-        const depthAlpha = item.isSpacer
-          ? 0.16 + depth * 0.20
-          : 0.58 + depth * 0.42;
-
-        item.element.style.setProperty(
-          '--depth-alpha',
-          depthAlpha.toFixed(3)
-        );
+          `${rightX},${rightY},0,0,` +
+          `0,0,1,0,` +
+          `${inwardX},${inwardY},0,0,` +
+          `${px},${py},0,1)`;
       });
     }
+
+    function refreshLayout() {
+      cubeStep = parseFloat(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue('--cube-step')
+      ) || 54;
+
+      mobileScale = window.innerWidth <= 640 ? .78 : 1;
+
+      RINGS.forEach(ring => {
+        ring.scaledRadius = ring.radius * mobileScale;
+        applyStaticCardLayout(ring);
+      });
+    }
+
+    refreshLayout();
+    window.addEventListener('resize', refreshLayout, { passive: true });
 
     let pointerX = 0;
     let pointerY = 0;
@@ -752,37 +737,101 @@
       pointerY = (event.clientY / window.innerHeight - .5) * 2;
     }, { passive: true });
 
-    function render(time) {
-      const step = getStep();
+    let frameIndex = 0;
 
-      const globalRotX = -18 + Math.sin(time * .00013) * 5 + pointerY * -4;
-      const globalRotY = 32 + time * .0045 + pointerX * 7;
-      const globalRotZ = Math.sin(time * .00017) * 3;
+    function updateCardRings(time) {
+      const freeze = reducedMotion ? 0 : 1;
+      const updateDepth = frameIndex % DEPTH_UPDATE_FRAMES === 0;
+
+      RINGS.forEach(ring => {
+        const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
+        const ry = deg(ring.tiltY) + time * ring.precessY * freeze;
+        const rz = deg(ring.tiltZ) + time * ring.precessZ * freeze;
+        const basis = eulerBasis(rx, ry, rz);
+
+        const spin = time * ring.spinSpeed * freeze;
+        const cs = fastCos(spin);
+        const ss = fastSin(spin);
+
+        // R(precession) * Rz(spin): one cached transform moves the entire ring.
+        const xAxis = {
+          x: cs * basis.x.x + ss * basis.y.x,
+          y: cs * basis.x.y + ss * basis.y.y,
+          z: cs * basis.x.z + ss * basis.y.z
+        };
+        const yAxis = {
+          x: -ss * basis.x.x + cs * basis.y.x,
+          y: -ss * basis.x.y + cs * basis.y.y,
+          z: -ss * basis.x.z + cs * basis.y.z
+        };
+
+        ring.group.style.transform =
+          `matrix3d(` +
+          `${xAxis.x},${xAxis.y},${xAxis.z},0,` +
+          `${yAxis.x},${yAxis.y},${yAxis.z},0,` +
+          `${basis.z.x},${basis.z.y},${basis.z.z},0,` +
+          `0,0,0,1)`;
+
+        // Depth brightness is intentionally refreshed less often than geometry.
+        // Perspective and all actual movement still update every animation frame.
+        if (updateDepth) {
+          const radius = ring.scaledRadius;
+
+          ring.items.forEach(item => {
+            const z = radius * (
+              item.baseCos * xAxis.z +
+              item.baseSin * yAxis.z
+            );
+            const depth = clamp((z / radius + 1) * .5, 0, 1);
+            const alpha = item.isSpacer
+              ? .16 + depth * .20
+              : .58 + depth * .42;
+            const bucket = Math.round(alpha * 48);
+
+            if (bucket !== item.lastDepthBucket) {
+              item.lastDepthBucket = bucket;
+              item.element.style.setProperty(
+                '--depth-alpha',
+                (bucket / 48).toFixed(3)
+              );
+            }
+          });
+        }
+      });
+    }
+
+    function updateCubes(time) {
+      const freeze = reducedMotion ? 0 : 1;
+
+      const globalRotX = -18 + fastSin(time * .00013) * 5 + pointerY * -4;
+      const globalRotY = 32 + time * .0045 * freeze + pointerX * 7;
+      const globalRotZ = fastSin(time * .00017) * 3;
 
       assembly.style.transform =
         `rotateX(${globalRotX}deg) rotateY(${globalRotY}deg) rotateZ(${globalRotZ}deg)`;
 
-      updateCardRings(time);
+      nodes.forEach(item => {
+        const dx = fastSin(time * item.speedX + item.phaseX) * item.ampX * freeze;
+        const dy = fastSin(time * item.speedY + item.phaseY) * item.ampY * freeze;
+        const dz = fastSin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
 
-      nodes.forEach((item, i) => {
-        const freeze = reducedMotion ? 0 : 1;
+        const rx = fastSin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
+        const ry = fastSin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
+        const rz = fastSin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
 
-        const dx = Math.sin(time * item.speedX + item.phaseX) * item.ampX * freeze;
-        const dy = Math.sin(time * item.speedY + item.phaseY) * item.ampY * freeze;
-        const dz = Math.sin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
-
-        const rx = Math.sin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
-        const ry = Math.sin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
-        const rz = Math.sin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
-
-        const x = item.baseX * step + dx;
-        const y = item.baseY * step + dy;
-        const z = item.baseZ * step + dz;
+        const x = item.baseX * cubeStep + dx;
+        const y = item.baseY * cubeStep + dy;
+        const z = item.baseZ * cubeStep + dz;
 
         item.node.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
         item.cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
       });
+    }
 
+    function render(time) {
+      updateCardRings(time);
+      updateCubes(time);
+      frameIndex += 1;
       requestAnimationFrame(render);
     }
 
