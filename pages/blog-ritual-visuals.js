@@ -1,41 +1,41 @@
 const RITUAL_CONSTELLATIONS = [
   {
-    name: 'CASSIOPEIA', x: 155, y: 115, scale: 0.95, rotation: -0.08, start: 0.07,
+    name: 'CASSIOPEIA', x: score.x - 560, y: score.y - 330, scale: 0.95, rotation: -0.08, start: 0.07,
     points: [[-38,8],[-20,-10],[0,7],[22,-11],[42,5]],
     edges: [[0,1],[1,2],[2,3],[3,4]]
   },
   {
-    name: 'LYRA', x: 352, y: 92, scale: 0.8, rotation: 0.16, start: 0.15,
+    name: 'LYRA', x: score.x - 230, y: score.y - 390, scale: 0.8, rotation: 0.16, start: 0.15,
     points: [[-30,-24],[-4,-10],[16,-5],[20,18],[-7,22]],
     edges: [[0,1],[1,2],[2,3],[3,4],[4,1]]
   },
   {
-    name: 'CYGNUS', x: 790, y: 112, scale: 0.9, rotation: -0.12, start: 0.23,
+    name: 'CYGNUS', x: score.x + 360, y: score.y - 340, scale: 0.9, rotation: -0.12, start: 0.23,
     points: [[-44,0],[-18,0],[8,0],[42,0],[8,-42],[8,38]],
     edges: [[0,1],[1,2],[2,3],[4,2],[2,5]]
   },
   {
-    name: 'ORION', x: 140, y: 322, scale: 0.9, rotation: 0.04, start: 0.31,
+    name: 'ORION', x: score.x - 620, y: score.y - 30, scale: 0.9, rotation: 0.04, start: 0.31,
     points: [[-28,-38],[28,-35],[-15,-3],[0,0],[15,-2],[-24,38],[25,40],[-2,-58]],
     edges: [[7,0],[7,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6],[5,6]]
   },
   {
-    name: 'URSA MAJOR', x: 815, y: 310, scale: 0.92, rotation: 0.12, start: 0.40,
+    name: 'URSA MAJOR', x: score.x + 570, y: score.y - 40, scale: 0.92, rotation: 0.12, start: 0.40,
     points: [[-48,-12],[-27,-23],[-5,-16],[14,-3],[35,-8],[48,8],[34,25]],
     edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,3]]
   },
   {
-    name: 'SCORPIUS', x: 164, y: 514, scale: 0.82, rotation: -0.16, start: 0.50,
+    name: 'SCORPIUS', x: score.x - 560, y: score.y + 320, scale: 0.82, rotation: -0.16, start: 0.50,
     points: [[-42,-30],[-25,-18],[-9,-8],[5,4],[18,18],[28,34],[17,48],[3,43],[-9,31]],
     edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]
   },
   {
-    name: 'GEMINI', x: 790, y: 505, scale: 0.84, rotation: 0.08, start: 0.59,
+    name: 'GEMINI', x: score.x + 560, y: score.y + 300, scale: 0.84, rotation: 0.08, start: 0.59,
     points: [[-24,-42],[-31,-18],[-34,8],[-42,34],[24,-40],[29,-15],[32,12],[40,36],[0,-3]],
     edges: [[0,1],[1,2],[2,3],[4,5],[5,6],[6,7],[1,8],[5,8]]
   },
   {
-    name: 'ANDROMEDA', x: 610, y: 535, scale: 0.88, rotation: -0.08, start: 0.69,
+    name: 'ANDROMEDA', x: score.x + 230, y: score.y + 380, scale: 0.88, rotation: -0.08, start: 0.69,
     points: [[-48,12],[-25,2],[0,-7],[22,-15],[46,-7],[17,8],[-8,20]],
     edges: [[0,1],[1,2],[2,3],[3,4],[2,5],[2,6]]
   }
