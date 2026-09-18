@@ -7,15 +7,17 @@
   layer.className = 'space-effects';
   space.appendChild(layer);
 
-  const sparkCount = 24;
+  const sparkCount = 64;
   for (let i = 0; i < sparkCount; i += 1) {
     const star = document.createElement('span');
-    star.className = `spark-star${Math.random() > 0.72 ? ' spark-bright' : ''}`;
-    star.style.left = `${4 + Math.random() * 92}%`;
-    star.style.top = `${5 + Math.random() * 86}%`;
-    star.style.setProperty('--spark-size', `${(1 + Math.random() * 1.7).toFixed(2)}px`);
-    star.style.setProperty('--spark-duration', `${(2.8 + Math.random() * 4.8).toFixed(2)}s`);
-    star.style.setProperty('--spark-delay', `${(-Math.random() * 7).toFixed(2)}s`);
+    const bright = Math.random() > 0.68;
+    star.className = `spark-star${bright ? ' spark-bright' : ''}`;
+    star.style.left = `${2 + Math.random() * 96}%`;
+    star.style.top = `${3 + Math.random() * 92}%`;
+    star.style.setProperty('--spark-size', `${(0.8 + Math.random() * 2.25).toFixed(2)}px`);
+    star.style.setProperty('--spark-duration', `${(3.2 + Math.random() * 6.4).toFixed(2)}s`);
+    star.style.setProperty('--spark-delay', `${(-Math.random() * 9).toFixed(2)}s`);
+    star.style.setProperty('--spark-depth', `${(.35 + Math.random() * .9).toFixed(3)}`);
     layer.appendChild(star);
   }
 
@@ -50,6 +52,20 @@
         [76, 48, 70, 13], [76, 48, 83, 86]
       ],
       stars: [[13,52,1.8],[46,50,1.6],[76,48,2.4],[116,45,2],[70,13,2],[83,86,1.9]]
+    },
+    {
+      className: 'constellation-cassiopeia',
+      label: 'CASSIOPEIA',
+      viewBox: '0 0 125 90',
+      lines: [[10,52,34,26],[34,26,58,51],[58,51,82,23],[82,23,114,47]],
+      stars: [[10,52,1.7],[34,26,2.1],[58,51,1.8],[82,23,2.2],[114,47,1.8]]
+    },
+    {
+      className: 'constellation-andromeda',
+      label: 'ANDROMEDA',
+      viewBox: '0 0 135 95',
+      lines: [[12,70,39,53],[39,53,64,40],[64,40,93,25],[64,40,84,67],[93,25,122,19]],
+      stars: [[12,70,1.7],[39,53,1.9],[64,40,2.3],[93,25,1.8],[84,67,1.6],[122,19,2.1]]
     }
   ];
 
@@ -80,7 +96,7 @@
 
     const text = document.createElementNS(svgNS, 'text');
     text.setAttribute('x', 4);
-    text.setAttribute('y', 96);
+    text.setAttribute('y', parseFloat(data.viewBox.split(' ')[3]) - 4);
     text.textContent = data.label;
     svg.appendChild(text);
 
@@ -90,22 +106,22 @@
   function spawnFlash() {
     const flash = document.createElement('span');
     flash.className = 'sky-flash';
-    flash.style.left = `${8 + Math.random() * 84}%`;
-    flash.style.top = `${8 + Math.random() * 68}%`;
+    flash.style.left = `${6 + Math.random() * 88}%`;
+    flash.style.top = `${6 + Math.random() * 76}%`;
     layer.appendChild(flash);
-    window.setTimeout(() => flash.remove(), 1900);
+    window.setTimeout(() => flash.remove(), 2200);
   }
 
   function spawnMeteor() {
     const meteor = document.createElement('span');
     meteor.className = 'meteor';
 
-    const x = 52 + Math.random() * 43;
-    const y = 4 + Math.random() * 35;
-    const length = 90 + Math.random() * 150;
-    const angle = 22 + Math.random() * 16;
-    const duration = 0.82 + Math.random() * 0.72;
-    const travel = 48 + Math.random() * 33;
+    const x = 48 + Math.random() * 48;
+    const y = 2 + Math.random() * 40;
+    const length = 110 + Math.random() * 190;
+    const angle = 20 + Math.random() * 18;
+    const duration = 0.95 + Math.random() * 0.95;
+    const travel = 54 + Math.random() * 40;
 
     meteor.style.setProperty('--meteor-x', `${x}vw`);
     meteor.style.setProperty('--meteor-y', `${y}vh`);
@@ -115,42 +131,70 @@
     meteor.style.setProperty('--meteor-travel', `-${travel.toFixed(0)}vw`);
 
     layer.appendChild(meteor);
-    window.setTimeout(() => meteor.remove(), duration * 1000 + 250);
+    window.setTimeout(() => meteor.remove(), duration * 1000 + 320);
 
-    if (Math.random() < 0.18) {
+    if (Math.random() < 0.22) {
       window.setTimeout(() => {
         if (!document.hidden) spawnMeteor();
-      }, 180 + Math.random() * 420);
+      }, 180 + Math.random() * 360);
     }
   }
 
   function scheduleMeteor() {
     if (reducedMotion) return;
 
-    const delay = 2600 + Math.random() * 6200;
+    const delay = 2200 + Math.random() * 5200;
     window.setTimeout(() => {
-      if (!document.hidden && Math.random() < 0.68) {
-        spawnMeteor();
-      }
-
-      if (!document.hidden && Math.random() < 0.16) {
-        spawnFlash();
-      }
-
+      if (!document.hidden && Math.random() < 0.74) spawnMeteor();
+      if (!document.hidden && Math.random() < 0.19) spawnFlash();
       scheduleMeteor();
     }, delay);
   }
 
-  if (!reducedMotion) {
-    scheduleMeteor();
+  if (!reducedMotion) scheduleMeteor();
+
+  // Same motion model as the hidden page: large pointer offsets are followed
+  // quickly, then the final few pixels settle more slowly.
+  let targetX = 0;
+  let targetY = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let lastFrame = performance.now();
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function approach(value, target, dt, range) {
+    const distance = Math.abs(target - value);
+    const t = clamp(distance / range, 0, 1);
+    const smooth = t * t * (3 - 2 * t);
+    const rate = .0035 + (.021 - .0035) * smooth;
+    return value + (target - value) * (1 - Math.exp(-dt * rate));
   }
 
   window.addEventListener('pointermove', event => {
     if (reducedMotion) return;
-
-    const x = ((event.clientX / window.innerWidth) - 0.5) * -5;
-    const y = ((event.clientY / window.innerHeight) - 0.5) * -4;
-    layer.style.setProperty('--sky-x', `${x.toFixed(2)}px`);
-    layer.style.setProperty('--sky-y', `${y.toFixed(2)}px`);
+    targetX = ((event.clientX / window.innerWidth) - .5) * -8;
+    targetY = ((event.clientY / window.innerHeight) - .5) * -6;
   }, { passive: true });
+
+  document.documentElement.addEventListener('pointerleave', () => {
+    targetX = 0;
+    targetY = 0;
+  });
+
+  function animateSky(now) {
+    const dt = Math.min(50, Math.max(1, now - lastFrame));
+    lastFrame = now;
+
+    currentX = approach(currentX, targetX, dt, 8);
+    currentY = approach(currentY, targetY, dt, 6);
+
+    layer.style.setProperty('--sky-x', `${currentX.toFixed(3)}px`);
+    layer.style.setProperty('--sky-y', `${currentY.toFixed(3)}px`);
+    requestAnimationFrame(animateSky);
+  }
+
+  requestAnimationFrame(animateSky);
 })();
