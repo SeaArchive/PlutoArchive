@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Hidden Archive | Pluto Archive</title>
 
   <script>
@@ -17,13 +17,7 @@
       --text: #f2efff;
       --muted: #817b92;
       --violet: #b299ff;
-      --gold: #dbc990;
-      --cyan: #8fc8ff;
       --line: rgba(178,153,255,.22);
-      --cube-size: 44px;
-      --cube-step: 54px;
-      --card-w: 30px;
-      --card-h: 44px;
     }
 
     * { box-sizing: border-box; }
@@ -41,8 +35,8 @@
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at 50% 50%, rgba(178,153,255,.09), transparent 24%),
-        radial-gradient(circle at 50% 50%, rgba(80,125,190,.05), transparent 44%),
+        radial-gradient(circle at 50% 48%, rgba(178,153,255,.08), transparent 28%),
+        radial-gradient(circle at 50% 50%, rgba(70,130,190,.04), transparent 52%),
         #010105;
     }
 
@@ -50,272 +44,28 @@
       position: fixed;
       inset: 0;
       overflow: hidden;
-      perspective: 650px;
-      perspective-origin: 50% 46%;
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
     }
 
-    .hidden-world::before,
-    .hidden-world::after {
-      content: "";
-      position: absolute;
-      inset: -25%;
-      pointer-events: none;
-    }
+    .hidden-world.dragging { cursor: grabbing; }
 
-    .hidden-world::before {
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,.48) 0 1px, transparent 1.3px),
-        radial-gradient(circle, rgba(150,190,255,.34) 0 1px, transparent 1.2px),
-        radial-gradient(circle, rgba(210,195,255,.26) 0 1px, transparent 1.2px);
-      background-size: 139px 139px, 211px 211px, 83px 83px;
-      background-position: 18px 31px, 71px 104px, 42px 19px;
-      opacity: .22;
-      animation: starDrift 70s linear infinite;
-    }
-
-    .hidden-world::after {
-      background:
-        radial-gradient(circle at 50% 50%, transparent 0 24%, rgba(0,0,0,.22) 58%, rgba(0,0,0,.72) 100%);
-    }
-
-    .scene {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 1px;
-      height: 1px;
-      transform-style: preserve-3d;
-      transform: translate3d(-50%, -50%, -24px);
-    }
-
-    .assembly,
-    .orbit-field,
-    .orbit-ring {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 1px;
-      height: 1px;
-      transform-style: preserve-3d;
-    }
-
-    .assembly,
-    .orbit-ring,
-    .cube-node,
-    .cube {
-      will-change: transform;
-    }
-
-    .orbit-field {
-      pointer-events: none;
-    }
-
-    .cube-node {
-      position: absolute;
-      left: calc(var(--cube-size) / -2);
-      top: calc(var(--cube-size) / -2);
-      width: var(--cube-size);
-      height: var(--cube-size);
-      transform-style: preserve-3d;
-    }
-
-    .cube {
+    #webglScene {
       position: absolute;
       inset: 0;
-      transform-style: preserve-3d;
+      width: 100%;
+      height: 100%;
+      display: block;
+      outline: none;
     }
 
-    .face {
+    .vignette {
       position: absolute;
       inset: 0;
-      border: 1px solid rgba(194,178,255,.28);
-      background:
-        linear-gradient(135deg, rgba(190,220,255,.08), rgba(178,153,255,.025)),
-        rgba(6,8,18,.52);
-      box-shadow:
-        inset 0 0 16px rgba(170,200,255,.035),
-        0 0 12px rgba(178,153,255,.025);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-
-    .face::after {
-      content: "";
-      position: absolute;
-      inset: 5px;
-      border: 1px solid rgba(150,190,235,.08);
-    }
-
-    .front  { transform: translateZ(calc(var(--cube-size) / 2)); }
-    .back   { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
-    .right  { transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2)); }
-    .left   { transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2)); }
-    .top    { transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }
-    .bottom { transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }
-
-    .cube-node:nth-child(3n + 1) .face {
-      border-color: rgba(147,198,255,.28);
-    }
-
-    .cube-node:nth-child(4n + 2) .face {
-      border-color: rgba(219,201,144,.25);
-    }
-
-    .core-cube-node {
-      z-index: 4;
-    }
-
-    .core-cube-node::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: calc(var(--cube-size) * 2.2);
-      height: calc(var(--cube-size) * 2.2);
-      border-radius: 50%;
-      transform: translate(-50%, -50%) translateZ(-2px);
-      background: radial-gradient(
-        circle,
-        rgba(118,211,255,.20) 0%,
-        rgba(92,190,255,.10) 38%,
-        rgba(73,214,255,.035) 62%,
-        transparent 74%
-      );
-      filter: blur(10px);
       pointer-events: none;
-    }
-
-    .core-cube-node .face {
-      border-color: rgba(159,226,255,.72);
       background:
-        linear-gradient(145deg, rgba(170,230,255,.19), rgba(92,190,255,.055)),
-        rgba(7,14,24,.66);
-      box-shadow:
-        inset 0 0 18px rgba(145,222,255,.11),
-        0 0 10px rgba(92,190,255,.12),
-        0 0 22px rgba(73,214,255,.08);
-    }
-
-    .core-cube-node .face::after {
-      border-color: rgba(180,235,255,.20);
-    }
-
-    .orbit-card {
-      --card-width: var(--card-w);
-      --depth-alpha: 1;
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: var(--card-width);
-      height: var(--card-h);
-      margin-left: calc(var(--card-width) / -2);
-      margin-top: calc(var(--card-h) / -2);
-      transform-style: preserve-3d;
-      transform-origin: 50% 50%;
-    }
-
-    .orbit-card-side {
-      position: absolute;
-      inset: 0;
-      border-radius: 1px;
-      opacity: var(--depth-alpha);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      transform-style: preserve-3d;
-    }
-
-    .orbit-card-side.inward {
-      transform: translateZ(.45px);
-      border: 1px solid rgba(155,175,205,.34);
-      background:
-        linear-gradient(145deg, rgba(18,22,30,.96), rgba(0,0,0,.995)),
-        #000;
-      box-shadow:
-        inset 0 0 10px rgba(130,175,220,.04),
-        0 0 7px rgba(0,0,0,.26);
-    }
-
-    .orbit-card-side.outward {
-      transform: translateZ(-.45px) rotateY(180deg);
-      border: 1px solid rgba(255,255,255,.92);
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.995), rgba(226,232,242,.97));
-      box-shadow:
-        0 0 8px rgba(225,235,255,.12),
-        inset 0 0 0 1px rgba(255,255,255,.30);
-    }
-
-    .orbit-card-side::before,
-    .orbit-card-side::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      height: 1px;
-    }
-
-    .orbit-card-side::before {
-      top: 9px;
-      width: 42%;
-    }
-
-    .orbit-card-side::after {
-      bottom: 8px;
-      width: 58%;
-    }
-
-    .orbit-card-side.inward::before,
-    .orbit-card-side.inward::after {
-      background: rgba(150,180,215,.10);
-    }
-
-    .orbit-card-side.outward::before,
-    .orbit-card-side.outward::after {
-      background: rgba(72,82,103,.15);
-    }
-
-    .spacer-card {
-      height: calc(var(--card-h) * .58);
-      margin-top: calc(var(--card-h) * -.29);
-    }
-
-    .spacer-face {
-      position: absolute;
-      inset: 0;
-      opacity: .30;
-      border: 1px solid rgba(205,226,255,.18);
-      border-radius: 1px;
-      background:
-        linear-gradient(145deg, rgba(210,230,255,.055), rgba(130,165,210,.018));
-      box-shadow:
-        inset 0 0 9px rgba(190,220,255,.025),
-        0 0 7px rgba(150,190,235,.03);
-      backface-visibility: visible;
-      -webkit-backface-visibility: visible;
-    }
-
-    .spacer-face::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 38%;
-      height: 1px;
-      transform: translate(-50%, -50%);
-      background: rgba(215,232,255,.12);
-    }
-
-    .core-glow {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 360px;
-      height: 360px;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle, rgba(178,153,255,.10), rgba(100,140,210,.035) 38%, transparent 70%);
-      filter: blur(18px);
-      pointer-events: none;
+        radial-gradient(circle at 50% 50%, transparent 0 46%, rgba(0,0,0,.16) 72%, rgba(0,0,0,.62) 100%);
     }
 
     .ui {
@@ -352,6 +102,7 @@
       color: var(--muted);
       font-size: 9px;
       letter-spacing: .08em;
+      line-height: 1.55;
     }
 
     .return-link {
@@ -369,6 +120,7 @@
       font-size: 9px;
       letter-spacing: .14em;
       pointer-events: auto;
+      backdrop-filter: blur(8px);
     }
 
     .return-link:hover,
@@ -378,41 +130,42 @@
       color: #fff;
     }
 
-    .status {
+    .status,
+    .fps {
       position: absolute;
-      left: 22px;
       bottom: 20px;
-      color: rgba(129,123,146,.72);
+      color: rgba(129,123,146,.78);
       font-size: 8px;
       letter-spacing: .12em;
     }
 
-    @keyframes starDrift {
-      to { transform: translate3d(80px, 42px, 0); }
+    .status { left: 22px; }
+    .fps { right: 22px; text-align: right; }
+
+    .fallback {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      width: min(420px, calc(100vw - 40px));
+      padding: 18px;
+      border: 1px solid rgba(178,153,255,.28);
+      background: rgba(4,5,12,.82);
+      color: #dcd7ef;
+      font-size: 11px;
+      line-height: 1.7;
+      letter-spacing: .05em;
+      text-align: center;
     }
 
     @media (max-width: 640px) {
-      .hidden-world {
-        perspective: 560px;
-        perspective-origin: 50% 47%;
-      }
-
-      :root {
-        --cube-size: 35px;
-        --cube-step: 43px;
-        --card-w: 23px;
-        --card-h: 34px;
-      }
-
       .label {
         left: 14px;
         top: 14px;
       }
 
-      .label small {
-        max-width: 190px;
-        line-height: 1.6;
-      }
+      .label small { max-width: 210px; }
 
       .return-link {
         right: 12px;
@@ -426,389 +179,955 @@
         left: 14px;
         bottom: 14px;
       }
-    }
 
-    @media (prefers-reduced-motion: reduce) {
-      .hidden-world::before {
-        animation: none;
+      .fps {
+        right: 14px;
+        bottom: 14px;
       }
     }
   </style>
 </head>
-
 <body>
-  <main class="hidden-world">
-    <div class="core-glow" aria-hidden="true"></div>
-
-    <div class="scene" aria-label="3x3x3 animated cube structure with three orbital card rings">
-      <div id="orbitField" class="orbit-field" aria-hidden="true"></div>
-      <div id="assembly" class="assembly"></div>
-    </div>
+  <main id="world" class="hidden-world">
+    <canvas id="webglScene" aria-label="WebGL 3D cube and orbital card experiment"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="fallback" class="fallback">WEBGL2를 사용할 수 없는 환경입니다.</div>
 
     <div class="ui">
       <div class="label">
         <span>UNNUMBERED RECORD / EXPERIMENT 01</span>
         <strong>27-BODY CUBE</strong>
-        <small>3 × 3 × 3 / LOCAL DISPLACEMENT FIELD</small>
+        <small>GPU INSTANCING / DRAG TO ORBIT / WHEEL TO ZOOM</small>
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-      <div class="status">27 NODES / 3 CARD RINGS / SMOOTH MOTION FIELD</div>
+      <div class="status">27 CUBES / 108 DUAL-SIDED CARDS / 108 TRANSLUCENT SPACERS</div>
+      <div id="fps" class="fps">WEBGL2 / -- FPS</div>
     </div>
   </main>
 
   <script>
-    const assembly = document.getElementById('assembly');
-    const orbitField = document.getElementById('orbitField');
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    (() => {
+      'use strict';
 
-    const TAU = Math.PI * 2;
-    const HALF = 1;
-    const MOVE_RANGE = 9;
-    const ROTATE_RANGE = 10;
+      const canvas = document.getElementById('webglScene');
+      const world = document.getElementById('world');
+      const fpsEl = document.getElementById('fps');
+      const fallback = document.getElementById('fallback');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
-    }
+      const gl = canvas.getContext('webgl2', {
+        alpha: true,
+        antialias: true,
+        depth: true,
+        stencil: false,
+        desynchronized: true,
+        preserveDrawingBuffer: false,
+        powerPreference: 'high-performance'
+      });
 
-    function deg(value) {
-      return value * Math.PI / 180;
-    }
+      if (!gl) {
+        fallback.style.display = 'block';
+        fpsEl.textContent = 'WEBGL2 / UNAVAILABLE';
+        return;
+      }
 
-    function seeded(index, channel) {
-      const value = Math.sin(index * 91.17 + channel * 43.71) * 43758.5453;
-      return value - Math.floor(value);
-    }
+      const TAU = Math.PI * 2;
+      const DEG = Math.PI / 180;
+      const CUBE_COUNT = 27;
+      const CARD_COUNT = 30 + 36 + 42;
+      const SPACER_COUNT = CARD_COUNT;
+      const CUBE_SIZE = .82;
+      const CUBE_STEP = 1.02;
+      const CARD_HEIGHT = .62;
 
-    function eulerBasis(rx, ry, rz) {
-      const cx = Math.cos(rx);
-      const sx = Math.sin(rx);
-      const cy = Math.cos(ry);
-      const sy = Math.sin(ry);
-      const cz = Math.cos(rz);
-      const sz = Math.sin(rz);
-
-      return {
-        x: {
-          x: cz * cy,
-          y: sz * cy,
-          z: -sy
+      const RINGS = [
+        {
+          count: 30,
+          radius: 2.65,
+          phase: .10,
+          spin: .00048,
+          precessX: .00011,
+          precessY: .00017,
+          precessZ: .00007,
+          tiltX: 18 * DEG,
+          tiltY: 0,
+          tiltZ: 0
         },
-        y: {
-          x: cz * sy * sx - sz * cx,
-          y: sz * sy * sx + cz * cx,
-          z: cy * sx
+        {
+          count: 36,
+          radius: 3.25,
+          phase: 1.35,
+          spin: -.00039,
+          precessX: -.00008,
+          precessY: .00013,
+          precessZ: .00010,
+          tiltX: 68 * DEG,
+          tiltY: 16 * DEG,
+          tiltZ: 10 * DEG
         },
-        z: {
-          x: cz * sy * cx + sz * sx,
-          y: sz * sy * cx - cz * sx,
-          z: cy * cx
+        {
+          count: 42,
+          radius: 3.85,
+          phase: 2.20,
+          spin: .00031,
+          precessX: .00009,
+          precessY: -.00010,
+          precessZ: .00013,
+          tiltX: 35 * DEG,
+          tiltY: 72 * DEG,
+          tiltZ: -18 * DEG
         }
+      ];
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function seeded(index, channel) {
+        const value = Math.sin(index * 91.17 + channel * 43.71) * 43758.5453;
+        return value - Math.floor(value);
+      }
+
+      function compileShader(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          const message = gl.getShaderInfoLog(shader) || 'Shader compilation failed.';
+          gl.deleteShader(shader);
+          throw new Error(message);
+        }
+        return shader;
+      }
+
+      function createProgram(vertexSource, fragmentSource) {
+        const program = gl.createProgram();
+        const vertex = compileShader(gl.VERTEX_SHADER, vertexSource);
+        const fragment = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+        gl.attachShader(program, vertex);
+        gl.attachShader(program, fragment);
+        gl.linkProgram(program);
+        gl.deleteShader(vertex);
+        gl.deleteShader(fragment);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          const message = gl.getProgramInfoLog(program) || 'Program link failed.';
+          gl.deleteProgram(program);
+          throw new Error(message);
+        }
+        return program;
+      }
+
+      function mat4Identity() {
+        return new Float32Array([
+          1,0,0,0,
+          0,1,0,0,
+          0,0,1,0,
+          0,0,0,1
+        ]);
+      }
+
+      function mat4Multiply(a, b) {
+        const out = new Float32Array(16);
+        for (let col = 0; col < 4; col += 1) {
+          const bi0 = b[col * 4];
+          const bi1 = b[col * 4 + 1];
+          const bi2 = b[col * 4 + 2];
+          const bi3 = b[col * 4 + 3];
+          out[col * 4]     = a[0] * bi0 + a[4] * bi1 + a[8]  * bi2 + a[12] * bi3;
+          out[col * 4 + 1] = a[1] * bi0 + a[5] * bi1 + a[9]  * bi2 + a[13] * bi3;
+          out[col * 4 + 2] = a[2] * bi0 + a[6] * bi1 + a[10] * bi2 + a[14] * bi3;
+          out[col * 4 + 3] = a[3] * bi0 + a[7] * bi1 + a[11] * bi2 + a[15] * bi3;
+        }
+        return out;
+      }
+
+      function mat4Perspective(fov, aspect, near, far) {
+        const f = 1 / Math.tan(fov * .5);
+        const nf = 1 / (near - far);
+        return new Float32Array([
+          f / aspect, 0, 0, 0,
+          0, f, 0, 0,
+          0, 0, (far + near) * nf, -1,
+          0, 0, 2 * far * near * nf, 0
+        ]);
+      }
+
+      function mat4Translation(x, y, z) {
+        const out = mat4Identity();
+        out[12] = x;
+        out[13] = y;
+        out[14] = z;
+        return out;
+      }
+
+      function mat4RotationX(angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return new Float32Array([
+          1,0,0,0,
+          0,c,s,0,
+          0,-s,c,0,
+          0,0,0,1
+        ]);
+      }
+
+      function mat4RotationY(angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return new Float32Array([
+          c,0,-s,0,
+          0,1,0,0,
+          s,0,c,0,
+          0,0,0,1
+        ]);
+      }
+
+      function mat4RotationZ(angle) {
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        return new Float32Array([
+          c,s,0,0,
+          -s,c,0,0,
+          0,0,1,0,
+          0,0,0,1
+        ]);
+      }
+
+      const cubeVertexShader = `#version 300 es
+        precision highp float;
+        layout(location=0) in vec3 aPosition;
+        layout(location=1) in vec3 aNormal;
+        layout(location=2) in vec3 aOffset;
+        layout(location=3) in vec3 aRotation;
+        layout(location=4) in float aCore;
+
+        uniform mat4 uProjection;
+        uniform mat4 uModelView;
+        uniform float uCubeSize;
+
+        out vec3 vNormal;
+        out vec3 vViewPosition;
+        flat out float vCore;
+
+        mat3 rotX(float a) {
+          float c = cos(a), s = sin(a);
+          return mat3(1.,0.,0., 0.,c,s, 0.,-s,c);
+        }
+        mat3 rotY(float a) {
+          float c = cos(a), s = sin(a);
+          return mat3(c,0.,-s, 0.,1.,0., s,0.,c);
+        }
+        mat3 rotZ(float a) {
+          float c = cos(a), s = sin(a);
+          return mat3(c,s,0., -s,c,0., 0.,0.,1.);
+        }
+
+        void main() {
+          mat3 localRot = rotZ(aRotation.z) * rotY(aRotation.y) * rotX(aRotation.x);
+          vec3 local = localRot * (aPosition * uCubeSize) + aOffset;
+          vec4 viewPosition = uModelView * vec4(local, 1.0);
+          vViewPosition = viewPosition.xyz;
+          vNormal = normalize(mat3(uModelView) * localRot * aNormal);
+          vCore = aCore;
+          gl_Position = uProjection * viewPosition;
+        }
+      `;
+
+      const cubeFragmentShader = `#version 300 es
+        precision highp float;
+        in vec3 vNormal;
+        in vec3 vViewPosition;
+        flat in float vCore;
+        out vec4 outColor;
+
+        void main() {
+          vec3 n = normalize(vNormal);
+          vec3 lightA = normalize(vec3(-0.45, 0.75, 0.55));
+          vec3 lightB = normalize(vec3(0.65, -0.35, 0.45));
+          float diff = max(dot(n, lightA), 0.0) * .55 + max(dot(n, lightB), 0.0) * .22;
+          float rim = pow(1.0 - max(dot(n, normalize(-vViewPosition)), 0.0), 2.2);
+
+          vec3 darkBase = vec3(.022, .031, .060);
+          vec3 violet = vec3(.28, .33, .52);
+          vec3 cyan = vec3(.34, .80, 1.0);
+
+          if (vCore > .5) {
+            vec3 color = cyan * (.45 + diff * .72 + rim * .45);
+            outColor = vec4(color, .88);
+          } else {
+            vec3 color = darkBase + violet * (diff * .22 + rim * .13);
+            outColor = vec4(color, .70);
+          }
+        }
+      `;
+
+      const edgeFragmentShader = `#version 300 es
+        precision highp float;
+        flat in float vCore;
+        out vec4 outColor;
+        void main() {
+          vec3 normalEdge = vec3(.48, .57, .78);
+          vec3 coreEdge = vec3(.48, .88, 1.0);
+          outColor = vec4(mix(normalEdge, coreEdge, step(.5, vCore)), vCore > .5 ? .95 : .48);
+        }
+      `;
+
+      const cardVertexShader = `#version 300 es
+        precision highp float;
+        layout(location=0) in vec3 aPosition;
+        layout(location=1) in vec2 aUv;
+        layout(location=2) in vec2 aInstance;
+
+        uniform mat4 uProjection;
+        uniform mat4 uModelView;
+        uniform float uTime;
+        uniform float uCardHeight;
+        uniform float uRadius[3];
+        uniform float uCount[3];
+        uniform float uSpin[3];
+        uniform float uTiltX[3];
+        uniform float uTiltY[3];
+        uniform float uTiltZ[3];
+        uniform float uPrecessX[3];
+        uniform float uPrecessY[3];
+        uniform float uPrecessZ[3];
+        uniform float uSpacerPass;
+
+        out vec2 vUv;
+        out float vViewDepth;
+
+        vec3 rotateEuler(vec3 p, float rx, float ry, float rz) {
+          float cx = cos(rx), sx = sin(rx);
+          float cy = cos(ry), sy = sin(ry);
+          float cz = cos(rz), sz = sin(rz);
+
+          p = vec3(p.x, p.y * cx - p.z * sx, p.y * sx + p.z * cx);
+          p = vec3(p.x * cy + p.z * sy, p.y, -p.x * sy + p.z * cy);
+          p = vec3(p.x * cz - p.y * sz, p.x * sz + p.y * cz, p.z);
+          return p;
+        }
+
+        void main() {
+          int ring = int(aInstance.y + .5);
+          float angle = aInstance.x + uTime * uSpin[ring];
+          float rx = uTiltX[ring] + uTime * uPrecessX[ring];
+          float ry = uTiltY[ring] + uTime * uPrecessY[ring];
+          float rz = uTiltZ[ring] + uTime * uPrecessZ[ring];
+
+          vec3 radial = vec3(cos(angle), sin(angle), 0.0);
+          vec3 tangent = vec3(sin(angle), -cos(angle), 0.0);
+          vec3 axis = vec3(0.0, 0.0, 1.0);
+
+          radial = rotateEuler(radial, rx, ry, rz);
+          tangent = rotateEuler(tangent, rx, ry, rz);
+          axis = rotateEuler(axis, rx, ry, rz);
+
+          float radius = uRadius[ring];
+          float connected = 2.0 * radius * tan(3.141592653589793 / uCount[ring]) + .012;
+          float width = connected * (uSpacerPass > .5 ? .18 : .68);
+          float height = uCardHeight * (uSpacerPass > .5 ? .58 : 1.0);
+
+          vec3 center = radial * radius;
+          vec3 world = center + tangent * (aPosition.x * width) + axis * (aPosition.y * height);
+          vec4 viewPosition = uModelView * vec4(world, 1.0);
+
+          vUv = aUv;
+          vViewDepth = -viewPosition.z;
+          gl_Position = uProjection * viewPosition;
+        }
+      `;
+
+      const cardFragmentShader = `#version 300 es
+        precision highp float;
+        in vec2 vUv;
+        in float vViewDepth;
+        uniform float uSpacerPass;
+        out vec4 outColor;
+
+        void main() {
+          float edgeDistance = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
+          float border = 1.0 - smoothstep(.025, .075, edgeDistance);
+
+          if (uSpacerPass > .5) {
+            float centerLine = 1.0 - smoothstep(.012, .025, abs(vUv.y - .5));
+            vec3 spacer = vec3(.58, .72, .88) * (.42 + border * .46 + centerLine * .12);
+            outColor = vec4(spacer, .22 + border * .09);
+            return;
+          }
+
+          if (gl_FrontFacing) {
+            vec3 blackFace = vec3(.004, .007, .012);
+            vec3 coldEdge = vec3(.22, .34, .48);
+            vec3 color = mix(blackFace, coldEdge, border * .38);
+            outColor = vec4(color, 1.0);
+          } else {
+            float lineA = 1.0 - smoothstep(.014, .028, abs(vUv.y - .73));
+            float lineB = 1.0 - smoothstep(.014, .028, abs(vUv.y - .24));
+            vec3 whiteFace = vec3(.965, .978, 1.0);
+            vec3 ink = vec3(.35, .39, .47);
+            vec3 color = mix(whiteFace, ink, max(lineA * .12, lineB * .09));
+            color *= 1.0 - border * .08;
+            outColor = vec4(color, 1.0);
+          }
+        }
+      `;
+
+      const starVertexShader = `#version 300 es
+        precision highp float;
+        layout(location=0) in vec4 aStar;
+        uniform mat4 uProjection;
+        uniform mat4 uView;
+        uniform float uDpr;
+        out float vAlpha;
+        void main() {
+          vec4 viewPosition = uView * vec4(aStar.xyz, 1.0);
+          gl_Position = uProjection * viewPosition;
+          gl_PointSize = aStar.w * uDpr;
+          vAlpha = clamp(aStar.w * .34, .18, .85);
+        }
+      `;
+
+      const starFragmentShader = `#version 300 es
+        precision highp float;
+        in float vAlpha;
+        out vec4 outColor;
+        void main() {
+          vec2 p = gl_PointCoord * 2.0 - 1.0;
+          float d = dot(p, p);
+          if (d > 1.0) discard;
+          float alpha = (1.0 - d) * vAlpha;
+          outColor = vec4(.72, .82, 1.0, alpha);
+        }
+      `;
+
+      const glowVertexShader = `#version 300 es
+        precision highp float;
+        uniform mat4 uProjection;
+        uniform mat4 uModelView;
+        uniform vec3 uPosition;
+        uniform float uDpr;
+        void main() {
+          vec4 viewPosition = uModelView * vec4(uPosition, 1.0);
+          gl_Position = uProjection * viewPosition;
+          gl_PointSize = clamp((780.0 / max(1.0, -viewPosition.z)) * uDpr, 42.0, 180.0 * uDpr);
+        }
+      `;
+
+      const glowFragmentShader = `#version 300 es
+        precision highp float;
+        out vec4 outColor;
+        void main() {
+          vec2 p = gl_PointCoord * 2.0 - 1.0;
+          float d = length(p);
+          if (d > 1.0) discard;
+          float halo = pow(1.0 - d, 2.4);
+          float core = pow(max(0.0, 1.0 - d * 1.8), 3.0);
+          vec3 color = vec3(.25, .78, 1.0) * halo + vec3(.68, .93, 1.0) * core;
+          outColor = vec4(color, halo * .22 + core * .20);
+        }
+      `;
+
+      const cubeProgram = createProgram(cubeVertexShader, cubeFragmentShader);
+      const edgeProgram = createProgram(cubeVertexShader, edgeFragmentShader);
+      const cardProgram = createProgram(cardVertexShader, cardFragmentShader);
+      const starProgram = createProgram(starVertexShader, starFragmentShader);
+      const glowProgram = createProgram(glowVertexShader, glowFragmentShader);
+
+      const cubeVertices = new Float32Array([
+        -.5,-.5,.5, 0,0,1,  .5,-.5,.5, 0,0,1,  .5,.5,.5, 0,0,1,  -.5,.5,.5, 0,0,1,
+        .5,-.5,-.5, 0,0,-1,  -.5,-.5,-.5, 0,0,-1,  -.5,.5,-.5, 0,0,-1,  .5,.5,-.5, 0,0,-1,
+        .5,-.5,.5, 1,0,0,  .5,-.5,-.5, 1,0,0,  .5,.5,-.5, 1,0,0,  .5,.5,.5, 1,0,0,
+        -.5,-.5,-.5, -1,0,0,  -.5,-.5,.5, -1,0,0,  -.5,.5,.5, -1,0,0,  -.5,.5,-.5, -1,0,0,
+        -.5,.5,.5, 0,1,0,  .5,.5,.5, 0,1,0,  .5,.5,-.5, 0,1,0,  -.5,.5,-.5, 0,1,0,
+        -.5,-.5,-.5, 0,-1,0,  .5,-.5,-.5, 0,-1,0,  .5,-.5,.5, 0,-1,0,  -.5,-.5,.5, 0,-1,0
+      ]);
+
+      const cubeTriangleIndices = [];
+      for (let face = 0; face < 6; face += 1) {
+        const o = face * 4;
+        cubeTriangleIndices.push(o, o + 1, o + 2, o, o + 2, o + 3);
+      }
+
+      const edgePositions = new Float32Array([
+        -.5,-.5,-.5,  .5,-.5,-.5,
+        .5,-.5,-.5,   .5,.5,-.5,
+        .5,.5,-.5,   -.5,.5,-.5,
+        -.5,.5,-.5,  -.5,-.5,-.5,
+        -.5,-.5,.5,   .5,-.5,.5,
+        .5,-.5,.5,    .5,.5,.5,
+        .5,.5,.5,    -.5,.5,.5,
+        -.5,.5,.5,   -.5,-.5,.5,
+        -.5,-.5,-.5, -.5,-.5,.5,
+        .5,-.5,-.5,   .5,-.5,.5,
+        .5,.5,-.5,    .5,.5,.5,
+        -.5,.5,-.5,  -.5,.5,.5
+      ]);
+
+      const cubeInstanceData = new Float32Array(CUBE_COUNT * 7);
+      const cubeNodes = [];
+      let cubeIndex = 0;
+      for (let z = -1; z <= 1; z += 1) {
+        for (let y = -1; y <= 1; y += 1) {
+          for (let x = -1; x <= 1; x += 1) {
+            cubeNodes.push({
+              baseX: x * CUBE_STEP,
+              baseY: y * CUBE_STEP,
+              baseZ: z * CUBE_STEP,
+              phaseX: seeded(cubeIndex, 1) * TAU,
+              phaseY: seeded(cubeIndex, 2) * TAU,
+              phaseZ: seeded(cubeIndex, 3) * TAU,
+              speedX: .00045 + seeded(cubeIndex, 4) * .00055,
+              speedY: .00042 + seeded(cubeIndex, 5) * .00058,
+              speedZ: .00038 + seeded(cubeIndex, 6) * .00062,
+              ampX: .055 + seeded(cubeIndex, 7) * .13,
+              ampY: .055 + seeded(cubeIndex, 8) * .13,
+              ampZ: .055 + seeded(cubeIndex, 9) * .13,
+              rotX: .06 + seeded(cubeIndex, 10) * .18,
+              rotY: .06 + seeded(cubeIndex, 11) * .18,
+              rotZ: .05 + seeded(cubeIndex, 12) * .16,
+              core: x === 0 && y === 0 && z === 0
+            });
+            cubeIndex += 1;
+          }
+        }
+      }
+
+      const cubeVertexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW);
+
+      const cubeIndexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeTriangleIndices), gl.STATIC_DRAW);
+
+      const edgeVertexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, edgeVertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, edgePositions, gl.STATIC_DRAW);
+
+      const cubeInstanceBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeInstanceBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, cubeInstanceData.byteLength, gl.DYNAMIC_DRAW);
+
+      function bindCubeInstanceAttributes() {
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubeInstanceBuffer);
+        const stride = 7 * 4;
+        gl.enableVertexAttribArray(2);
+        gl.vertexAttribPointer(2, 3, gl.FLOAT, false, stride, 0);
+        gl.vertexAttribDivisor(2, 1);
+        gl.enableVertexAttribArray(3);
+        gl.vertexAttribPointer(3, 3, gl.FLOAT, false, stride, 3 * 4);
+        gl.vertexAttribDivisor(3, 1);
+        gl.enableVertexAttribArray(4);
+        gl.vertexAttribPointer(4, 1, gl.FLOAT, false, stride, 6 * 4);
+        gl.vertexAttribDivisor(4, 1);
+      }
+
+      const cubeVao = gl.createVertexArray();
+      gl.bindVertexArray(cubeVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBuffer);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 6 * 4, 0);
+      gl.enableVertexAttribArray(1);
+      gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 6 * 4, 3 * 4);
+      bindCubeInstanceAttributes();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+
+      const edgeVao = gl.createVertexArray();
+      gl.bindVertexArray(edgeVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, edgeVertexBuffer);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 3 * 4, 0);
+      gl.disableVertexAttribArray(1);
+      gl.vertexAttrib3f(1, 0, 0, 1);
+      bindCubeInstanceAttributes();
+
+      const quadVertices = new Float32Array([
+        -.5,-.5,0, 0,0,
+         .5,-.5,0, 1,0,
+         .5, .5,0, 1,1,
+        -.5,-.5,0, 0,0,
+         .5, .5,0, 1,1,
+        -.5, .5,0, 0,1
+      ]);
+
+      function makeCardInstanceArray() {
+        const data = new Float32Array(CARD_COUNT * 2);
+        let offset = 0;
+        RINGS.forEach((ring, ringIndex) => {
+          const step = TAU / ring.count;
+          for (let i = 0; i < ring.count; i += 1) {
+            data[offset++] = ring.phase + step * i;
+            data[offset++] = ringIndex;
+          }
+        });
+        return data;
+      }
+
+      function makeSpacerInstanceArray() {
+        const data = new Float32Array(SPACER_COUNT * 2);
+        let offset = 0;
+        RINGS.forEach((ring, ringIndex) => {
+          const step = TAU / ring.count;
+          for (let i = 0; i < ring.count; i += 1) {
+            data[offset++] = ring.phase + step * (i + .5);
+            data[offset++] = ringIndex;
+          }
+        });
+        return data;
+      }
+
+      const quadBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, quadVertices, gl.STATIC_DRAW);
+
+      function createCardVao(instanceData) {
+        const vao = gl.createVertexArray();
+        const instanceBuffer = gl.createBuffer();
+        gl.bindVertexArray(vao);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 5 * 4, 0);
+        gl.enableVertexAttribArray(1);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 5 * 4, 3 * 4);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(2);
+        gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 2 * 4, 0);
+        gl.vertexAttribDivisor(2, 1);
+
+        return vao;
+      }
+
+      const cardVao = createCardVao(makeCardInstanceArray());
+      const spacerVao = createCardVao(makeSpacerInstanceArray());
+
+      const STAR_COUNT = 700;
+      const starData = new Float32Array(STAR_COUNT * 4);
+      let randomSeed = 1337;
+      function rand() {
+        randomSeed = (randomSeed * 1664525 + 1013904223) >>> 0;
+        return randomSeed / 4294967296;
+      }
+      for (let i = 0; i < STAR_COUNT; i += 1) {
+        const o = i * 4;
+        starData[o] = (rand() - .5) * 18;
+        starData[o + 1] = (rand() - .5) * 11;
+        starData[o + 2] = -4 - rand() * 18;
+        starData[o + 3] = .65 + rand() * 1.65;
+      }
+
+      const starVao = gl.createVertexArray();
+      const starBuffer = gl.createBuffer();
+      gl.bindVertexArray(starVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, starBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, starData, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 4 * 4, 0);
+
+      const emptyVao = gl.createVertexArray();
+      gl.bindVertexArray(null);
+
+      const cubeUniforms = {
+        projection: gl.getUniformLocation(cubeProgram, 'uProjection'),
+        modelView: gl.getUniformLocation(cubeProgram, 'uModelView'),
+        cubeSize: gl.getUniformLocation(cubeProgram, 'uCubeSize')
       };
-    }
-
-    const nodes = [];
-
-    function makeCube(index, gx, gy, gz) {
-      const node = document.createElement('div');
-      node.className = 'cube-node';
-      if (gx === 0 && gy === 0 && gz === 0) {
-        node.classList.add('core-cube-node');
-      }
-
-      const cube = document.createElement('div');
-      cube.className = 'cube';
-
-      ['front','back','right','left','top','bottom'].forEach(name => {
-        const face = document.createElement('div');
-        face.className = `face ${name}`;
-        cube.appendChild(face);
-      });
-
-      node.appendChild(cube);
-      assembly.appendChild(node);
-
-      nodes.push({
-        node,
-        cube,
-        baseX: gx,
-        baseY: gy,
-        baseZ: gz,
-        phaseX: seeded(index, 1) * TAU,
-        phaseY: seeded(index, 2) * TAU,
-        phaseZ: seeded(index, 3) * TAU,
-        speedX: .00045 + seeded(index, 4) * .00055,
-        speedY: .00042 + seeded(index, 5) * .00058,
-        speedZ: .00038 + seeded(index, 6) * .00062,
-        ampX: 3 + seeded(index, 7) * MOVE_RANGE,
-        ampY: 3 + seeded(index, 8) * MOVE_RANGE,
-        ampZ: 3 + seeded(index, 9) * MOVE_RANGE,
-        rotX: 4 + seeded(index, 10) * ROTATE_RANGE,
-        rotY: 4 + seeded(index, 11) * ROTATE_RANGE,
-        rotZ: 3 + seeded(index, 12) * ROTATE_RANGE,
-        stateX: null,
-        stateY: null,
-        stateZ: null,
-        stateRX: 0,
-        stateRY: 0,
-        stateRZ: 0
-      });
-    }
-
-    let cubeIndex = 0;
-    for (let z = -HALF; z <= HALF; z += 1) {
-      for (let y = -HALF; y <= HALF; y += 1) {
-        for (let x = -HALF; x <= HALF; x += 1) {
-          makeCube(cubeIndex, x, y, z);
-          cubeIndex += 1;
-        }
-      }
-    }
-
-    const RINGS = [
-      {
-        count: 30,
-        radius: 150,
-        phase: .10,
-        spinSpeed: .00048,
-        precessX: .00011,
-        precessY: .00017,
-        precessZ: .00007,
-        tiltX: 18,
-        tiltY: 0,
-        tiltZ: 0
-      },
-      {
-        count: 36,
-        radius: 184,
-        phase: 1.35,
-        spinSpeed: -.00039,
-        precessX: -.00008,
-        precessY: .00013,
-        precessZ: .00010,
-        tiltX: 68,
-        tiltY: 16,
-        tiltZ: 10
-      },
-      {
-        count: 42,
-        radius: 218,
-        phase: 2.20,
-        spinSpeed: .00031,
-        precessX: .00009,
-        precessY: -.00010,
-        precessZ: .00013,
-        tiltX: 35,
-        tiltY: 72,
-        tiltZ: -18
-      }
-    ];
-
-    function createOrbitCard(ring, ringIndex, baseAngle, isSpacer) {
-      const card = document.createElement('div');
-      card.className = isSpacer
-        ? `orbit-card spacer-card ring-${ringIndex + 1}`
-        : `orbit-card ring-${ringIndex + 1}`;
-
-      if (isSpacer) {
-        const face = document.createElement('div');
-        face.className = 'spacer-face';
-        card.appendChild(face);
-      } else {
-        const inward = document.createElement('div');
-        inward.className = 'orbit-card-side inward';
-        const outward = document.createElement('div');
-        outward.className = 'orbit-card-side outward';
-        card.appendChild(inward);
-        card.appendChild(outward);
-      }
-
-      const item = {
-        element: card,
-        isSpacer,
-        baseAngle,
-        baseCos: Math.cos(baseAngle),
-        baseSin: Math.sin(baseAngle)
+      const edgeUniforms = {
+        projection: gl.getUniformLocation(edgeProgram, 'uProjection'),
+        modelView: gl.getUniformLocation(edgeProgram, 'uModelView'),
+        cubeSize: gl.getUniformLocation(edgeProgram, 'uCubeSize')
+      };
+      const cardUniforms = {
+        projection: gl.getUniformLocation(cardProgram, 'uProjection'),
+        modelView: gl.getUniformLocation(cardProgram, 'uModelView'),
+        time: gl.getUniformLocation(cardProgram, 'uTime'),
+        cardHeight: gl.getUniformLocation(cardProgram, 'uCardHeight'),
+        radius: gl.getUniformLocation(cardProgram, 'uRadius[0]'),
+        count: gl.getUniformLocation(cardProgram, 'uCount[0]'),
+        spin: gl.getUniformLocation(cardProgram, 'uSpin[0]'),
+        tiltX: gl.getUniformLocation(cardProgram, 'uTiltX[0]'),
+        tiltY: gl.getUniformLocation(cardProgram, 'uTiltY[0]'),
+        tiltZ: gl.getUniformLocation(cardProgram, 'uTiltZ[0]'),
+        precessX: gl.getUniformLocation(cardProgram, 'uPrecessX[0]'),
+        precessY: gl.getUniformLocation(cardProgram, 'uPrecessY[0]'),
+        precessZ: gl.getUniformLocation(cardProgram, 'uPrecessZ[0]'),
+        spacerPass: gl.getUniformLocation(cardProgram, 'uSpacerPass')
+      };
+      const starUniforms = {
+        projection: gl.getUniformLocation(starProgram, 'uProjection'),
+        view: gl.getUniformLocation(starProgram, 'uView'),
+        dpr: gl.getUniformLocation(starProgram, 'uDpr')
+      };
+      const glowUniforms = {
+        projection: gl.getUniformLocation(glowProgram, 'uProjection'),
+        modelView: gl.getUniformLocation(glowProgram, 'uModelView'),
+        position: gl.getUniformLocation(glowProgram, 'uPosition'),
+        dpr: gl.getUniformLocation(glowProgram, 'uDpr')
       };
 
-      ring.items.push(item);
-      return item;
-    }
+      const ringRadius = new Float32Array(RINGS.map(r => r.radius));
+      const ringCount = new Float32Array(RINGS.map(r => r.count));
+      const ringSpin = new Float32Array(RINGS.map(r => r.spin));
+      const ringTiltX = new Float32Array(RINGS.map(r => r.tiltX));
+      const ringTiltY = new Float32Array(RINGS.map(r => r.tiltY));
+      const ringTiltZ = new Float32Array(RINGS.map(r => r.tiltZ));
+      const ringPrecessX = new Float32Array(RINGS.map(r => r.precessX));
+      const ringPrecessY = new Float32Array(RINGS.map(r => r.precessY));
+      const ringPrecessZ = new Float32Array(RINGS.map(r => r.precessZ));
 
-    function createCardRing(ring, ringIndex) {
-      ring.items = [];
-      ring.group = document.createElement('div');
-      ring.group.className = `orbit-ring orbit-ring-${ringIndex + 1}`;
-      orbitField.appendChild(ring.group);
+      let dpr = 1;
+      let projection = mat4Identity();
+      let cameraZ = 8.4;
+      let targetCameraZ = 8.4;
 
-      const fragment = document.createDocumentFragment();
-      const angleStep = TAU / ring.count;
-
-      for (let i = 0; i < ring.count; i += 1) {
-        const baseAngle = angleStep * i + ring.phase;
-        const card = createOrbitCard(ring, ringIndex, baseAngle, false);
-        const spacer = createOrbitCard(ring, ringIndex, baseAngle + angleStep * .5, true);
-        fragment.appendChild(card.element);
-        fragment.appendChild(spacer.element);
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+        const height = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        gl.viewport(0, 0, width, height);
+        projection = mat4Perspective(44 * DEG, width / height, .1, 60);
       }
 
-      ring.group.appendChild(fragment);
-    }
+      resize();
+      window.addEventListener('resize', resize, { passive: true });
 
-    RINGS.forEach(createCardRing);
+      let dragging = false;
+      let activePointer = null;
+      let lastPointerX = 0;
+      let lastPointerY = 0;
+      let lastPointerTime = performance.now();
+      let targetYaw = 0;
+      let targetPitch = 0;
+      let currentYaw = 0;
+      let currentPitch = 0;
+      let velocityYaw = 0;
+      let velocityPitch = 0;
 
-    let cubeStep = 54;
-    let mobileScale = 1;
-
-    function applyStaticCardLayout(ring) {
-      const radius = ring.scaledRadius;
-      const connectedWidth = 2 * radius * Math.tan(Math.PI / ring.count) + .7;
-
-      ring.items.forEach(item => {
-        const ca = item.baseCos;
-        const sa = item.baseSin;
-        const width = item.isSpacer
-          ? connectedWidth * .18
-          : connectedWidth * .68;
-
-        item.element.style.setProperty('--card-width', `${width}px`);
-
-        const rightX = sa;
-        const rightY = -ca;
-        const inwardX = -ca;
-        const inwardY = -sa;
-        const px = ca * radius;
-        const py = sa * radius;
-
-        item.element.style.transform =
-          `matrix3d(` +
-          `${rightX},${rightY},0,0,` +
-          `0,0,1,0,` +
-          `${inwardX},${inwardY},0,0,` +
-          `${px},${py},0,1)`;
+      world.addEventListener('pointerdown', event => {
+        if (event.target.closest && event.target.closest('.return-link')) return;
+        dragging = true;
+        activePointer = event.pointerId;
+        lastPointerX = event.clientX;
+        lastPointerY = event.clientY;
+        lastPointerTime = performance.now();
+        velocityYaw = 0;
+        velocityPitch = 0;
+        world.classList.add('dragging');
+        world.setPointerCapture(event.pointerId);
       });
-    }
 
-    function refreshLayout() {
-      cubeStep = parseFloat(
-        getComputedStyle(document.documentElement)
-          .getPropertyValue('--cube-step')
-      ) || 54;
+      world.addEventListener('pointermove', event => {
+        if (!dragging || event.pointerId !== activePointer) return;
+        const now = performance.now();
+        const dt = Math.max(1, now - lastPointerTime);
+        const dx = event.clientX - lastPointerX;
+        const dy = event.clientY - lastPointerY;
+        const sensitivity = .0062;
 
-      mobileScale = window.innerWidth <= 640 ? .78 : 1;
+        targetYaw += dx * sensitivity;
+        targetPitch = clamp(targetPitch + dy * sensitivity, -1.25, 1.25);
+        velocityYaw = (dx * sensitivity) / dt;
+        velocityPitch = (dy * sensitivity) / dt;
 
-      RINGS.forEach(ring => {
-        ring.scaledRadius = ring.radius * mobileScale;
-        applyStaticCardLayout(ring);
-      });
-    }
+        lastPointerX = event.clientX;
+        lastPointerY = event.clientY;
+        lastPointerTime = now;
+      }, { passive: true });
 
-    refreshLayout();
-    window.addEventListener('resize', refreshLayout, { passive: true });
+      function releasePointer(event) {
+        if (event.pointerId !== activePointer) return;
+        dragging = false;
+        activePointer = null;
+        world.classList.remove('dragging');
+        if (world.hasPointerCapture(event.pointerId)) {
+          world.releasePointerCapture(event.pointerId);
+        }
+      }
 
-    let pointerTargetX = 0;
-    let pointerTargetY = 0;
-    let pointerSmoothX = 0;
-    let pointerSmoothY = 0;
+      world.addEventListener('pointerup', releasePointer);
+      world.addEventListener('pointercancel', releasePointer);
 
-    window.addEventListener('pointermove', event => {
-      pointerTargetX = (event.clientX / window.innerWidth - .5) * 2;
-      pointerTargetY = (event.clientY / window.innerHeight - .5) * 2;
-    }, { passive: true });
+      world.addEventListener('wheel', event => {
+        targetCameraZ = clamp(targetCameraZ + event.deltaY * .0045, 5.8, 11.8);
+        event.preventDefault();
+      }, { passive: false });
 
-    function updateCardRings(time) {
-      const freeze = reducedMotion ? 0 : 1;
+      function updateCubeInstances(time) {
+        let coreX = 0;
+        let coreY = 0;
+        let coreZ = 0;
 
-      RINGS.forEach(ring => {
-        const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
-        const ry = deg(ring.tiltY) + time * ring.precessY * freeze;
-        const rz = deg(ring.tiltZ) + time * ring.precessZ * freeze;
-        const basis = eulerBasis(rx, ry, rz);
+        cubeNodes.forEach((item, i) => {
+          const freeze = reducedMotion ? 0 : 1;
+          const o = i * 7;
+          const x = item.baseX + Math.sin(time * item.speedX + item.phaseX) * item.ampX * freeze;
+          const y = item.baseY + Math.sin(time * item.speedY + item.phaseY) * item.ampY * freeze;
+          const z = item.baseZ + Math.sin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
+          const rx = Math.sin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
+          const ry = Math.sin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
+          const rz = Math.sin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
 
-        const spin = time * ring.spinSpeed * freeze;
-        const cs = Math.cos(spin);
-        const ss = Math.sin(spin);
+          cubeInstanceData[o] = x;
+          cubeInstanceData[o + 1] = y;
+          cubeInstanceData[o + 2] = z;
+          cubeInstanceData[o + 3] = rx;
+          cubeInstanceData[o + 4] = ry;
+          cubeInstanceData[o + 5] = rz;
+          cubeInstanceData[o + 6] = item.core ? 1 : 0;
 
-        const xAxis = {
-          x: cs * basis.x.x + ss * basis.y.x,
-          y: cs * basis.x.y + ss * basis.y.y,
-          z: cs * basis.x.z + ss * basis.y.z
-        };
-        const yAxis = {
-          x: -ss * basis.x.x + cs * basis.y.x,
-          y: -ss * basis.x.y + cs * basis.y.y,
-          z: -ss * basis.x.z + cs * basis.y.z
-        };
+          if (item.core) {
+            coreX = x;
+            coreY = y;
+            coreZ = z;
+          }
+        });
 
-        ring.group.style.transform =
-          `matrix3d(` +
-          `${xAxis.x},${xAxis.y},${xAxis.z},0,` +
-          `${yAxis.x},${yAxis.y},${yAxis.z},0,` +
-          `${basis.z.x},${basis.z.y},${basis.z.z},0,` +
-          `0,0,0,1)`;
-      });
-    }
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubeInstanceBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, cubeInstanceData);
+        return [coreX, coreY, coreZ];
+      }
 
-    function updateCubes(time, dt) {
-      const freeze = reducedMotion ? 0 : 1;
-      const smooth = 1 - Math.exp(-dt / 26);
+      function setCubeUniforms(program, uniforms, modelView) {
+        gl.useProgram(program);
+        gl.uniformMatrix4fv(uniforms.projection, false, projection);
+        gl.uniformMatrix4fv(uniforms.modelView, false, modelView);
+        gl.uniform1f(uniforms.cubeSize, CUBE_SIZE);
+      }
 
-      pointerSmoothX += (pointerTargetX - pointerSmoothX) * (1 - Math.exp(-dt / 55));
-      pointerSmoothY += (pointerTargetY - pointerSmoothY) * (1 - Math.exp(-dt / 55));
+      function setCardUniforms(modelView, time, spacerPass) {
+        gl.useProgram(cardProgram);
+        gl.uniformMatrix4fv(cardUniforms.projection, false, projection);
+        gl.uniformMatrix4fv(cardUniforms.modelView, false, modelView);
+        gl.uniform1f(cardUniforms.time, reducedMotion ? 0 : time);
+        gl.uniform1f(cardUniforms.cardHeight, CARD_HEIGHT);
+        gl.uniform1fv(cardUniforms.radius, ringRadius);
+        gl.uniform1fv(cardUniforms.count, ringCount);
+        gl.uniform1fv(cardUniforms.spin, ringSpin);
+        gl.uniform1fv(cardUniforms.tiltX, ringTiltX);
+        gl.uniform1fv(cardUniforms.tiltY, ringTiltY);
+        gl.uniform1fv(cardUniforms.tiltZ, ringTiltZ);
+        gl.uniform1fv(cardUniforms.precessX, ringPrecessX);
+        gl.uniform1fv(cardUniforms.precessY, ringPrecessY);
+        gl.uniform1fv(cardUniforms.precessZ, ringPrecessZ);
+        gl.uniform1f(cardUniforms.spacerPass, spacerPass);
+      }
 
-      const globalRotX = -18 + Math.sin(time * .00013) * 5 + pointerSmoothY * -4;
-      const globalRotY = 32 + time * .0045 * freeze + pointerSmoothX * 7;
-      const globalRotZ = Math.sin(time * .00017) * 3;
+      gl.clearColor(0, 0, 0, 0);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LEQUAL);
 
-      assembly.style.transform =
-        `rotateX(${globalRotX}deg) rotateY(${globalRotY}deg) rotateZ(${globalRotZ}deg)`;
+      let lastFrameTime = performance.now();
+      let fpsAccumulator = 0;
+      let fpsFrames = 0;
+      let fpsLastReport = performance.now();
 
-      nodes.forEach(item => {
-        const targetX = item.baseX * cubeStep + Math.sin(time * item.speedX + item.phaseX) * item.ampX * freeze;
-        const targetY = item.baseY * cubeStep + Math.sin(time * item.speedY + item.phaseY) * item.ampY * freeze;
-        const targetZ = item.baseZ * cubeStep + Math.sin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
+      function render(now) {
+        const dt = Math.min(50, Math.max(0.1, now - lastFrameTime));
+        lastFrameTime = now;
 
-        const targetRX = Math.sin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
-        const targetRY = Math.sin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
-        const targetRZ = Math.sin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
-
-        if (item.stateX === null) {
-          item.stateX = targetX;
-          item.stateY = targetY;
-          item.stateZ = targetZ;
-        } else {
-          item.stateX += (targetX - item.stateX) * smooth;
-          item.stateY += (targetY - item.stateY) * smooth;
-          item.stateZ += (targetZ - item.stateZ) * smooth;
+        if (!dragging) {
+          targetYaw += velocityYaw * dt;
+          targetPitch = clamp(targetPitch + velocityPitch * dt, -1.25, 1.25);
+          const inertia = Math.exp(-dt * .0048);
+          velocityYaw *= inertia;
+          velocityPitch *= inertia;
         }
 
-        item.stateRX += (targetRX - item.stateRX) * smooth;
-        item.stateRY += (targetRY - item.stateRY) * smooth;
-        item.stateRZ += (targetRZ - item.stateRZ) * smooth;
+        const follow = 1 - Math.exp(-dt * .018);
+        currentYaw += (targetYaw - currentYaw) * follow;
+        currentPitch += (targetPitch - currentPitch) * follow;
+        cameraZ += (targetCameraZ - cameraZ) * (1 - Math.exp(-dt * .012));
 
-        item.node.style.transform =
-          `translate3d(${item.stateX}px, ${item.stateY}px, ${item.stateZ}px)`;
-        item.cube.style.transform =
-          `rotateX(${item.stateRX}deg) rotateY(${item.stateRY}deg) rotateZ(${item.stateRZ}deg)`;
-      });
-    }
+        const autoYaw = reducedMotion ? 0 : now * .000075;
+        const rootY = mat4RotationY(currentYaw + autoYaw);
+        const rootX = mat4RotationX(currentPitch - .12);
+        const root = mat4Multiply(rootY, rootX);
+        const view = mat4Translation(0, 0, -cameraZ);
+        const cardModelView = mat4Multiply(view, root);
 
-    let lastRealTime = performance.now();
+        const cubeRotX = mat4RotationX(-.28 + Math.sin(now * .00013) * .08);
+        const cubeRotY = mat4RotationY(.55 + now * .00022);
+        const cubeRotZ = mat4RotationZ(Math.sin(now * .00017) * .05);
+        const cubeAuto = mat4Multiply(mat4Multiply(cubeRotY, cubeRotX), cubeRotZ);
+        const cubeRoot = mat4Multiply(root, cubeAuto);
+        const cubeModelView = mat4Multiply(view, cubeRoot);
 
-    function render(now) {
-      const rawDt = Math.max(0, now - lastRealTime);
-      lastRealTime = now;
+        const corePosition = updateCubeInstances(now);
 
-      // Smoothing uses a bounded delta, but animation speed follows real rAF time.
-      const smoothingDt = Math.min(rawDt || 16.67, 50);
-      const motionTime = reducedMotion ? 0 : now;
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      updateCardRings(motionTime);
-      updateCubes(motionTime, smoothingDt);
+        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.useProgram(starProgram);
+        gl.uniformMatrix4fv(starUniforms.projection, false, projection);
+        gl.uniformMatrix4fv(starUniforms.view, false, view);
+        gl.uniform1f(starUniforms.dpr, dpr);
+        gl.bindVertexArray(starVao);
+        gl.drawArrays(gl.POINTS, 0, STAR_COUNT);
+
+        gl.enable(gl.DEPTH_TEST);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthMask(true);
+        setCubeUniforms(cubeProgram, cubeUniforms, cubeModelView);
+        gl.bindVertexArray(cubeVao);
+        gl.drawElementsInstanced(gl.TRIANGLES, cubeTriangleIndices.length, gl.UNSIGNED_SHORT, 0, CUBE_COUNT);
+
+        setCubeUniforms(edgeProgram, edgeUniforms, cubeModelView);
+        gl.bindVertexArray(edgeVao);
+        gl.lineWidth(1);
+        gl.drawArraysInstanced(gl.LINES, 0, edgePositions.length / 3, CUBE_COUNT);
+
+        gl.disable(gl.CULL_FACE);
+        gl.disable(gl.BLEND);
+        gl.depthMask(true);
+        setCardUniforms(cardModelView, now, 0);
+        gl.bindVertexArray(cardVao);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, CARD_COUNT);
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthMask(false);
+        setCardUniforms(cardModelView, now, 1);
+        gl.bindVertexArray(spacerVao);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, SPACER_COUNT);
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.depthMask(false);
+        gl.useProgram(glowProgram);
+        gl.uniformMatrix4fv(glowUniforms.projection, false, projection);
+        gl.uniformMatrix4fv(glowUniforms.modelView, false, cubeModelView);
+        gl.uniform3f(glowUniforms.position, corePosition[0], corePosition[1], corePosition[2]);
+        gl.uniform1f(glowUniforms.dpr, dpr);
+        gl.bindVertexArray(emptyVao);
+        gl.drawArrays(gl.POINTS, 0, 1);
+
+        gl.depthMask(true);
+        gl.bindVertexArray(null);
+
+        fpsAccumulator += dt;
+        fpsFrames += 1;
+        if (now - fpsLastReport >= 500) {
+          const fps = Math.round((fpsFrames * 1000) / Math.max(1, fpsAccumulator));
+          fpsEl.textContent = `WEBGL2 / ${fps} FPS`;
+          fpsAccumulator = 0;
+          fpsFrames = 0;
+          fpsLastReport = now;
+        }
+
+        requestAnimationFrame(render);
+      }
+
       requestAnimationFrame(render);
-    }
-
-    requestAnimationFrame(render);
+    })();
   </script>
 </body>
 </html>
