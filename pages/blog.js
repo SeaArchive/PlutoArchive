@@ -21,7 +21,7 @@ const TILE = 32;
 const COLS = WORLD_W / TILE;
 const ROWS = WORLD_H / TILE;
 const RITUAL_RADIUS = 124;
-const RITUAL_DURATION = 30;
+const RITUAL_DURATION = 20;
 const VIEW_H = 640;
 const RENDER_SCALE = 1.35;
 
