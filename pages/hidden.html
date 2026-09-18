@@ -1032,10 +1032,26 @@
           targetPitch = 0;
         }
 
-        const followRate = dragging ? .020 : .0085;
+        let followRate;
+        if (dragging) {
+          followRate = .020;
+        } else {
+          // Return quickly while far from the resting axis, then ease out
+          // progressively as the orientation approaches its origin.
+          const returnDistance = Math.hypot(currentYaw, currentPitch);
+          const returnStrength = clamp(returnDistance / .85, 0, 1);
+          followRate = .0032 + Math.pow(returnStrength, .72) * .026;
+        }
+
         const follow = 1 - Math.exp(-dt * followRate);
         currentYaw += (targetYaw - currentYaw) * follow;
         currentPitch += (targetPitch - currentPitch) * follow;
+
+        if (!dragging && Math.abs(currentYaw) < .00008 && Math.abs(currentPitch) < .00008) {
+          currentYaw = 0;
+          currentPitch = 0;
+        }
+
         cameraZ += (targetCameraZ - cameraZ) * (1 - Math.exp(-dt * .012));
 
         const autoYaw = reducedMotion ? 0 : now * .000075;
