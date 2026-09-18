@@ -4,14 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hidden Archive | Pluto Archive</title>
+
+  <script>
+    if (sessionStorage.getItem('plutoArkHiddenUnlocked') !== '1') {
+      window.location.replace('blog.html');
+    }
+  </script>
+
   <style>
     :root {
-      --bg: #020205;
-      --text: #eeeaf8;
+      --bg: #010105;
+      --text: #f2efff;
       --muted: #817b92;
       --violet: #b299ff;
       --gold: #dbc990;
-      --line: rgba(178,153,255,.2);
+      --cyan: #8fc8ff;
+      --line: rgba(178,153,255,.22);
+      --cube-size: 44px;
+      --cube-step: 54px;
     }
 
     * { box-sizing: border-box; }
@@ -19,170 +29,379 @@
     html,
     body {
       margin: 0;
-      min-height: 100%;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: var(--bg);
     }
 
     body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      overflow: hidden;
       color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at 50% 50%, rgba(178,153,255,.08), transparent 28%),
-        radial-gradient(circle at 50% 50%, rgba(219,201,144,.025), transparent 56%),
-        #020205;
+        radial-gradient(circle at 50% 50%, rgba(178,153,255,.09), transparent 24%),
+        radial-gradient(circle at 50% 50%, rgba(80,125,190,.05), transparent 44%),
+        #010105;
     }
 
-    .hidden-shell {
-      position: relative;
-      width: min(820px, 100%);
-      min-height: 520px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      background: rgba(4,4,9,.74);
-      overflow: hidden;
-    }
-
-    .circle,
-    .circle::before,
-    .circle::after {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      border: 1px solid rgba(178,153,255,.18);
-      border-radius: 50%;
-      content: "";
-      transform: translate(-50%, -50%);
-    }
-
-    .circle {
-      width: 390px;
-      height: 390px;
-      animation: rotate 34s linear infinite;
-    }
-
-    .circle::before {
-      width: 310px;
-      height: 310px;
-      border-color: rgba(219,201,144,.16);
-    }
-
-    .circle::after {
-      width: 210px;
-      height: 210px;
-      border-style: dashed;
-    }
-
-    .runes {
-      position: absolute;
+    .hidden-world {
+      position: fixed;
       inset: 0;
-      display: grid;
-      place-items: center;
-      color: rgba(219,201,144,.25);
-      font: 18px Georgia, serif;
-      letter-spacing: 1.4em;
-      transform: translateX(.7em);
+      overflow: hidden;
+      perspective: 1000px;
+      perspective-origin: 50% 48%;
+    }
+
+    .hidden-world::before,
+    .hidden-world::after {
+      content: "";
+      position: absolute;
+      inset: -25%;
       pointer-events: none;
     }
 
-    .content {
-      position: relative;
-      z-index: 2;
-      width: min(520px, calc(100% - 42px));
-      text-align: center;
+    .hidden-world::before {
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.48) 0 1px, transparent 1.3px),
+        radial-gradient(circle, rgba(150,190,255,.34) 0 1px, transparent 1.2px),
+        radial-gradient(circle, rgba(210,195,255,.26) 0 1px, transparent 1.2px);
+      background-size: 139px 139px, 211px 211px, 83px 83px;
+      background-position: 18px 31px, 71px 104px, 42px 19px;
+      opacity: .22;
+      animation: starDrift 70s linear infinite;
     }
 
-    .eyebrow {
+    .hidden-world::after {
+      background:
+        radial-gradient(circle at 50% 50%, transparent 0 24%, rgba(0,0,0,.22) 58%, rgba(0,0,0,.72) 100%);
+    }
+
+    .scene {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1px;
+      height: 1px;
+      transform-style: preserve-3d;
+      transform: translate3d(-50%, -50%, 0);
+    }
+
+    .assembly {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1px;
+      height: 1px;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .cube-node {
+      position: absolute;
+      left: calc(var(--cube-size) / -2);
+      top: calc(var(--cube-size) / -2);
+      width: var(--cube-size);
+      height: var(--cube-size);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .cube {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(194,178,255,.28);
+      background:
+        linear-gradient(135deg, rgba(190,220,255,.08), rgba(178,153,255,.025)),
+        rgba(6,8,18,.52);
+      box-shadow:
+        inset 0 0 16px rgba(170,200,255,.035),
+        0 0 12px rgba(178,153,255,.025);
+      backface-visibility: hidden;
+    }
+
+    .face::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(150,190,235,.08);
+    }
+
+    .front  { transform: translateZ(calc(var(--cube-size) / 2)); }
+    .back   { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
+    .right  { transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2)); }
+    .left   { transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2)); }
+    .top    { transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }
+    .bottom { transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }
+
+    .cube-node:nth-child(3n + 1) .face {
+      border-color: rgba(147,198,255,.28);
+    }
+
+    .cube-node:nth-child(4n + 2) .face {
+      border-color: rgba(219,201,144,.25);
+    }
+
+    .core-glow {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(178,153,255,.10), rgba(100,140,210,.035) 38%, transparent 70%);
+      filter: blur(18px);
+      pointer-events: none;
+    }
+
+    .ui {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .label {
+      position: absolute;
+      left: 22px;
+      top: 20px;
+    }
+
+    .label span {
+      display: block;
       color: var(--violet);
-      font-size: 8px;
+      font-size: 9px;
       letter-spacing: .22em;
     }
 
-    h1 {
-      margin: 14px 0 10px;
-      font-size: clamp(38px, 8vw, 76px);
-      font-weight: 200;
-      letter-spacing: .1em;
+    .label strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .16em;
     }
 
-    p {
-      margin: 0 auto;
-      max-width: 420px;
+    .label small {
+      display: block;
+      margin-top: 7px;
       color: var(--muted);
-      font-size: 10px;
-      line-height: 1.9;
-      letter-spacing: .04em;
-    }
-
-    .divider {
-      width: 110px;
-      height: 1px;
-      margin: 24px auto;
-      background: linear-gradient(90deg, transparent, rgba(219,201,144,.6), transparent);
+      font-size: 9px;
+      letter-spacing: .08em;
     }
 
     .return-link {
-      display: inline-flex;
+      position: absolute;
+      right: 20px;
+      top: 18px;
       min-height: 40px;
+      display: inline-flex;
       align-items: center;
-      padding: 0 16px;
+      padding: 0 14px;
       border: 1px solid var(--line);
+      background: rgba(3,4,10,.62);
       color: var(--text);
       text-decoration: none;
-      font-size: 8px;
-      letter-spacing: .16em;
+      font-size: 9px;
+      letter-spacing: .14em;
+      pointer-events: auto;
     }
 
     .return-link:hover,
     .return-link:focus-visible {
       outline: none;
-      border-color: rgba(178,153,255,.55);
+      border-color: rgba(178,153,255,.58);
       color: #fff;
     }
 
-    @keyframes rotate {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
+    .status {
+      position: absolute;
+      left: 22px;
+      bottom: 20px;
+      color: rgba(129,123,146,.72);
+      font-size: 8px;
+      letter-spacing: .12em;
     }
 
-    @media (max-width: 560px) {
-      .hidden-shell { min-height: 460px; }
-      .circle { width: 300px; height: 300px; }
-      .circle::before { width: 238px; height: 238px; }
-      .circle::after { width: 158px; height: 158px; }
-      .runes { font-size: 14px; }
+    @keyframes starDrift {
+      to { transform: translate3d(80px, 42px, 0); }
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --cube-size: 35px;
+        --cube-step: 43px;
+      }
+
+      .label {
+        left: 14px;
+        top: 14px;
+      }
+
+      .label small {
+        max-width: 190px;
+        line-height: 1.6;
+      }
+
+      .return-link {
+        right: 12px;
+        top: 12px;
+        min-height: 38px;
+        padding: 0 10px;
+        font-size: 8px;
+      }
+
+      .status {
+        left: 14px;
+        bottom: 14px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .circle { animation: none; }
+      .hidden-world::before {
+        animation: none;
+      }
     }
   </style>
 </head>
-<body>
-  <main class="hidden-shell">
-    <div class="circle" aria-hidden="true"></div>
-    <div class="runes" aria-hidden="true">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ</div>
 
-    <section class="content">
-      <span class="eyebrow">UNNUMBERED RECORD / HIDDEN ARCHIVE</span>
-      <h1>THE OTHER PAGE</h1>
-      <p>
-        The circle answered after a full resonance cycle.
-        This page is not listed among the ordinary archive rooms.
-      </p>
-      <div class="divider"></div>
+<body>
+  <main class="hidden-world">
+    <div class="core-glow" aria-hidden="true"></div>
+
+    <div class="scene" aria-label="3x3x3 animated cube structure">
+      <div id="assembly" class="assembly"></div>
+    </div>
+
+    <div class="ui">
+      <div class="label">
+        <span>UNNUMBERED RECORD / EXPERIMENT 01</span>
+        <strong>27-BODY CUBE</strong>
+        <small>3 × 3 × 3 / LOCAL DISPLACEMENT FIELD</small>
+      </div>
+
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-    </section>
+      <div class="status">27 NODES / INDEPENDENT LOCAL MOTION</div>
+    </div>
   </main>
 
   <script>
-    if (sessionStorage.getItem('plutoArkHiddenUnlocked') !== '1') {
-      window.location.replace('blog.html');
+    const assembly = document.getElementById('assembly');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const nodes = [];
+    const GRID = 3;
+    const HALF = 1;
+    const MOVE_RANGE = 9;
+    const ROTATE_RANGE = 10;
+
+    function seeded(index, channel) {
+      const value = Math.sin(index * 91.17 + channel * 43.71) * 43758.5453;
+      return value - Math.floor(value);
     }
+
+    function makeCube(index, gx, gy, gz) {
+      const node = document.createElement('div');
+      node.className = 'cube-node';
+
+      const cube = document.createElement('div');
+      cube.className = 'cube';
+
+      ['front','back','right','left','top','bottom'].forEach(name => {
+        const face = document.createElement('div');
+        face.className = `face ${name}`;
+        cube.appendChild(face);
+      });
+
+      node.appendChild(cube);
+      assembly.appendChild(node);
+
+      nodes.push({
+        node,
+        cube,
+        baseX: gx,
+        baseY: gy,
+        baseZ: gz,
+        phaseX: seeded(index, 1) * Math.PI * 2,
+        phaseY: seeded(index, 2) * Math.PI * 2,
+        phaseZ: seeded(index, 3) * Math.PI * 2,
+        speedX: .00045 + seeded(index, 4) * .00055,
+        speedY: .00042 + seeded(index, 5) * .00058,
+        speedZ: .00038 + seeded(index, 6) * .00062,
+        ampX: 3 + seeded(index, 7) * MOVE_RANGE,
+        ampY: 3 + seeded(index, 8) * MOVE_RANGE,
+        ampZ: 3 + seeded(index, 9) * MOVE_RANGE,
+        rotX: 4 + seeded(index, 10) * ROTATE_RANGE,
+        rotY: 4 + seeded(index, 11) * ROTATE_RANGE,
+        rotZ: 3 + seeded(index, 12) * ROTATE_RANGE
+      });
+    }
+
+    let index = 0;
+    for (let z = -HALF; z <= HALF; z += 1) {
+      for (let y = -HALF; y <= HALF; y += 1) {
+        for (let x = -HALF; x <= HALF; x += 1) {
+          makeCube(index, x, y, z);
+          index += 1;
+        }
+      }
+    }
+
+    function getStep() {
+      return parseFloat(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue('--cube-step')
+      ) || 54;
+    }
+
+    let pointerX = 0;
+    let pointerY = 0;
+
+    window.addEventListener('pointermove', event => {
+      pointerX = (event.clientX / window.innerWidth - .5) * 2;
+      pointerY = (event.clientY / window.innerHeight - .5) * 2;
+    }, { passive: true });
+
+    function render(time) {
+      const step = getStep();
+
+      const globalRotX = -18 + Math.sin(time * .00013) * 5 + pointerY * -4;
+      const globalRotY = 32 + time * .0045 + pointerX * 7;
+      const globalRotZ = Math.sin(time * .00017) * 3;
+
+      assembly.style.transform =
+        `rotateX(${globalRotX}deg) rotateY(${globalRotY}deg) rotateZ(${globalRotZ}deg)`;
+
+      nodes.forEach((item, i) => {
+        const freeze = reducedMotion ? 0 : 1;
+
+        const dx = Math.sin(time * item.speedX + item.phaseX) * item.ampX * freeze;
+        const dy = Math.sin(time * item.speedY + item.phaseY) * item.ampY * freeze;
+        const dz = Math.sin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
+
+        const rx = Math.sin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
+        const ry = Math.sin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
+        const rz = Math.sin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
+
+        const x = item.baseX * step + dx;
+        const y = item.baseY * step + dy;
+        const z = item.baseZ * step + dz;
+
+        item.node.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+        item.cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+      });
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
   </script>
 </body>
 </html>
