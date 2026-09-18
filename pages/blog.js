@@ -68,6 +68,8 @@ window.addEventListener('resize', resizeGameCanvas);
 
 const keys = new Set();
 let lastTime = performance.now();
+let lastRenderTime = 0;
+const FRAME_INTERVAL = 1000 / 45;
 let bgmStarted = false;
 let bgmEnabled = true;
 let targetVolume = 0;
@@ -684,8 +686,14 @@ function render(time) {
 }
 
 function loop(now) {
-  const dt = Math.min(0.033, (now - lastTime) / 1000);
+  if (now - lastRenderTime < FRAME_INTERVAL) {
+    requestAnimationFrame(loop);
+    return;
+  }
+
+  const dt = Math.min(0.04, (now - lastTime) / 1000);
   lastTime = now;
+  lastRenderTime = now;
   update(dt);
   render(now);
   requestAnimationFrame(loop);
