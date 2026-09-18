@@ -100,7 +100,9 @@
     }
 
     .assembly,
-    .orbit-ring {
+    .orbit-ring,
+    .cube-node,
+    .cube {
       will-change: transform;
     }
 
@@ -115,14 +117,12 @@
       width: var(--cube-size);
       height: var(--cube-size);
       transform-style: preserve-3d;
-      will-change: transform;
     }
 
     .cube {
       position: absolute;
       inset: 0;
       transform-style: preserve-3d;
-      will-change: transform;
     }
 
     .face {
@@ -212,7 +212,6 @@
       margin-top: calc(var(--card-h) / -2);
       transform-style: preserve-3d;
       transform-origin: 50% 50%;
-      will-change: transform;
     }
 
     .orbit-card-side {
@@ -283,7 +282,7 @@
     .spacer-face {
       position: absolute;
       inset: 0;
-      opacity: var(--depth-alpha);
+      opacity: .30;
       border: 1px solid rgba(205,226,255,.18);
       border-radius: 1px;
       background:
@@ -454,7 +453,7 @@
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-      <div class="status">27 NODES / 3 CACHED CARD RINGS / PRECESSING AXES</div>
+      <div class="status">27 NODES / 3 CARD RINGS / SMOOTH MOTION FIELD</div>
     </div>
   </main>
 
@@ -464,35 +463,9 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const TAU = Math.PI * 2;
-    const HALF_PI = Math.PI * .5;
-    const GRID = 3;
     const HALF = 1;
     const MOVE_RANGE = 9;
     const ROTATE_RANGE = 10;
-    const DEPTH_UPDATE_FRAMES = 4;
-
-    // A small sine cache trades a little memory for fewer trigonometric calls
-    // during the 27 independent cube motions.
-    const SIN_LUT_SIZE = 8192;
-    const SIN_LUT_MASK = SIN_LUT_SIZE - 1;
-    const SIN_LUT = new Float32Array(SIN_LUT_SIZE + 1);
-    for (let i = 0; i <= SIN_LUT_SIZE; i += 1) {
-      SIN_LUT[i] = Math.sin((i / SIN_LUT_SIZE) * TAU);
-    }
-
-    function fastSin(angle) {
-      let scaled = angle * SIN_LUT_SIZE / TAU;
-      scaled -= Math.floor(scaled / SIN_LUT_SIZE) * SIN_LUT_SIZE;
-      const index = scaled | 0;
-      const fraction = scaled - index;
-      const a = SIN_LUT[index & SIN_LUT_MASK];
-      const b = SIN_LUT[(index + 1) & SIN_LUT_MASK];
-      return a + (b - a) * fraction;
-    }
-
-    function fastCos(angle) {
-      return fastSin(angle + HALF_PI);
-    }
 
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
@@ -505,6 +478,33 @@
     function seeded(index, channel) {
       const value = Math.sin(index * 91.17 + channel * 43.71) * 43758.5453;
       return value - Math.floor(value);
+    }
+
+    function eulerBasis(rx, ry, rz) {
+      const cx = Math.cos(rx);
+      const sx = Math.sin(rx);
+      const cy = Math.cos(ry);
+      const sy = Math.sin(ry);
+      const cz = Math.cos(rz);
+      const sz = Math.sin(rz);
+
+      return {
+        x: {
+          x: cz * cy,
+          y: sz * cy,
+          z: -sy
+        },
+        y: {
+          x: cz * sy * sx - sz * cx,
+          y: sz * sy * sx + cz * cx,
+          z: cy * sx
+        },
+        z: {
+          x: cz * sy * cx + sz * sx,
+          y: sz * sy * cx - cz * sx,
+          z: cy * cx
+        }
+      };
     }
 
     const nodes = [];
@@ -545,7 +545,13 @@
         ampZ: 3 + seeded(index, 9) * MOVE_RANGE,
         rotX: 4 + seeded(index, 10) * ROTATE_RANGE,
         rotY: 4 + seeded(index, 11) * ROTATE_RANGE,
-        rotZ: 3 + seeded(index, 12) * ROTATE_RANGE
+        rotZ: 3 + seeded(index, 12) * ROTATE_RANGE,
+        stateX: null,
+        stateY: null,
+        stateZ: null,
+        stateRX: 0,
+        stateRY: 0,
+        stateRZ: 0
       });
     }
 
@@ -598,33 +604,6 @@
       }
     ];
 
-    function eulerBasis(rx, ry, rz) {
-      const cx = fastCos(rx);
-      const sx = fastSin(rx);
-      const cy = fastCos(ry);
-      const sy = fastSin(ry);
-      const cz = fastCos(rz);
-      const sz = fastSin(rz);
-
-      return {
-        x: {
-          x: cz * cy,
-          y: sz * cy,
-          z: -sy
-        },
-        y: {
-          x: cz * sy * sx - sz * cx,
-          y: sz * sy * sx + cz * cx,
-          z: cy * sx
-        },
-        z: {
-          x: cz * sy * cx + sz * sx,
-          y: sz * sy * cx - cz * sx,
-          z: cy * cx
-        }
-      };
-    }
-
     function createOrbitCard(ring, ringIndex, baseAngle, isSpacer) {
       const card = document.createElement('div');
       card.className = isSpacer
@@ -649,8 +628,7 @@
         isSpacer,
         baseAngle,
         baseCos: Math.cos(baseAngle),
-        baseSin: Math.sin(baseAngle),
-        lastDepthBucket: -1
+        baseSin: Math.sin(baseAngle)
       };
 
       ring.items.push(item);
@@ -695,7 +673,6 @@
 
         item.element.style.setProperty('--card-width', `${width}px`);
 
-        // Local ring basis: X=tangent, Y=ring axis, Z=inward to center.
         const rightX = sa;
         const rightY = -ca;
         const inwardX = -ca;
@@ -729,19 +706,18 @@
     refreshLayout();
     window.addEventListener('resize', refreshLayout, { passive: true });
 
-    let pointerX = 0;
-    let pointerY = 0;
+    let pointerTargetX = 0;
+    let pointerTargetY = 0;
+    let pointerSmoothX = 0;
+    let pointerSmoothY = 0;
 
     window.addEventListener('pointermove', event => {
-      pointerX = (event.clientX / window.innerWidth - .5) * 2;
-      pointerY = (event.clientY / window.innerHeight - .5) * 2;
+      pointerTargetX = (event.clientX / window.innerWidth - .5) * 2;
+      pointerTargetY = (event.clientY / window.innerHeight - .5) * 2;
     }, { passive: true });
-
-    let frameIndex = 0;
 
     function updateCardRings(time) {
       const freeze = reducedMotion ? 0 : 1;
-      const updateDepth = frameIndex % DEPTH_UPDATE_FRAMES === 0;
 
       RINGS.forEach(ring => {
         const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
@@ -750,10 +726,9 @@
         const basis = eulerBasis(rx, ry, rz);
 
         const spin = time * ring.spinSpeed * freeze;
-        const cs = fastCos(spin);
-        const ss = fastSin(spin);
+        const cs = Math.cos(spin);
+        const ss = Math.sin(spin);
 
-        // R(precession) * Rz(spin): one cached transform moves the entire ring.
         const xAxis = {
           x: cs * basis.x.x + ss * basis.y.x,
           y: cs * basis.x.y + ss * basis.y.y,
@@ -771,67 +746,66 @@
           `${yAxis.x},${yAxis.y},${yAxis.z},0,` +
           `${basis.z.x},${basis.z.y},${basis.z.z},0,` +
           `0,0,0,1)`;
-
-        // Depth brightness is intentionally refreshed less often than geometry.
-        // Perspective and all actual movement still update every animation frame.
-        if (updateDepth) {
-          const radius = ring.scaledRadius;
-
-          ring.items.forEach(item => {
-            const z = radius * (
-              item.baseCos * xAxis.z +
-              item.baseSin * yAxis.z
-            );
-            const depth = clamp((z / radius + 1) * .5, 0, 1);
-            const alpha = item.isSpacer
-              ? .16 + depth * .20
-              : .58 + depth * .42;
-            const bucket = Math.round(alpha * 48);
-
-            if (bucket !== item.lastDepthBucket) {
-              item.lastDepthBucket = bucket;
-              item.element.style.setProperty(
-                '--depth-alpha',
-                (bucket / 48).toFixed(3)
-              );
-            }
-          });
-        }
       });
     }
 
-    function updateCubes(time) {
+    function updateCubes(time, dt) {
       const freeze = reducedMotion ? 0 : 1;
+      const smooth = 1 - Math.exp(-dt / 44);
 
-      const globalRotX = -18 + fastSin(time * .00013) * 5 + pointerY * -4;
-      const globalRotY = 32 + time * .0045 * freeze + pointerX * 7;
-      const globalRotZ = fastSin(time * .00017) * 3;
+      pointerSmoothX += (pointerTargetX - pointerSmoothX) * (1 - Math.exp(-dt / 90));
+      pointerSmoothY += (pointerTargetY - pointerSmoothY) * (1 - Math.exp(-dt / 90));
+
+      const globalRotX = -18 + Math.sin(time * .00013) * 5 + pointerSmoothY * -4;
+      const globalRotY = 32 + time * .0045 * freeze + pointerSmoothX * 7;
+      const globalRotZ = Math.sin(time * .00017) * 3;
 
       assembly.style.transform =
         `rotateX(${globalRotX}deg) rotateY(${globalRotY}deg) rotateZ(${globalRotZ}deg)`;
 
       nodes.forEach(item => {
-        const dx = fastSin(time * item.speedX + item.phaseX) * item.ampX * freeze;
-        const dy = fastSin(time * item.speedY + item.phaseY) * item.ampY * freeze;
-        const dz = fastSin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
+        const targetX = item.baseX * cubeStep + Math.sin(time * item.speedX + item.phaseX) * item.ampX * freeze;
+        const targetY = item.baseY * cubeStep + Math.sin(time * item.speedY + item.phaseY) * item.ampY * freeze;
+        const targetZ = item.baseZ * cubeStep + Math.sin(time * item.speedZ + item.phaseZ) * item.ampZ * freeze;
 
-        const rx = fastSin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
-        const ry = fastSin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
-        const rz = fastSin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
+        const targetRX = Math.sin(time * item.speedY + item.phaseZ) * item.rotX * freeze;
+        const targetRY = Math.sin(time * item.speedZ + item.phaseX) * item.rotY * freeze;
+        const targetRZ = Math.sin(time * item.speedX + item.phaseY) * item.rotZ * freeze;
 
-        const x = item.baseX * cubeStep + dx;
-        const y = item.baseY * cubeStep + dy;
-        const z = item.baseZ * cubeStep + dz;
+        if (item.stateX === null) {
+          item.stateX = targetX;
+          item.stateY = targetY;
+          item.stateZ = targetZ;
+        } else {
+          item.stateX += (targetX - item.stateX) * smooth;
+          item.stateY += (targetY - item.stateY) * smooth;
+          item.stateZ += (targetZ - item.stateZ) * smooth;
+        }
 
-        item.node.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
-        item.cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+        item.stateRX += (targetRX - item.stateRX) * smooth;
+        item.stateRY += (targetRY - item.stateRY) * smooth;
+        item.stateRZ += (targetRZ - item.stateRZ) * smooth;
+
+        item.node.style.transform =
+          `translate3d(${item.stateX}px, ${item.stateY}px, ${item.stateZ}px)`;
+        item.cube.style.transform =
+          `rotateX(${item.stateRX}deg) rotateY(${item.stateRY}deg) rotateZ(${item.stateRZ}deg)`;
       });
     }
 
-    function render(time) {
-      updateCardRings(time);
-      updateCubes(time);
-      frameIndex += 1;
+    let lastRealTime = performance.now();
+    let motionTime = 0;
+
+    function render(now) {
+      const rawDt = Math.max(0, now - lastRealTime);
+      lastRealTime = now;
+
+      // Keep motion continuous when a frame is delayed instead of jumping ahead.
+      const dt = Math.min(rawDt || 16.67, 22);
+      motionTime += dt;
+
+      updateCardRings(motionTime);
+      updateCubes(motionTime, dt);
       requestAnimationFrame(render);
     }
 
