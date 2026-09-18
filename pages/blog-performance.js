@@ -357,10 +357,10 @@ if (typeof drawConstellationRoom === 'function') {
 
     ctx.globalCompositeOperation = 'source-over';
     ctx.rotate(-room.rotation);
-    ctx.font = '8px monospace';
+    ctx.font = '10px monospace';
     ctx.textAlign = 'center';
-    ctx.fillStyle = `rgba(145,181,215,${.32 + proximity * .45})`;
-    ctx.fillText(`${room.id} · ${room.name}`, 0, 74);
+    ctx.fillStyle = `rgba(166,199,226,${.44 + proximity * .44})`;
+    ctx.fillText(`${room.id} · ${room.name}`, 0, 78);
     ctx.restore();
   };
 }
@@ -393,8 +393,9 @@ const PERF_RELIC_CONSTELLATIONS = {
     edges: [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,4],[7,0],[7,1]]
   },
   clock: {
-    points: [[0,-31],[22,-22],[31,0],[22,22],[0,31],[-22,22],[-31,0],[-22,-22],[0,0],[0,-17],[15,7]],
-    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[8,9],[8,10]]
+    // Simplified Horologium: an elongated chain rather than a clock face.
+    points: [[-36,-27],[-19,-11],[-6,8],[12,29],[31,16],[23,-7],[6,-26]],
+    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]]
   }
 };
 
@@ -414,7 +415,7 @@ function perfDrawRelicConstellation(object, time) {
   if (object.kind === 'crystal' && arkObjectState.crystalAwake) activeBoost = .20;
   if (object.kind === 'reliquary' && ritualComplete) activeBoost = .16;
   if (object.kind === 'reliquary' && arkObjectState.reliquaryOpen) activeBoost = .12;
-  if (object.kind === 'clock' && arkObjectState.clockReversed) activeBoost = .12;
+  if (object.kind === 'clock') activeBoost = .08;
   if (object.kind === 'bell' && bellAge < 3.2) activeBoost = .18;
 
   const lineAlpha = .10 + proximity * .28 + pulse * .035 + activeBoost;
@@ -422,10 +423,6 @@ function perfDrawRelicConstellation(object, time) {
 
   ctx.save();
   ctx.translate(object.x, object.y);
-
-  if (object.kind === 'clock') {
-    ctx.rotate((arkObjectState.clockReversed ? -1 : 1) * time * .00008);
-  }
 
   ctx.globalCompositeOperation = 'lighter';
 
@@ -466,10 +463,10 @@ function perfDrawRelicConstellation(object, time) {
   }
 
   ctx.globalCompositeOperation = 'source-over';
-  ctx.font = '7px monospace';
+  ctx.font = '10px monospace';
   ctx.textAlign = 'center';
-  ctx.fillStyle = `rgba(118,157,190,${.30 + proximity * .42})`;
-  ctx.fillText(object.title, 0, 51);
+  ctx.fillStyle = `rgba(148,184,214,${.42 + proximity * .42})`;
+  ctx.fillText(object.title, 0, 55);
   ctx.restore();
 }
 
