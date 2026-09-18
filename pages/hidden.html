@@ -197,7 +197,7 @@
       <div class="label">
         <span>UNNUMBERED RECORD / EXPERIMENT 01</span>
         <strong>27-BODY CUBE</strong>
-        <small>GPU INSTANCING / DRAG TO ORBIT / WHEEL TO ZOOM</small>
+        <small>GPU INSTANCING / LEFT-DRAG TO ORBIT / RELEASE TO RESET / WHEEL TO ZOOM</small>
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
@@ -902,50 +902,45 @@
       let activePointer = null;
       let lastPointerX = 0;
       let lastPointerY = 0;
-      let lastPointerTime = performance.now();
       let targetYaw = 0;
       let targetPitch = 0;
       let currentYaw = 0;
       let currentPitch = 0;
-      let velocityYaw = 0;
-      let velocityPitch = 0;
 
       world.addEventListener('pointerdown', event => {
         if (event.target.closest && event.target.closest('.return-link')) return;
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+
         dragging = true;
         activePointer = event.pointerId;
         lastPointerX = event.clientX;
         lastPointerY = event.clientY;
-        lastPointerTime = performance.now();
-        velocityYaw = 0;
-        velocityPitch = 0;
         world.classList.add('dragging');
         world.setPointerCapture(event.pointerId);
       });
 
       world.addEventListener('pointermove', event => {
         if (!dragging || event.pointerId !== activePointer) return;
-        const now = performance.now();
-        const dt = Math.max(1, now - lastPointerTime);
         const dx = event.clientX - lastPointerX;
         const dy = event.clientY - lastPointerY;
         const sensitivity = .0062;
 
         targetYaw += dx * sensitivity;
         targetPitch = clamp(targetPitch + dy * sensitivity, -1.25, 1.25);
-        velocityYaw = (dx * sensitivity) / dt;
-        velocityPitch = (dy * sensitivity) / dt;
 
         lastPointerX = event.clientX;
         lastPointerY = event.clientY;
-        lastPointerTime = now;
       }, { passive: true });
 
       function releasePointer(event) {
         if (event.pointerId !== activePointer) return;
+
         dragging = false;
         activePointer = null;
+        targetYaw = 0;
+        targetPitch = 0;
         world.classList.remove('dragging');
+
         if (world.hasPointerCapture(event.pointerId)) {
           world.releasePointerCapture(event.pointerId);
         }
@@ -1033,14 +1028,12 @@
         lastFrameTime = now;
 
         if (!dragging) {
-          targetYaw += velocityYaw * dt;
-          targetPitch = clamp(targetPitch + velocityPitch * dt, -1.25, 1.25);
-          const inertia = Math.exp(-dt * .0048);
-          velocityYaw *= inertia;
-          velocityPitch *= inertia;
+          targetYaw = 0;
+          targetPitch = 0;
         }
 
-        const follow = 1 - Math.exp(-dt * .018);
+        const followRate = dragging ? .020 : .0085;
+        const follow = 1 - Math.exp(-dt * followRate);
         currentYaw += (targetYaw - currentYaw) * follow;
         currentPitch += (targetPitch - currentPitch) * follow;
         cameraZ += (targetCameraZ - cameraZ) * (1 - Math.exp(-dt * .012));
