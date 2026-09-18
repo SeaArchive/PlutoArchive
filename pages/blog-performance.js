@@ -3,7 +3,7 @@
 
 const PERF_RITUAL_SIZE = 384;
 const PERF_RITUAL_HALF = PERF_RITUAL_SIZE / 2;
-const PERF_RITUAL_STEPS = 80;
+const PERF_RITUAL_STEPS = 60;
 
 const perfSpaceCache = document.createElement('canvas');
 perfSpaceCache.width = WORLD_W;
@@ -49,11 +49,28 @@ function perfBuildSpaceCache() {
 perfBuildSpaceCache();
 
 drawFloor = function drawFloorCached(time) {
-  ctx.drawImage(perfSpaceCache, 0, 0);
+  const sx = Math.max(0, Math.floor(camera.x));
+  const sy = Math.max(0, Math.floor(camera.y));
+  const sw = Math.min(Math.ceil(camera.w) + 2, WORLD_W - sx);
+  const sh = Math.min(Math.ceil(camera.h) + 2, WORLD_H - sy);
 
-  // Only a small subset twinkles dynamically; the rest is baked into the cache.
-  for (let index = 0; index < SPACE_STARS.length; index += 17) {
+  // Copy only the visible part of the cached world instead of the entire 1920x1152 image.
+  ctx.drawImage(
+    perfSpaceCache,
+    sx, sy, sw, sh,
+    sx, sy, sw, sh
+  );
+
+  // Only a few visible stars receive live twinkle animation.
+  for (let index = 0; index < SPACE_STARS.length; index += 29) {
     const star = SPACE_STARS[index];
+    if (
+      star.x < camera.x - 8 ||
+      star.x > camera.x + camera.w + 8 ||
+      star.y < camera.y - 8 ||
+      star.y > camera.y + camera.h + 8
+    ) continue;
+
     const twinkle = .35 + .65 * Math.sin(time * .002 + star.phase) ** 2;
     const size = star.size > 1.55 ? 2 : 1;
     ctx.fillStyle = `rgba(238,245,255,${.18 + twinkle * .55})`;
@@ -347,3 +364,155 @@ if (typeof drawConstellationRoom === 'function') {
     ctx.restore();
   };
 }
+
+
+function perfInView(x, y, pad = 110) {
+  return !(
+    x < camera.x - pad ||
+    x > camera.x + camera.w + pad ||
+    y < camera.y - pad ||
+    y > camera.y + camera.h + pad
+  );
+}
+
+const PERF_RELIC_CONSTELLATIONS = {
+  globe: {
+    points: [[0,-30],[21,-20],[30,0],[20,22],[0,31],[-21,21],[-30,0],[-20,-21],[0,0]],
+    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[0,8],[2,8],[4,8],[6,8]]
+  },
+  bell: {
+    points: [[0,-30],[-18,-12],[-24,12],[-12,22],[0,27],[12,22],[24,12],[18,-12],[0,7]],
+    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[0,8],[8,4]]
+  },
+  crystal: {
+    points: [[0,-34],[20,-8],[13,27],[0,36],[-14,27],[-21,-8],[0,3]],
+    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,6],[2,6],[4,6]]
+  },
+  reliquary: {
+    points: [[-27,-18],[27,-18],[30,19],[-30,19],[-12,-3],[12,-3],[0,13],[0,-27]],
+    edges: [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,4],[7,0],[7,1]]
+  },
+  clock: {
+    points: [[0,-31],[22,-22],[31,0],[22,22],[0,31],[-22,22],[-31,0],[-22,-22],[0,0],[0,-17],[15,7]],
+    edges: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0],[8,9],[8,10]]
+  }
+};
+
+function perfDrawRelicConstellation(object, time) {
+  const shape = PERF_RELIC_CONSTELLATIONS[object.kind];
+  if (!shape) return;
+
+  const dist = Math.hypot(player.x - object.x, player.y - object.y);
+  const proximity = clamp(1 - dist / 190, 0, 1);
+  const pulse = .5 + .5 * Math.sin(time * .0024 + object.x * .0017);
+  const bellAge = object.kind === 'bell'
+    ? (performance.now() - arkObjectState.bellPulseStart) / 1000
+    : 99;
+
+  let activeBoost = 0;
+  if (object.kind === 'globe' && arkObjectState.starChartOn) activeBoost = .16;
+  if (object.kind === 'crystal' && arkObjectState.crystalAwake) activeBoost = .20;
+  if (object.kind === 'reliquary' && ritualComplete) activeBoost = .16;
+  if (object.kind === 'reliquary' && arkObjectState.reliquaryOpen) activeBoost = .12;
+  if (object.kind === 'clock' && arkObjectState.clockReversed) activeBoost = .12;
+  if (object.kind === 'bell' && bellAge < 3.2) activeBoost = .18;
+
+  const lineAlpha = .10 + proximity * .28 + pulse * .035 + activeBoost;
+  const starAlpha = .34 + proximity * .40 + pulse * .10 + activeBoost;
+
+  ctx.save();
+  ctx.translate(object.x, object.y);
+
+  if (object.kind === 'clock') {
+    ctx.rotate((arkObjectState.clockReversed ? -1 : 1) * time * .00008);
+  }
+
+  ctx.globalCompositeOperation = 'lighter';
+
+  shape.edges.forEach(([a, b]) => {
+    const [ax, ay] = shape.points[a];
+    const [bx, by] = shape.points[b];
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.strokeStyle = object.kind === 'reliquary' && ritualComplete
+      ? `rgba(190,163,255,${lineAlpha})`
+      : `rgba(145,190,235,${lineAlpha})`;
+    ctx.lineWidth = .75 + proximity * .32;
+    ctx.stroke();
+  });
+
+  shape.points.forEach(([x, y], index) => {
+    const twinkle = .58 + .42 * Math.sin(time * .0028 + index * 1.71 + object.y * .002) ** 2;
+    const size = index % 4 === 0 ? 2 : 1.15;
+    ctx.fillStyle = object.kind === 'reliquary' && ritualComplete
+      ? `rgba(232,218,255,${starAlpha * (.78 + twinkle * .22)})`
+      : `rgba(226,242,255,${starAlpha * (.78 + twinkle * .22)})`;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  if (object.kind === 'bell' && bellAge >= 0 && bellAge < 3.2) {
+    for (let i = 0; i < 3; i += 1) {
+      const p = clamp((bellAge - i * .38) / 1.8, 0, 1);
+      if (p <= 0 || p >= 1) continue;
+      ctx.strokeStyle = `rgba(194,216,255,${(1 - p) * .16})`;
+      ctx.lineWidth = .7;
+      ctx.beginPath();
+      ctx.arc(0, 0, 32 + p * 68, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.font = '7px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = `rgba(118,157,190,${.30 + proximity * .42})`;
+  ctx.fillText(object.title, 0, 51);
+  ctx.restore();
+}
+
+// Draw only the objects close enough to matter for the current camera.
+drawWorldInteractables = function drawWorldInteractablesOptimized(time) {
+  ARK_ROOMS.forEach(room => {
+    if (perfInView(room.x, room.y, 120)) drawConstellationRoom(room, time);
+  });
+
+  ARK_OBJECTS.forEach(object => {
+    if (perfInView(object.x, object.y, 105)) {
+      perfDrawRelicConstellation(object, time);
+    }
+  });
+};
+
+// Restrict lighting fills to the visible camera rectangle.
+drawLighting = function drawLightingOptimized() {
+  const left = camera.x - 2;
+  const top = camera.y - 2;
+  const width = camera.w + 4;
+  const height = camera.h + 4;
+
+  const gradient = ctx.createRadialGradient(player.x, player.y, 110, player.x, player.y, 380);
+  gradient.addColorStop(0, 'rgba(0,0,0,0)');
+  gradient.addColorStop(.68, 'rgba(0,0,0,.035)');
+  gradient.addColorStop(1, 'rgba(0,0,0,.18)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(left, top, width, height);
+
+  if (perfInView(score.x, score.y, 230)) {
+    const scoreGlow = ctx.createRadialGradient(
+      score.x, score.y, 24,
+      score.x, score.y, ritualComplete ? 210 : 165
+    );
+    scoreGlow.addColorStop(0, ritualComplete ? 'rgba(178,153,255,.10)' : 'rgba(115,145,205,.055)');
+    scoreGlow.addColorStop(1, 'rgba(80,100,160,0)');
+    ctx.fillStyle = scoreGlow;
+    ctx.fillRect(
+      Math.max(left, score.x - 230),
+      Math.max(top, score.y - 230),
+      460,
+      460
+    );
+  }
+};
