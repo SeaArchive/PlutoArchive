@@ -14,19 +14,58 @@ const ritualState = document.getElementById('ritualState');
 const ritualCard = document.querySelector('.ritual-card');
 const touchButtons = [...document.querySelectorAll('[data-move]')];
 
-const WORLD_W = 960;
-const WORLD_H = 640;
+const WORLD_W = 1920;
+const WORLD_H = 1152;
 const TILE = 32;
 const COLS = WORLD_W / TILE;
 const ROWS = WORLD_H / TILE;
 const RITUAL_RADIUS = 124;
 const RITUAL_DURATION = 60;
+const VIEW_H = 640;
 
-canvas.width = WORLD_W;
-canvas.height = WORLD_H;
-ctx.imageSmoothingEnabled = false;
+const camera = {
+  x: 0,
+  y: 0,
+  w: 960,
+  h: VIEW_H,
+  initialized: false
+};
 
-const keys = new Set();
+function resizeGameCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(1, rect.width || window.innerWidth || 960);
+  const height = Math.max(1, rect.height || window.innerHeight || 640);
+  const aspect = width / height;
+
+  canvas.height = VIEW_H;
+  canvas.width = Math.max(1, Math.round(VIEW_H * aspect));
+  camera.w = canvas.width;
+  camera.h = canvas.height;
+  camera.initialized = false;
+  ctx.imageSmoothingEnabled = false;
+}
+
+function updateCamera() {
+  const maxX = Math.max(0, WORLD_W - camera.w);
+  const maxY = Math.max(0, WORLD_H - camera.h);
+  const targetX = clamp(player.x - camera.w / 2, 0, maxX);
+  const targetY = clamp(player.y - camera.h / 2, 0, maxY);
+
+  if (!camera.initialized) {
+    camera.x = targetX;
+    camera.y = targetY;
+    camera.initialized = true;
+    return;
+  }
+
+  camera.x += (targetX - camera.x) * 0.14;
+  camera.y += (targetY - camera.y) * 0.14;
+}
+
+resizeGameCanvas();
+window.addEventListener('resize', resizeGameCanvas);
+
+const keys = new Set();const keys = new Set();
 let lastTime = performance.now();
 let bgmStarted = false;
 let bgmEnabled = true;
@@ -101,25 +140,48 @@ function buildMap() {
     addWall(COLS - 1, y);
   }
 
-  addRect(3, 3, 7, 1);
-  addRect(3, 3, 1, 5);
-  addRect(9, 3, 1, 3);
-  addRect(20, 3, 7, 1);
-  addRect(26, 3, 1, 5);
-  addRect(20, 3, 1, 3);
+  // Upper archive chambers.
+  addRect(4, 3, 12, 1);
+  addRect(4, 3, 1, 7);
+  addRect(15, 3, 1, 5);
 
-  addRect(4, 12, 6, 1);
-  addRect(4, 12, 1, 4);
-  addRect(20, 12, 6, 1);
-  addRect(25, 12, 1, 4);
+  addRect(23, 3, 14, 1);
+  addRect(23, 3, 1, 5);
+  addRect(36, 3, 1, 7);
 
-  addRect(8, 17, 5, 1);
-  addRect(17, 17, 5, 1);
+  addRect(44, 3, 12, 1);
+  addRect(44, 3, 1, 6);
+  addRect(55, 3, 1, 7);
 
-  [[11,7],[18,7],[11,12],[18,12]].forEach(([x, y]) => addRect(x, y, 1, 2));
+  // Side galleries and alcoves.
+  addRect(4, 14, 10, 1);
+  addRect(4, 14, 1, 8);
+  addRect(13, 14, 1, 4);
+
+  addRect(46, 14, 10, 1);
+  addRect(55, 14, 1, 8);
+  addRect(46, 14, 1, 4);
+
+  addRect(5, 26, 12, 1);
+  addRect(5, 26, 1, 6);
+  addRect(16, 26, 1, 4);
+
+  addRect(43, 26, 12, 1);
+  addRect(54, 26, 1, 6);
+  addRect(43, 26, 1, 4);
+
+  // Lower archive structures, leaving broad travel lanes between rooms.
+  addRect(22, 30, 7, 1);
+  addRect(31, 30, 7, 1);
+
+  // Pillars frame the large central ritual hall.
+  [
+    [22,12],[37,12],[22,23],[37,23],
+    [18,17],[41,17],[18,21],[41,21]
+  ].forEach(([x, y]) => addRect(x, y, 1, 2));
 }
 
-buildMap();
+buildMap();buildMap();
 
 function tileBlocked(tx, ty) {
   return walls.has(wallKey(tx, ty));
@@ -345,10 +407,14 @@ function drawExitDoor(time) {
 
 function drawDoors() {
   const doors = [
-    { x: 6.5, y: 3.15, label: 'R-01' },
-    { x: 23.5, y: 3.15, label: 'R-02' },
-    { x: 4.15, y: 14.2, label: 'R-03' },
-    { x: 25.85, y: 14.2, label: 'R-04' }
+    { x: 10, y: 3.15, label: 'R-01' },
+    { x: 30, y: 3.15, label: 'R-02' },
+    { x: 50, y: 3.15, label: 'R-03' },
+    { x: 4.15, y: 18, label: 'R-04' },
+    { x: 55.85, y: 18, label: 'R-05' },
+    { x: 11, y: 26.15, label: 'R-06' },
+    { x: 49, y: 26.15, label: 'R-07' },
+    { x: 30, y: 30.15, label: 'R-08' }
   ];
 
   ctx.font = '8px monospace';
@@ -357,15 +423,15 @@ function drawDoors() {
     const px = door.x * TILE;
     const py = door.y * TILE;
     ctx.fillStyle = '#0b1117';
-    ctx.fillRect(px - 21, py - 6, 42, 12);
-    ctx.strokeStyle = 'rgba(73,214,255,.18)';
-    ctx.strokeRect(px - 21.5, py - 6.5, 43, 13);
-    ctx.fillStyle = 'rgba(105,119,138,.62)';
+    ctx.fillRect(px - 22, py - 7, 44, 14);
+    ctx.strokeStyle = 'rgba(73,214,255,.20)';
+    ctx.strokeRect(px - 22.5, py - 7.5, 45, 15);
+    ctx.fillStyle = 'rgba(105,119,138,.72)';
     ctx.fillText(door.label, px, py + 3);
   });
 }
 
-function drawPartialCircle(radius, progress, alpha, width = 1) {
+function drawPartialCirclefunction drawPartialCircle(radius, progress, alpha, width = 1) {
   if (progress <= 0) return;
   ctx.beginPath();
   ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(progress, 0, 1));
@@ -637,17 +703,33 @@ function update(dt) {
 }
 
 function render(time) {
+  updateCamera();
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#020406';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
+
   drawFloor();
   drawWalls();
   drawDoors();
   drawRitual(time);
   drawScore(time);
+
+  if (typeof drawWorldInteractables === 'function') {
+    drawWorldInteractables(time);
+  }
+
   drawPlayer();
   drawLighting();
   drawExitDoor(time);
+
+  ctx.restore();
 }
 
-function loop(now) {
+function loop(now)function loop(now) {
   const dt = Math.min(0.033, (now - lastTime) / 1000);
   lastTime = now;
   update(dt);
