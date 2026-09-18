@@ -8,6 +8,13 @@
   --line: rgba(73, 214, 255, 0.14);
   --pointer-x: 50vw;
   --pointer-y: 50vh;
+  --system-shift-x: 0px;
+  --system-shift-y: 0px;
+  --system-tilt-x: 0deg;
+  --system-tilt-z: 0deg;
+  --copy-shift-x: 0px;
+  --copy-shift-y: 0px;
+  --motion-curve: cubic-bezier(.16, 1, .3, 1);
 }
 
 * {
@@ -34,7 +41,8 @@ body {
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(circle at 52% 45%, rgba(17, 37, 56, 0.3), transparent 32%),
+    radial-gradient(circle at 52% 45%, rgba(17, 37, 56, 0.34), transparent 32%),
+    radial-gradient(circle at 20% 78%, rgba(39, 31, 72, .12), transparent 28%),
     #020305;
 }
 
@@ -42,41 +50,47 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(260px circle at var(--pointer-x) var(--pointer-y), rgba(73, 214, 255, 0.035), transparent 72%);
+  background:
+    radial-gradient(330px circle at var(--pointer-x) var(--pointer-y), rgba(73, 214, 255, 0.052), transparent 72%);
+  mix-blend-mode: screen;
 }
 
 .stars {
   position: absolute;
   inset: -30%;
   background-image:
-    radial-gradient(circle, rgba(255,255,255,.7) 0 1px, transparent 1.2px),
-    radial-gradient(circle, rgba(73,214,255,.55) 0 1px, transparent 1.2px),
-    radial-gradient(circle, rgba(255,255,255,.35) 0 1px, transparent 1.2px);
+    radial-gradient(circle, rgba(255,255,255,.78) 0 1px, transparent 1.25px),
+    radial-gradient(circle, rgba(73,214,255,.62) 0 1px, transparent 1.25px),
+    radial-gradient(circle, rgba(206,194,255,.42) 0 1px, transparent 1.2px);
   background-size: 137px 137px, 211px 211px, 83px 83px;
   background-position: 10px 18px, 54px 77px, 31px 42px;
+  will-change: transform;
 }
 
 .stars-a {
-  opacity: 0.42;
+  opacity: 0.48;
   animation: starDrift 90s linear infinite;
 }
 
 .stars-b {
-  opacity: 0.2;
+  opacity: 0.25;
   transform: scale(1.35);
   animation: starDrift 140s linear infinite reverse;
 }
 
 .nebula {
   position: absolute;
-  width: 70vw;
-  height: 70vw;
+  width: 74vw;
+  height: 74vw;
   left: 46%;
   top: 45%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(24, 70, 96, 0.09), rgba(7, 17, 28, 0.03) 35%, transparent 68%);
-  filter: blur(30px);
+  background:
+    radial-gradient(circle at 45% 45%, rgba(24, 70, 96, 0.115), rgba(7, 17, 28, 0.038) 35%, transparent 68%),
+    radial-gradient(circle at 62% 54%, rgba(74, 58, 122, .065), transparent 48%);
+  filter: blur(34px);
+  animation: nebulaBreathe 14s ease-in-out infinite alternate;
 }
 
 .archive-shell {
@@ -115,6 +129,7 @@ body {
   border: 1px solid var(--cyan);
   border-radius: 50%;
   box-shadow: 0 0 12px rgba(73, 214, 255, 0.45);
+  animation: signalPulse 3.8s ease-in-out infinite;
 }
 
 .coordinates {
@@ -138,6 +153,7 @@ body {
   border-radius: 50%;
   background: var(--cyan);
   box-shadow: 0 0 8px var(--cyan);
+  animation: signalPulse 2.6s ease-in-out infinite .4s;
 }
 
 .owner-login {
@@ -145,12 +161,13 @@ body {
   border-left: 1px solid var(--line);
   color: var(--muted);
   text-decoration: none;
-  transition: color 160ms ease;
+  transition: color 420ms var(--motion-curve), text-shadow 420ms var(--motion-curve);
 }
 
 .owner-login:hover,
 .owner-login:focus-visible {
   color: var(--cyan);
+  text-shadow: 0 0 14px rgba(73,214,255,.28);
   outline: none;
 }
 
@@ -167,6 +184,8 @@ body {
   position: relative;
   z-index: 3;
   padding-left: clamp(0px, 4vw, 64px);
+  transform: translate3d(var(--copy-shift-x), var(--copy-shift-y), 0);
+  will-change: transform;
 }
 
 .kicker {
@@ -175,7 +194,8 @@ body {
   color: var(--cyan);
   font-size: 9px;
   letter-spacing: 0.22em;
-  opacity: 0.7;
+  opacity: 0.74;
+  text-shadow: 0 0 18px rgba(73,214,255,.12);
 }
 
 .hero h1 {
@@ -184,7 +204,9 @@ body {
   font-weight: 200;
   line-height: 0.75;
   letter-spacing: 0.045em;
-  text-shadow: 0 0 40px rgba(73, 214, 255, 0.08);
+  text-shadow:
+    0 0 40px rgba(73, 214, 255, 0.09),
+    0 0 90px rgba(73, 214, 255, 0.025);
 }
 
 .archive-title {
@@ -208,17 +230,23 @@ body {
   justify-self: center;
   width: min(48vw, 650px, 54vh);
   aspect-ratio: 1;
-  transform: perspective(900px) rotateX(62deg) rotateZ(-14deg);
+  transform:
+    perspective(900px)
+    translate3d(var(--system-shift-x), var(--system-shift-y), 0)
+    rotateX(calc(62deg + var(--system-tilt-x)))
+    rotateZ(calc(-14deg + var(--system-tilt-z)));
   transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .orbit {
   position: absolute;
   left: 50%;
   top: 50%;
-  border: 1px solid rgba(73, 214, 255, 0.12);
+  border: 1px solid rgba(73, 214, 255, 0.15);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 24px rgba(73,214,255,.012);
 }
 
 .orbit::before {
@@ -230,7 +258,9 @@ body {
   top: 14%;
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 9px var(--cyan);
+  box-shadow:
+    0 0 9px var(--cyan),
+    0 0 22px rgba(73,214,255,.35);
 }
 
 .orbit-outer {
@@ -243,14 +273,14 @@ body {
   width: 72%;
   height: 72%;
   border-style: dashed;
-  opacity: 0.6;
+  opacity: 0.68;
   animation: spin 27s linear infinite reverse;
 }
 
 .orbit-inner {
   width: 46%;
   height: 46%;
-  opacity: 0.45;
+  opacity: 0.52;
   animation: spin 19s linear infinite;
 }
 
@@ -258,7 +288,8 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: rgba(73, 214, 255, 0.06);
+  background: rgba(73, 214, 255, 0.075);
+  box-shadow: 0 0 8px rgba(73,214,255,.03);
 }
 
 .axis-x {
@@ -285,10 +316,11 @@ body {
 
 .pluto-glow {
   position: absolute;
-  inset: -45%;
+  inset: -54%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(73, 214, 255, 0.15), transparent 67%);
-  filter: blur(8px);
+  background: radial-gradient(circle, rgba(73, 214, 255, 0.19), rgba(73,214,255,.035) 42%, transparent 69%);
+  filter: blur(10px);
+  animation: plutoGlow 5.2s ease-in-out infinite;
 }
 
 .pluto-body {
@@ -296,13 +328,14 @@ body {
   inset: 0;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 34% 28%, rgba(160, 225, 242, 0.9), transparent 7%),
-    radial-gradient(circle at 61% 62%, rgba(20, 46, 59, 0.75), transparent 17%),
-    radial-gradient(circle at 44% 48%, #7695a2, #334b57 50%, #101b22 78%);
+    radial-gradient(circle at 34% 28%, rgba(185, 238, 248, 0.92), transparent 7%),
+    radial-gradient(circle at 61% 62%, rgba(20, 46, 59, 0.78), transparent 17%),
+    radial-gradient(circle at 44% 48%, #7d9ca9, #334b57 50%, #101b22 78%);
   box-shadow:
     inset -20px -17px 30px rgba(0,0,0,.72),
-    inset 8px 8px 20px rgba(190,235,245,.1),
-    0 0 35px rgba(73,214,255,.16);
+    inset 8px 8px 20px rgba(190,235,245,.13),
+    0 0 35px rgba(73,214,255,.18),
+    0 0 80px rgba(73,214,255,.035);
 }
 
 .pluto-label {
@@ -329,7 +362,8 @@ body {
   height: 5px;
   border-radius: 50%;
   background: var(--cyan);
-  box-shadow: 0 0 9px var(--cyan);
+  box-shadow: 0 0 9px var(--cyan), 0 0 18px rgba(73,214,255,.3);
+  animation: satellitePulse 3.4s ease-in-out infinite;
 }
 
 .satellite-one {
@@ -343,6 +377,7 @@ body {
   width: 3px;
   height: 3px;
   opacity: 0.6;
+  animation-delay: -1.4s;
 }
 
 .archive-nav {
@@ -363,7 +398,12 @@ body {
   text-decoration: none;
   border-right: 1px solid var(--line);
   background: rgba(3, 7, 12, 0.45);
-  transition: background 200ms ease;
+  transform: translate3d(0, 0, 0);
+  transition:
+    background 520ms var(--motion-curve),
+    transform 620ms var(--motion-curve),
+    box-shadow 620ms var(--motion-curve);
+  will-change: transform;
 }
 
 .nav-item:last-child {
@@ -378,14 +418,16 @@ body {
   width: 0;
   height: 1px;
   background: var(--cyan);
-  box-shadow: 0 0 10px var(--cyan);
-  transition: width 220ms ease;
+  box-shadow: 0 0 10px var(--cyan), 0 0 22px rgba(73,214,255,.28);
+  transition: width 680ms var(--motion-curve);
 }
 
 .nav-item:hover,
 .nav-item:focus-visible {
   outline: none;
-  background: rgba(73, 214, 255, 0.045);
+  background: rgba(73, 214, 255, 0.052);
+  transform: translate3d(0, -3px, 0);
+  box-shadow: inset 0 -20px 42px rgba(73,214,255,.018);
 }
 
 .nav-item:hover::before,
@@ -423,13 +465,15 @@ body {
 .nav-arrow {
   align-self: end;
   color: rgba(105, 119, 138, 0.45);
-  transition: color 200ms ease, transform 200ms ease;
+  transform: translate3d(0,0,0);
+  transition: color 520ms var(--motion-curve), transform 620ms var(--motion-curve), text-shadow 520ms var(--motion-curve);
 }
 
 .nav-item:hover .nav-arrow,
 .nav-item:focus-visible .nav-arrow {
   color: var(--cyan);
-  transform: translate(2px, -2px);
+  transform: translate3d(3px, -3px, 0);
+  text-shadow: 0 0 12px rgba(73,214,255,.45);
 }
 
 .footer {
@@ -455,6 +499,26 @@ body {
 
 @keyframes starDrift {
   to { transform: translate3d(90px, 45px, 0); }
+}
+
+@keyframes nebulaBreathe {
+  from { opacity: .82; transform: translate(-50%, -50%) scale(.985); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1.025); }
+}
+
+@keyframes signalPulse {
+  0%, 100% { opacity: .55; box-shadow: 0 0 6px rgba(73,214,255,.38); }
+  45% { opacity: 1; box-shadow: 0 0 10px rgba(73,214,255,.82), 0 0 24px rgba(73,214,255,.16); }
+}
+
+@keyframes plutoGlow {
+  0%, 100% { opacity: .72; transform: scale(.95); }
+  50% { opacity: 1; transform: scale(1.055); }
+}
+
+@keyframes satellitePulse {
+  0%, 100% { opacity: .46; transform: scale(.82); }
+  50% { opacity: 1; transform: scale(1.28); }
 }
 
 @media (max-width: 1050px) {
