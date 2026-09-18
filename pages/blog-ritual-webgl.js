@@ -1,7 +1,7 @@
 // GPU ritual renderer for Pluto Ark.
-// Draws a high-density 3D star-dust vortex and gyroscopic magic-circle rings
-// into an offscreen WebGL2 canvas, then composites it into the existing Ark
-// world so gameplay, fog, Pluto and the player keep their original draw order.
+// Renders a layered 3D gyroscopic magic circle and orbiting sigils in WebGL2,
+// then composites it into the existing Ark canvas while preserving gameplay,
+// fog, Pluto and player draw order.
 
 (() => {
   'use strict';
@@ -11,7 +11,6 @@
   const gpuCanvas = document.createElement('canvas');
   const isCompact = Math.min(window.innerWidth, window.innerHeight) < 720;
   const GPU_SIZE = reducedMotion ? 512 : (isCompact ? 640 : 896);
-  const PARTICLE_COUNT = reducedMotion ? 900 : (isCompact ? 1900 : 2800);
   const SIGIL_COUNT = reducedMotion ? 42 : 96;
   const DISPLAY_SIZE = 470;
   const TAU = Math.PI * 2;
@@ -68,126 +67,6 @@
     }
     return result;
   }
-
-  const dustVertex = `#version 300 es
-    precision highp float;
-
-    layout(location=0) in vec4 aMotion;
-    layout(location=1) in vec4 aShape;
-
-    uniform float uTime;
-    uniform float uProgress;
-    uniform float uComplete;
-    uniform float uPixelScale;
-
-    out float vAlpha;
-    out float vTint;
-    out float vHeat;
-
-    const float PI = 3.141592653589793;
-    const float TAU = 6.283185307179586;
-
-    mat3 rotX(float a) {
-      float c = cos(a), s = sin(a);
-      return mat3(1.,0.,0., 0.,c,s, 0.,-s,c);
-    }
-
-    mat3 rotY(float a) {
-      float c = cos(a), s = sin(a);
-      return mat3(c,0.,-s, 0.,1.,0., s,0.,c);
-    }
-
-    mat3 rotZ(float a) {
-      float c = cos(a), s = sin(a);
-      return mat3(c,s,0., -s,c,0., 0.,0.,1.);
-    }
-
-    void main() {
-      float phase = aMotion.x;
-      float baseRadius = aMotion.y;
-      float lifeSpeed = aMotion.z;
-      float pointSize = aMotion.w;
-
-      float lane = aShape.x;
-      float height = aShape.y;
-      float tint = aShape.z;
-      float spinBias = aShape.w;
-
-      float life = fract(phase + uTime * lifeSpeed);
-      float inward = pow(1.0 - life, .72);
-      float radius = mix(.055 + baseRadius * .025, 1.35 * baseRadius, inward);
-      float acceleration = life + life * life * 1.85;
-      float revolutions = mix(3.2, 7.6, spinBias);
-      float angle = phase * TAU + acceleration * revolutions * TAU + uTime * (.12 + spinBias * .12);
-
-      vec3 p = vec3(
-        cos(angle) * radius,
-        sin(angle) * radius,
-        sin(angle * 1.7 + phase * 11.0 + uTime * .7) * height * radius
-      );
-
-      if (lane < .5) {
-        p = rotX(.22) * rotZ(.08) * p;
-      } else if (lane < 1.5) {
-        p = rotX(1.04) * rotZ(-.42) * p;
-      } else {
-        p = rotY(-.94) * rotZ(.62) * p;
-      }
-
-      float breathingTilt = sin(uTime * .23) * .06;
-      p = rotY(-.24 + breathingTilt) * rotX(.34) * p;
-
-      float cameraDistance = 3.35;
-      float perspective = cameraDistance / max(.72, cameraDistance - p.z * .76);
-      vec2 projected = p.xy * perspective * .70;
-
-      float nearDepth = clamp((p.z + 1.35) / 2.7, 0.0, 1.0);
-      float appear = smoothstep(.015, .15, uProgress);
-      float density = smoothstep(.08, .72, uProgress);
-      float birth = smoothstep(0.0, .07, life);
-      float death = 1.0 - smoothstep(.88, 1.0, life);
-      float coreHeat = pow(life, 2.0);
-
-      vAlpha = appear * birth * death * (.24 + nearDepth * .76) * (.45 + density * .70);
-      vAlpha *= mix(.78, 1.18, uComplete);
-      vTint = tint;
-      vHeat = coreHeat;
-
-      gl_PointSize = pointSize * uPixelScale * perspective *
-        (.72 + nearDepth * .72 + coreHeat * 1.15 + uComplete * .18);
-      gl_Position = vec4(projected, clamp(p.z * .20, -.92, .92), 1.0);
-    }
-  `;
-
-  const dustFragment = `#version 300 es
-    precision highp float;
-
-    in float vAlpha;
-    in float vTint;
-    in float vHeat;
-    out vec4 outColor;
-
-    void main() {
-      vec2 p = gl_PointCoord * 2.0 - 1.0;
-      float r = length(p);
-      if (r > 1.0) discard;
-
-      float halo = pow(max(0.0, 1.0 - r), 2.15);
-      float core = pow(max(0.0, 1.0 - r * 2.65), 3.8);
-      float vertical = exp(-abs(p.x) * 17.0) * smoothstep(.92, .10, abs(p.y));
-      float horizontal = exp(-abs(p.y) * 17.0) * smoothstep(.92, .10, abs(p.x));
-      float flare = max(vertical, horizontal) * .22;
-
-      vec3 cyan = vec3(.30, .82, 1.0);
-      vec3 violet = vec3(.63, .49, 1.0);
-      vec3 pearl = vec3(.91, .95, 1.0);
-      vec3 color = mix(cyan, violet, smoothstep(.55, .96, vTint));
-      color = mix(color, pearl, vHeat * .58 + core * .34);
-
-      float alpha = (halo * .54 + core * 1.35 + flare) * vAlpha;
-      outColor = vec4(color, alpha);
-    }
-  `;
 
   const ringVertex = `#version 300 es
     precision highp float;
@@ -382,13 +261,11 @@
     }
   `;
 
-  let dustProgram;
   let ringProgram;
   let sigilProgram;
   let veilProgram;
 
   try {
-    dustProgram = program(dustVertex, dustFragment);
     ringProgram = program(ringVertex, ringFragment);
     sigilProgram = program(sigilVertex, sigilFragment);
     veilProgram = program(veilVertex, veilFragment);
@@ -397,34 +274,12 @@
     return;
   }
 
-  const dustData = new Float32Array(PARTICLE_COUNT * 8);
-  for (let i = 0; i < PARTICLE_COUNT; i += 1) {
-    const o = i * 8;
-    dustData[o] = seeded(i, 1);
-    dustData[o + 1] = .64 + seeded(i, 2) * .45;
-    dustData[o + 2] = .035 + seeded(i, 3) * .055;
-    dustData[o + 3] = .65 + seeded(i, 4) * 1.95;
-    dustData[o + 4] = i % 3;
-    dustData[o + 5] = .12 + seeded(i, 5) * .38;
-    dustData[o + 6] = seeded(i, 6);
-    dustData[o + 7] = seeded(i, 7);
-  }
-
-  const dustVao = gl.createVertexArray();
-  const dustBuffer = gl.createBuffer();
-  gl.bindVertexArray(dustVao);
-  gl.bindBuffer(gl.ARRAY_BUFFER, dustBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, dustData, gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 8 * 4, 0);
-  gl.enableVertexAttribArray(1);
-  gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 8 * 4, 4 * 4);
-
   const RING_SEGMENTS = 320;
   const ringData = new Float32Array(RING_SEGMENTS + 1);
   for (let i = 0; i <= RING_SEGMENTS; i += 1) {
     ringData[i] = i / RING_SEGMENTS * TAU;
   }
+
   const ringVao = gl.createVertexArray();
   const ringBuffer = gl.createBuffer();
   gl.bindVertexArray(ringVao);
@@ -442,6 +297,7 @@
     sigilData[o + 2] = .55 + lane * .16 + seeded(i, 16) * .055;
     sigilData[o + 3] = lane;
   }
+
   const sigilVao = gl.createVertexArray();
   const sigilBuffer = gl.createBuffer();
   gl.bindVertexArray(sigilVao);
@@ -454,6 +310,7 @@
     -1,-1, 1,-1, 1,1,
     -1,-1, 1,1, -1,1
   ]);
+
   const veilVao = gl.createVertexArray();
   const veilBuffer = gl.createBuffer();
   gl.bindVertexArray(veilVao);
@@ -462,13 +319,6 @@
   gl.enableVertexAttribArray(0);
   gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 2 * 4, 0);
   gl.bindVertexArray(null);
-
-  const dustUniforms = {
-    time: gl.getUniformLocation(dustProgram, 'uTime'),
-    progress: gl.getUniformLocation(dustProgram, 'uProgress'),
-    complete: gl.getUniformLocation(dustProgram, 'uComplete'),
-    pixelScale: gl.getUniformLocation(dustProgram, 'uPixelScale')
-  };
 
   const ringUniforms = {
     time: gl.getUniformLocation(ringProgram, 'uTime'),
@@ -534,7 +384,7 @@
     gl.bindVertexArray(veilVao);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    // Six independently tilted gyroscopic rings.
+    // Independently tilted gyroscopic rings.
     gl.useProgram(ringProgram);
     gl.uniform1f(ringUniforms.time, time);
     gl.uniform1f(ringUniforms.progress, progress);
@@ -558,15 +408,6 @@
     gl.uniform1f(sigilUniforms.pixelScale, pixelScale);
     gl.bindVertexArray(sigilVao);
     gl.drawArrays(gl.POINTS, 0, SIGIL_COUNT);
-
-    // Dense 3D inward star-dust vortex.
-    gl.useProgram(dustProgram);
-    gl.uniform1f(dustUniforms.time, time);
-    gl.uniform1f(dustUniforms.progress, progress);
-    gl.uniform1f(dustUniforms.complete, completed);
-    gl.uniform1f(dustUniforms.pixelScale, pixelScale);
-    gl.bindVertexArray(dustVao);
-    gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
 
     gl.bindVertexArray(null);
     return true;
