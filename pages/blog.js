@@ -675,14 +675,14 @@ function render(time) {
   drawDoors();
   drawRitual(time);
   drawScore(time);
-  drawPlayer();
-  drawLighting();
 
   if (typeof drawWorldInteractables === 'function') {
     drawWorldInteractables(time);
   }
 
   drawExitDoor(time);
+  drawLighting();
+  drawPlayer();
 
   ctx.restore();
 }
