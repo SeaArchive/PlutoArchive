@@ -523,7 +523,7 @@ function drawScore(time) {
   const dist = Math.hypot(player.x - score.x, player.y - score.y);
   const proximity = Math.max(0, 1 - dist / 520);
   const pulse = 0.5 + Math.sin(time * 0.0021) * 0.5;
-  const bob = Math.sin(time * 0.0016) * 7;
+  const bob = Math.sin(time * 0.0016) * 2;
   const planetRadius = 42;
 
   ctx.save();
