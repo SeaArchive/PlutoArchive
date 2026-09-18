@@ -23,6 +23,7 @@ const ROWS = WORLD_H / TILE;
 const RITUAL_RADIUS = 124;
 const RITUAL_DURATION = 60;
 const VIEW_H = 640;
+const RENDER_SCALE = 1.35;
 
 const camera = {
   x: 0,
@@ -38,10 +39,11 @@ function resizeGameCanvas() {
   const height = Math.max(1, rect.height || window.innerHeight || 640);
   const aspect = width / height;
 
-  canvas.height = VIEW_H;
-  canvas.width = Math.max(1, Math.round(VIEW_H * aspect));
-  camera.w = canvas.width;
-  camera.h = canvas.height;
+  const logicalWidth = Math.max(1, Math.round(VIEW_H * aspect));
+  canvas.height = Math.round(VIEW_H * RENDER_SCALE);
+  canvas.width = Math.round(logicalWidth * RENDER_SCALE);
+  camera.w = logicalWidth;
+  camera.h = VIEW_H;
   camera.initialized = false;
   ctx.imageSmoothingEnabled = false;
 }
@@ -371,10 +373,10 @@ function drawExitDoor(time) {
 
   ctx.shadowBlur = 0;
   ctx.globalCompositeOperation = 'source-over';
-  ctx.font = '7px monospace';
+  ctx.font = '10px monospace';
   ctx.textAlign = 'center';
-  ctx.fillStyle = `rgba(164,225,239,${0.48 + pulse * 0.28})`;
-  ctx.fillText('EXIT', 0, 34);
+  ctx.fillStyle = `rgba(184,235,247,${0.58 + pulse * 0.28})`;
+  ctx.fillText('EXIT', 0, 37);
   ctx.restore();
 }
 
@@ -588,10 +590,10 @@ function drawScore(time) {
     ctx.fillRect(x, y, s, s);
   }
 
-  ctx.font = '8px monospace';
+  ctx.font = '11px monospace';
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(166,188,220,.56)';
-  ctx.fillText('PLUTO / CENTRAL RESONANCE', 0, 69);
+  ctx.fillStyle = 'rgba(188,208,232,.72)';
+  ctx.fillText('PLUTO / CENTRAL RESONANCE', 0, 72);
   ctx.restore();
 }
 
@@ -661,9 +663,9 @@ function update(dt) {
 function render(time) {
   updateCamera();
 
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
   ctx.fillStyle = '#020406';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, camera.w, camera.h);
 
   ctx.save();
   ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
