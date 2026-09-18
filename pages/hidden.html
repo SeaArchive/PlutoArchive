@@ -22,6 +22,8 @@
       --line: rgba(178,153,255,.22);
       --cube-size: 44px;
       --cube-step: 54px;
+      --card-w: 30px;
+      --card-h: 44px;
     }
 
     * { box-sizing: border-box; }
@@ -148,6 +150,65 @@
       border-color: rgba(219,201,144,.25);
     }
 
+    .orbit-field {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1px;
+      height: 1px;
+      transform-style: preserve-3d;
+      pointer-events: none;
+    }
+
+    .orbit-card {
+      position: absolute;
+      left: calc(var(--card-w) / -2);
+      top: calc(var(--card-h) / -2);
+      width: var(--card-w);
+      height: var(--card-h);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .orbit-card-face {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255,255,255,.84);
+      border-radius: 2px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.98), rgba(225,231,242,.90));
+      box-shadow:
+        0 0 10px rgba(222,232,255,.14),
+        inset 0 0 0 1px rgba(255,255,255,.35);
+      backface-visibility: visible;
+      opacity: .90;
+    }
+
+    .orbit-card-face::before,
+    .orbit-card-face::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(80,90,112,.16);
+    }
+
+    .orbit-card-face::before {
+      top: 9px;
+      width: 42%;
+      height: 1px;
+    }
+
+    .orbit-card-face::after {
+      bottom: 8px;
+      width: 58%;
+      height: 1px;
+    }
+
+    .orbit-card.ring-1 .orbit-card-face { opacity: .96; }
+    .orbit-card.ring-2 .orbit-card-face { opacity: .83; }
+    .orbit-card.ring-3 .orbit-card-face { opacity: .72; }
+
     .core-glow {
       position: absolute;
       left: 50%;
@@ -238,6 +299,8 @@
       :root {
         --cube-size: 35px;
         --cube-step: 43px;
+        --card-w: 23px;
+        --card-h: 34px;
       }
 
       .label {
@@ -276,7 +339,8 @@
   <main class="hidden-world">
     <div class="core-glow" aria-hidden="true"></div>
 
-    <div class="scene" aria-label="3x3x3 animated cube structure">
+    <div class="scene" aria-label="3x3x3 animated cube structure with three orbital card rings">
+      <div id="orbitField" class="orbit-field" aria-hidden="true"></div>
       <div id="assembly" class="assembly"></div>
     </div>
 
@@ -288,12 +352,13 @@
       </div>
 
       <a class="return-link" href="blog.html">RETURN TO THE ARK</a>
-      <div class="status">27 NODES / INDEPENDENT LOCAL MOTION</div>
+      <div class="status">27 NODES / 3 CARD RINGS / PRECESSING AXES</div>
     </div>
   </main>
 
   <script>
     const assembly = document.getElementById('assembly');
+    const orbitField = document.getElementById('orbitField');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const nodes = [];
@@ -361,6 +426,127 @@
       ) || 54;
     }
 
+    const ringCards = [];
+    const RINGS = [
+      {
+        count: 12,
+        radius: 150,
+        phase: 0.10,
+        spinSpeed: .00048,
+        precessX: .00011,
+        precessY: .00017,
+        precessZ: .00007,
+        tiltX: 18,
+        tiltY: 0,
+        tiltZ: 0
+      },
+      {
+        count: 14,
+        radius: 184,
+        phase: 1.35,
+        spinSpeed: -.00039,
+        precessX: -.00008,
+        precessY: .00013,
+        precessZ: .00010,
+        tiltX: 68,
+        tiltY: 16,
+        tiltZ: 10
+      },
+      {
+        count: 16,
+        radius: 218,
+        phase: 2.20,
+        spinSpeed: .00031,
+        precessX: .00009,
+        precessY: -.00010,
+        precessZ: .00013,
+        tiltX: 35,
+        tiltY: 72,
+        tiltZ: -18
+      }
+    ];
+
+    function deg(value) {
+      return value * Math.PI / 180;
+    }
+
+    function rotateVector(vector, rx, ry, rz) {
+      let { x, y, z } = vector;
+
+      let cos = Math.cos(rx);
+      let sin = Math.sin(rx);
+      [y, z] = [y * cos - z * sin, y * sin + z * cos];
+
+      cos = Math.cos(ry);
+      sin = Math.sin(ry);
+      [x, z] = [x * cos + z * sin, -x * sin + z * cos];
+
+      cos = Math.cos(rz);
+      sin = Math.sin(rz);
+      [x, y] = [x * cos - y * sin, x * sin + y * cos];
+
+      return { x, y, z };
+    }
+
+    function createCardRing(ring, ringIndex) {
+      for (let i = 0; i < ring.count; i += 1) {
+        const card = document.createElement('div');
+        card.className = `orbit-card ring-${ringIndex + 1}`;
+
+        const face = document.createElement('div');
+        face.className = 'orbit-card-face';
+        card.appendChild(face);
+        orbitField.appendChild(card);
+
+        ringCards.push({
+          element: card,
+          ring,
+          ringIndex,
+          baseAngle: Math.PI * 2 * i / ring.count + ring.phase
+        });
+      }
+    }
+
+    RINGS.forEach(createCardRing);
+
+    function updateCardRings(time) {
+      const mobileScale = window.innerWidth <= 640 ? .78 : 1;
+
+      ringCards.forEach(item => {
+        const ring = item.ring;
+        const freeze = reducedMotion ? 0 : 1;
+
+        const orbitalAngle =
+          item.baseAngle + time * ring.spinSpeed * freeze;
+
+        // Local ring begins in the X/Y plane, orbiting around its own Z axis.
+        let position = {
+          x: Math.cos(orbitalAngle) * ring.radius * mobileScale,
+          y: Math.sin(orbitalAngle) * ring.radius * mobileScale,
+          z: 0
+        };
+
+        // The ring's axis orientation itself precesses around the shared cube center.
+        const rx = deg(ring.tiltX) + time * ring.precessX * freeze;
+        const ry = deg(ring.tiltY) + time * ring.precessY * freeze;
+        const rz = deg(ring.tiltZ) + time * ring.precessZ * freeze;
+        position = rotateVector(position, rx, ry, rz);
+
+        // Face the large cube's exact center.
+        const dirX = -position.x;
+        const dirY = -position.y;
+        const dirZ = -position.z;
+        const yaw = Math.atan2(dirX, dirZ) * 180 / Math.PI;
+        const pitch = -Math.atan2(
+          dirY,
+          Math.hypot(dirX, dirZ)
+        ) * 180 / Math.PI;
+
+        item.element.style.transform =
+          `translate3d(${position.x}px, ${position.y}px, ${position.z}px) rotateY(${yaw}deg) rotateX(${pitch}deg)`;
+      });
+    }
+
     let pointerX = 0;
     let pointerY = 0;
 
@@ -378,6 +564,8 @@
 
       assembly.style.transform =
         `rotateX(${globalRotX}deg) rotateY(${globalRotY}deg) rotateZ(${globalRotZ}deg)`;
+
+      updateCardRings(time);
 
       nodes.forEach((item, i) => {
         const freeze = reducedMotion ? 0 : 1;
