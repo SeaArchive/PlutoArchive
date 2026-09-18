@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Example | Pluto Archive</title>
+  <link rel="stylesheet" href="example.css">
+</head>
+<body>
+  <main class="web-node-shell">
+    <header class="node-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>PLUTO ARCHIVE</span>
+      </a>
+
+      <div class="node-title">
+        <span>EXTERNAL NODE / EMBEDDED WEB</span>
+        <strong>EXAMPLE</strong>
+      </div>
+
+      <a class="archive-return" href="../index.html">MAIN / HOME</a>
+    </header>
+
+    <section class="browser-shell" aria-label="Embedded website viewer">
+      <form id="addressForm" class="address-bar">
+        <label class="address-label" for="addressInput">NODE URL</label>
+        <input
+          id="addressInput"
+          type="url"
+          inputmode="url"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="https://example.com"
+          aria-describedby="viewerStatus"
+        >
+        <button class="connect-button" type="submit">CONNECT</button>
+        <button id="resetButton" class="secondary-button" type="button">RESET</button>
+        <a id="externalButton" class="secondary-button disabled" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+          OPEN ↗
+        </a>
+      </form>
+
+      <div class="viewer-meta">
+        <span id="viewerStatus">READY / URL을 입력하면 Pluto Archive 내부에서 사이트를 불러옵니다.</span>
+        <span>HTTPS ONLY</span>
+      </div>
+
+      <div class="viewer-stage">
+        <iframe
+          id="webFrame"
+          title="Pluto Archive embedded external website"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+
+        <div id="viewerStart" class="viewer-start">
+          <span class="start-index">NODE 06</span>
+          <h1>EXTERNAL WEB NODE</h1>
+          <p>
+            외부 사이트를 Pluto Archive 화면 안에서 실행합니다.
+            사이트가 iframe 표시를 차단한 경우에는 OPEN 버튼으로 새 탭에서 열어야 합니다.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="example.js" defer></script>
+</body>
+</html>
