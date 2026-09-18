@@ -129,6 +129,9 @@ a { font: inherit; }
   height: 100%;
   image-rendering: auto;
   outline: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .game-overlay {
@@ -654,5 +657,21 @@ body {
 
   .interaction-panel {
     font-size: 11px;
+  }
+}
+
+
+/* Mobile uses direct screen-drag movement. */
+@media (max-width: 640px), (pointer: coarse) {
+  .touch-controls {
+    display: none !important;
+  }
+
+  .interaction-panel {
+    bottom: 24px;
+  }
+
+  #arkCanvas {
+    cursor: default;
   }
 }
