@@ -206,6 +206,7 @@
     </div>
   </main>
 
+  <script src="../js/fps-cap.js"></script>
   <script>
     (() => {
       'use strict';
@@ -1036,8 +1037,6 @@
         if (dragging) {
           followRate = .020;
         } else {
-          // Return quickly while far from the resting axis, then ease out
-          // progressively as the orientation approaches its origin.
           const returnDistance = Math.hypot(currentYaw, currentPitch);
           const returnStrength = clamp(returnDistance / .85, 0, 1);
           followRate = .0032 + Math.pow(returnStrength, .72) * .026;
