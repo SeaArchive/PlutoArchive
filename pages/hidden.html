@@ -751,10 +751,10 @@
 
     function updateCubes(time, dt) {
       const freeze = reducedMotion ? 0 : 1;
-      const smooth = 1 - Math.exp(-dt / 44);
+      const smooth = 1 - Math.exp(-dt / 26);
 
-      pointerSmoothX += (pointerTargetX - pointerSmoothX) * (1 - Math.exp(-dt / 90));
-      pointerSmoothY += (pointerTargetY - pointerSmoothY) * (1 - Math.exp(-dt / 90));
+      pointerSmoothX += (pointerTargetX - pointerSmoothX) * (1 - Math.exp(-dt / 55));
+      pointerSmoothY += (pointerTargetY - pointerSmoothY) * (1 - Math.exp(-dt / 55));
 
       const globalRotX = -18 + Math.sin(time * .00013) * 5 + pointerSmoothY * -4;
       const globalRotY = 32 + time * .0045 * freeze + pointerSmoothX * 7;
@@ -794,18 +794,17 @@
     }
 
     let lastRealTime = performance.now();
-    let motionTime = 0;
 
     function render(now) {
       const rawDt = Math.max(0, now - lastRealTime);
       lastRealTime = now;
 
-      // Keep motion continuous when a frame is delayed instead of jumping ahead.
-      const dt = Math.min(rawDt || 16.67, 22);
-      motionTime += dt;
+      // Smoothing uses a bounded delta, but animation speed follows real rAF time.
+      const smoothingDt = Math.min(rawDt || 16.67, 50);
+      const motionTime = reducedMotion ? 0 : now;
 
       updateCardRings(motionTime);
-      updateCubes(motionTime, dt);
+      updateCubes(motionTime, smoothingDt);
       requestAnimationFrame(render);
     }
 
