@@ -14,10 +14,10 @@ const ARK_OBJECTS = [
   {id:'bell',kind:'bell',x:650,y:440,radius:62,prompt:'TOUCH RESONANCE SIGIL',tag:'RELIC CONSTELLATION / RESONANCE',title:'RESONANCE BELL'},
   {id:'crystal',kind:'crystal',x:1280,y:705,radius:62,prompt:'TOUCH MEMORY CONSTELLATION',tag:'RELIC CONSTELLATION / MEMORY',title:'MEMORY CRYSTAL'},
   {id:'reliquary',kind:'reliquary',x:720,y:760,radius:68,prompt:'TOUCH SEALED CONSTELLATION',tag:'RELIC CONSTELLATION / RELIQUARY',title:'SEALED RELIQUARY'},
-  {id:'clock',kind:'clock',x:1060,y:835,radius:62,prompt:'TOUCH CHRONOMETER CONSTELLATION',tag:'RELIC CONSTELLATION / CHRONOMETER',title:'BROKEN CHRONOMETER'}
+  {id:'clock',kind:'clock',x:1060,y:835,radius:72,prompt:'TOUCH HOROLOGIUM',tag:'CONSTELLATION / HOROLOGIUM',title:'HOROLOGIUM'}
 ];
 
-const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,clockReversed:false,bellPulseStart:-99999};
+const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,bellPulseStart:-99999};
 const loreTagNode=loreModal.querySelector('.tag');
 const loreBodyNode=loreModal.querySelector('p');
 let currentStarLightVolume=0;
@@ -94,8 +94,11 @@ function openObjectLore(object){
     return;
   }
   if(object.id==='clock'){
-    arkObjectState.clockReversed=!arkObjectState.clockReversed;
-    openLore({tag:object.tag,title:object.title,body:arkObjectState.clockReversed?'바늘이 역방향으로 돌기 시작하고 주변의 먼지 입자도 거꾸로 흐릅니다.':'바늘이 다시 정방향으로 움직입니다. 어느 방향도 실제 시간과는 일치하지 않습니다.'});
+    openLore({
+      tag:object.tag,
+      title:object.title,
+      body:'시계자리(Horologium)를 본뜬 희미한 별자리입니다. 더 이상 회전하지 않으며, 주변 별빛과 함께 조용히 고정된 형태로 떠 있습니다.'
+    });
   }
 }
 
@@ -218,9 +221,38 @@ function drawReliquary(object,time){
   if(arkObjectState.reliquaryOpen){ctx.strokeStyle='rgba(215,200,138,.45)';ctx.beginPath();ctx.moveTo(-28,-15);ctx.lineTo(-22,-29);ctx.lineTo(22,-29);ctx.lineTo(28,-15);ctx.stroke();}ctx.restore();
 }
 function drawClock(object,time){
-  const dir=arkObjectState.clockReversed?-1:1,angle=time*.0006*dir;ctx.save();ctx.translate(object.x,object.y);ctx.globalCompositeOperation='lighter';
-  ctx.strokeStyle='rgba(190,203,210,.36)';ctx.beginPath();ctx.arc(0,0,24,0,Math.PI*2);ctx.stroke();
-  ctx.strokeStyle='rgba(215,200,138,.70)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(angle)*14,Math.sin(angle)*14);ctx.moveTo(0,0);ctx.lineTo(Math.cos(-angle*.37)*9,Math.sin(-angle*.37)*9);ctx.stroke();ctx.restore();
+  const points=[[-34,-25],[-17,-10],[-4,10],[13,28],[30,15],[22,-7],[5,-25]];
+  const edges=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]];
+  const pulse=.55+.45*Math.sin(time*.0022);
+
+  ctx.save();
+  ctx.translate(object.x,object.y);
+  ctx.globalCompositeOperation='lighter';
+
+  edges.forEach(([a,b])=>{
+    const [ax,ay]=points[a], [bx,by]=points[b];
+    ctx.beginPath();
+    ctx.moveTo(ax,ay);
+    ctx.lineTo(bx,by);
+    ctx.strokeStyle=`rgba(145,190,235,${.16+pulse*.08})`;
+    ctx.lineWidth=.9;
+    ctx.stroke();
+  });
+
+  points.forEach(([x,y],index)=>{
+    const size=index===0||index===3?2.1:1.3;
+    ctx.fillStyle=`rgba(226,242,255,${.58+pulse*.22})`;
+    ctx.beginPath();
+    ctx.arc(x,y,size,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  ctx.globalCompositeOperation='source-over';
+  ctx.font='10px monospace';
+  ctx.textAlign='center';
+  ctx.fillStyle='rgba(135,174,205,.64)';
+  ctx.fillText('HOROLOGIUM',0,52);
+  ctx.restore();
 }
 
 function drawWorldInteractables(time){
