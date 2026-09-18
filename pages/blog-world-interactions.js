@@ -20,6 +20,8 @@ const ARK_OBJECTS = [
 const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,clockReversed:false,bellPulseStart:-99999};
 const loreTagNode=loreModal.querySelector('.tag');
 const loreBodyNode=loreModal.querySelector('p');
+let currentStarLightVolume=0;
+let targetStarLightVolume=0;
 
 function getNearestArkInteraction(){
   const candidates=[];
@@ -99,17 +101,35 @@ function openObjectLore(object){
 
 updateAudio=function updateArkAudio(dt){
   const dist=Math.hypot(player.x-score.x,player.y-score.y);
-  const maxDistance=560;
-  const proximity=Math.max(0,1-dist/maxDistance);
-  const minVolume=.012;
-  const maxVolume=.22;
-  targetVolume=bgmEnabled&&bgmStarted?minVolume+(maxVolume-minVolume)*Math.pow(proximity,1.35):0;
+  const fadeDistance=720;
+  const distanceMix=clamp(dist/fadeDistance,0,1);
+  const proximity=1-distanceMix;
+
+  // Existing Ark theme grows as the player moves away from Pluto.
+  const arkNear=0.018;
+  const arkFar=0.18;
+  targetVolume=bgmEnabled&&bgmStarted
+    ? arkNear+(arkFar-arkNear)*Math.pow(distanceMix,.9)
+    : 0;
+
+  // STAR LIGHT stays deliberately softer and becomes clearest close to Pluto.
+  const starFar=0.002;
+  const starNear=0.095;
+  targetStarLightVolume=bgmEnabled&&bgmStarted
+    ? starFar+(starNear-starFar)*Math.pow(proximity,1.45)
+    : 0;
+
   const smoothing=1-Math.pow(.001,dt);
   currentVolume+=(targetVolume-currentVolume)*smoothing;
-  currentVolume=clamp(currentVolume,0,maxVolume);
-  bgm.volume=currentVolume;
+  currentStarLightVolume+=(targetStarLightVolume-currentStarLightVolume)*smoothing;
 
-  volumeText.textContent=`${Math.round(currentVolume*100)}%`;
+  currentVolume=clamp(currentVolume,0,arkFar);
+  currentStarLightVolume=clamp(currentStarLightVolume,0,starNear);
+
+  bgm.volume=currentVolume;
+  starLightBgm.volume=currentStarLightVolume;
+
+  volumeText.textContent=`ARK ${Math.round(currentVolume*100)}% · STAR ${Math.round(currentStarLightVolume*100)}%`;
   distanceText.textContent=`${(dist/TILE).toFixed(1)} TILE`;
   proximityBar.style.width=`${Math.round(proximity*100)}%`;
 
