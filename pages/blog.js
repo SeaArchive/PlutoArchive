@@ -824,7 +824,10 @@ document.addEventListener('keydown', event => {
   }
 
   if (key === 'e') {
-    if (!event.repeat) interactCenter();
+    if (!event.repeat) {
+      if (modalOpen) closeLore();
+      else interactCenter();
+    }
     return;
   }
 
