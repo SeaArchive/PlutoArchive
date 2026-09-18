@@ -69,6 +69,20 @@ resizeGameCanvas();
 window.addEventListener('resize', resizeGameCanvas);
 
 const keys = new Set();
+
+const mobileDrag = {
+  active: false,
+  pointerId: null,
+  startX: 0,
+  startY: 0,
+  dx: 0,
+  dy: 0,
+  strength: 0
+};
+
+const MOBILE_DRAG_DEADZONE = 12;
+const MOBILE_DRAG_MAX = 80;
+
 let lastTime = performance.now();
 let lastRenderTime = 0;
 const FRAME_INTERVAL = 1000 / 45;
@@ -170,7 +184,7 @@ function collides(x, y) {
   return x - r < 0 || y - r < 0 || x + r > WORLD_W || y + r > WORLD_H;
 }
 
-function movePlayer(dx, dy, dt) {
+function movePlayer(dx, dy, dt, speedScale = 1) {
   if (!dx && !dy) return;
 
   const length = Math.hypot(dx, dy) || 1;
@@ -179,7 +193,7 @@ function movePlayer(dx, dy, dt) {
 
   const running = keys.has('shift');
   const speed = running ? 178 : player.speed;
-  const amount = speed * dt;
+  const amount = speed * dt * clamp(speedScale, 0, 1);
 
   const nextX = player.x + dx * amount;
   if (!collides(nextX, player.y)) player.x = nextX;
@@ -649,11 +663,20 @@ function update(dt) {
   if (!modalOpen) {
     let dx = 0;
     let dy = 0;
+    let speedScale = 1;
+
     if (keys.has('w') || keys.has('arrowup')) dy -= 1;
     if (keys.has('s') || keys.has('arrowdown')) dy += 1;
     if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
     if (keys.has('d') || keys.has('arrowright')) dx += 1;
-    movePlayer(dx, dy, dt);
+
+    if (mobileDrag.active && mobileDrag.strength > 0) {
+      dx += mobileDrag.dx;
+      dy += mobileDrag.dy;
+      speedScale = Math.max(.32, mobileDrag.strength);
+    }
+
+    movePlayer(dx, dy, dt, speedScale);
   }
 
   updateRitual(dt);
@@ -754,6 +777,38 @@ function setAudioEnabled(enabled) {
   }
 }
 
+function updateMobileDrag(event) {
+  const deltaX = event.clientX - mobileDrag.startX;
+  const deltaY = event.clientY - mobileDrag.startY;
+  const distance = Math.hypot(deltaX, deltaY);
+
+  if (distance <= MOBILE_DRAG_DEADZONE) {
+    mobileDrag.dx = 0;
+    mobileDrag.dy = 0;
+    mobileDrag.strength = 0;
+    return;
+  }
+
+  mobileDrag.dx = deltaX / distance;
+  mobileDrag.dy = deltaY / distance;
+  mobileDrag.strength = clamp(
+    (distance - MOBILE_DRAG_DEADZONE) / (MOBILE_DRAG_MAX - MOBILE_DRAG_DEADZONE),
+    0,
+    1
+  );
+}
+
+function stopMobileDrag(pointerId = null) {
+  if (!mobileDrag.active) return;
+  if (pointerId !== null && mobileDrag.pointerId !== pointerId) return;
+
+  mobileDrag.active = false;
+  mobileDrag.pointerId = null;
+  mobileDrag.dx = 0;
+  mobileDrag.dy = 0;
+  mobileDrag.strength = 0;
+}
+
 document.addEventListener('keydown', event => {
   const key = event.key.toLowerCase();
 
@@ -782,11 +837,49 @@ document.addEventListener('keyup', event => {
   keys.delete(event.key.toLowerCase());
 });
 
-window.addEventListener('blur', () => keys.clear());
+window.addEventListener('blur', () => {
+  keys.clear();
+  stopMobileDrag();
+});
 
-canvas.addEventListener('pointerdown', () => {
+canvas.addEventListener('pointerdown', event => {
   canvas.focus();
   startBgm();
+
+  if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+
+  event.preventDefault();
+  mobileDrag.active = true;
+  mobileDrag.pointerId = event.pointerId;
+  mobileDrag.startX = event.clientX;
+  mobileDrag.startY = event.clientY;
+  mobileDrag.dx = 0;
+  mobileDrag.dy = 0;
+  mobileDrag.strength = 0;
+
+  if (canvas.setPointerCapture) {
+    try { canvas.setPointerCapture(event.pointerId); } catch (_) {}
+  }
+});
+
+canvas.addEventListener('pointermove', event => {
+  if (!mobileDrag.active || event.pointerId !== mobileDrag.pointerId) return;
+  event.preventDefault();
+  updateMobileDrag(event);
+});
+
+canvas.addEventListener('pointerup', event => {
+  if (event.pointerId !== mobileDrag.pointerId) return;
+  event.preventDefault();
+  stopMobileDrag(event.pointerId);
+});
+
+canvas.addEventListener('pointercancel', event => {
+  stopMobileDrag(event.pointerId);
+});
+
+canvas.addEventListener('lostpointercapture', event => {
+  stopMobileDrag(event.pointerId);
 });
 
 loreClose.addEventListener('click', closeLore);
