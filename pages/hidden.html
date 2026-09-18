@@ -201,6 +201,7 @@
 
     .orbit-card {
       --card-width: var(--card-w);
+      --depth-alpha: 1;
       position: absolute;
       left: 0;
       top: 0;
@@ -217,8 +218,10 @@
       position: absolute;
       inset: 0;
       border-radius: 1px;
+      opacity: var(--depth-alpha);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      transform-style: preserve-3d;
     }
 
     /* +Z always points toward the large cube, so this is the inward face. */
@@ -235,7 +238,7 @@
 
     /* The reverse face looks away from the cube and remains white. */
     .orbit-card-side.outward {
-      transform: rotateY(180deg) translateZ(.45px);
+      transform: translateZ(-.45px) rotateY(180deg);
       border: 1px solid rgba(255,255,255,.92);
       background:
         linear-gradient(145deg, rgba(255,255,255,.995), rgba(226,232,242,.97));
@@ -281,6 +284,7 @@
     .spacer-face {
       position: absolute;
       inset: 0;
+      opacity: var(--depth-alpha);
       border: 1px solid rgba(205,226,255,.18);
       border-radius: 1px;
       background:
@@ -729,9 +733,14 @@
           0,
           1
         );
-        item.element.style.opacity = item.isSpacer
-          ? (0.16 + depth * 0.20).toFixed(3)
-          : (0.58 + depth * 0.42).toFixed(3);
+        const depthAlpha = item.isSpacer
+          ? 0.16 + depth * 0.20
+          : 0.58 + depth * 0.42;
+
+        item.element.style.setProperty(
+          '--depth-alpha',
+          depthAlpha.toFixed(3)
+        );
       });
     }
 
