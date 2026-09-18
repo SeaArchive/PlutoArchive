@@ -116,8 +116,8 @@ updateAudio=function updateArkAudio(dt){
     : 0;
 
   // STAR LIGHT stays deliberately softer and becomes clearest close to Pluto.
-  const starFar=0.002;
-  const starNear=0.095;
+  const starFar=0.0012;
+  const starNear=0.057;
   targetStarLightVolume=bgmEnabled&&bgmStarted
     ? starFar+(starNear-starFar)*Math.pow(proximity,1.45)
     : 0;
