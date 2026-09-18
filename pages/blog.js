@@ -65,7 +65,7 @@ function updateCamera() {
 resizeGameCanvas();
 window.addEventListener('resize', resizeGameCanvas);
 
-const keys = new Set();const keys = new Set();
+const keys = new Set();
 let lastTime = performance.now();
 let bgmStarted = false;
 let bgmEnabled = true;
@@ -181,7 +181,7 @@ function buildMap() {
   ].forEach(([x, y]) => addRect(x, y, 1, 2));
 }
 
-buildMap();buildMap();
+buildMap();
 
 function tileBlocked(tx, ty) {
   return walls.has(wallKey(tx, ty));
@@ -431,7 +431,7 @@ function drawDoors() {
   });
 }
 
-function drawPartialCirclefunction drawPartialCircle(radius, progress, alpha, width = 1) {
+function drawPartialCircle(radius, progress, alpha, width = 1) {
   if (progress <= 0) return;
   ctx.beginPath();
   ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(progress, 0, 1));
@@ -729,7 +729,7 @@ function render(time) {
   ctx.restore();
 }
 
-function loop(now)function loop(now) {
+function loop(now) {
   const dt = Math.min(0.033, (now - lastTime) / 1000);
   lastTime = now;
   update(dt);
