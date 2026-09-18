@@ -97,6 +97,26 @@ const exitDoor = {
   radius: 78
 };
 
+function seededUnit(seed) {
+  const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453123;
+  return value - Math.floor(value);
+}
+
+const SPACE_STARS = Array.from({ length: 560 }, (_, index) => ({
+  x: seededUnit(index * 4 + 1) * WORLD_W,
+  y: seededUnit(index * 4 + 2) * WORLD_H,
+  size: 0.6 + seededUnit(index * 4 + 3) * 1.9,
+  phase: seededUnit(index * 4 + 4) * Math.PI * 2,
+  depth: 0.3 + seededUnit(index * 4 + 5) * 0.7
+}));
+
+const SPACE_NEBULAE = [
+  { x: 280, y: 220, radius: 300, tone: '88,118,190' },
+  { x: 1540, y: 250, radius: 340, tone: '104,76,150' },
+  { x: 1420, y: 940, radius: 360, tone: '55,110,150' },
+  { x: 620, y: 930, radius: 280, tone: '92,70,142' }
+];
+
 const ritualStars = [
   [-92,-34],[-68,-76],[-30,-96],[10,-86],[48,-68],[88,-30],
   [96,12],[73,58],[34,92],[-8,98],[-48,78],[-86,48],
@@ -131,70 +151,18 @@ function addRect(x, y, w, h) {
 }
 
 function buildMap() {
-  for (let x = 0; x < COLS; x += 1) {
-    addWall(x, 0);
-    addWall(x, ROWS - 1);
-  }
-  for (let y = 0; y < ROWS; y += 1) {
-    addWall(0, y);
-    addWall(COLS - 1, y);
-  }
-
-  // Upper archive chambers.
-  addRect(4, 3, 12, 1);
-  addRect(4, 3, 1, 7);
-  addRect(15, 3, 1, 5);
-
-  addRect(23, 3, 14, 1);
-  addRect(23, 3, 1, 5);
-  addRect(36, 3, 1, 7);
-
-  addRect(44, 3, 12, 1);
-  addRect(44, 3, 1, 6);
-  addRect(55, 3, 1, 7);
-
-  // Side galleries and alcoves.
-  addRect(4, 14, 10, 1);
-  addRect(4, 14, 1, 8);
-  addRect(13, 14, 1, 4);
-
-  addRect(46, 14, 10, 1);
-  addRect(55, 14, 1, 8);
-  addRect(46, 14, 1, 4);
-
-  addRect(5, 26, 12, 1);
-  addRect(5, 26, 1, 6);
-  addRect(16, 26, 1, 4);
-
-  addRect(43, 26, 12, 1);
-  addRect(54, 26, 1, 6);
-  addRect(43, 26, 1, 4);
-
-  // Lower archive structures, leaving broad travel lanes between rooms.
-  addRect(22, 30, 7, 1);
-  addRect(31, 30, 7, 1);
-
-  // Pillars frame the large central ritual hall.
-  [
-    [22,12],[37,12],[22,23],[37,23],
-    [18,17],[41,17],[18,21],[41,21]
-  ].forEach(([x, y]) => addRect(x, y, 1, 2));
+  walls.clear();
 }
 
 buildMap();
 
-function tileBlocked(tx, ty) {
-  return walls.has(wallKey(tx, ty));
+function tileBlocked() {
+  return false;
 }
 
 function collides(x, y) {
-  const r = player.radius;
-  const points = [
-    [x - r, y - r], [x + r, y - r],
-    [x - r, y + r], [x + r, y + r]
-  ];
-
-  return points.some(([px, py]) => tileBlocked(Math.floor(px / TILE), Math.floor(py / TILE)));
+  const r = player.radius + 10;
+  return x - r < 0 || y - r < 0 || x + r > WORLD_W || y + r > WORLD_H;
 }
 
 function movePlayer(dx, dy, dt) {
@@ -309,48 +277,47 @@ function updateRitual(dt) {
   }
 }
 
-function drawFloor() {
-  ctx.fillStyle = '#04080c';
+function drawFloor(time) {
+  ctx.fillStyle = '#010207';
   ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 
-  for (let y = 0; y < ROWS; y += 1) {
-    for (let x = 0; x < COLS; x += 1) {
-      if (tileBlocked(x, y)) continue;
-      const even = (x + y) % 2 === 0;
-      ctx.fillStyle = even ? '#071018' : '#060d14';
-      ctx.fillRect(x * TILE, y * TILE, TILE, TILE);
-      ctx.strokeStyle = 'rgba(73,214,255,.022)';
-      ctx.strokeRect(x * TILE + .5, y * TILE + .5, TILE - 1, TILE - 1);
-    }
-  }
-
-  ctx.save();
-  ctx.translate(score.x, score.y);
-  ctx.strokeStyle = 'rgba(215,200,138,.10)';
-  ctx.lineWidth = 2;
-  [64, 92, RITUAL_RADIUS].forEach(radius => {
+  SPACE_NEBULAE.forEach((nebula, index) => {
+    const driftX = Math.sin(time * 0.00008 + index) * 10;
+    const driftY = Math.cos(time * 0.00007 + index * 1.7) * 8;
+    const gradient = ctx.createRadialGradient(
+      nebula.x + driftX,
+      nebula.y + driftY,
+      0,
+      nebula.x + driftX,
+      nebula.y + driftY,
+      nebula.radius
+    );
+    gradient.addColorStop(0, `rgba(${nebula.tone},.055)`);
+    gradient.addColorStop(.46, `rgba(${nebula.tone},.022)`);
+    gradient.addColorStop(1, `rgba(${nebula.tone},0)`);
+    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.arc(nebula.x + driftX, nebula.y + driftY, nebula.radius, 0, Math.PI * 2);
+    ctx.fill();
   });
-  ctx.restore();
+
+  SPACE_STARS.forEach((star, index) => {
+    const twinkle = 0.42 + 0.58 * Math.sin(time * (0.0012 + star.depth * 0.0014) + star.phase) ** 2;
+    const alpha = 0.18 + twinkle * (0.42 + star.depth * 0.32);
+    const size = star.size * (0.75 + star.depth * 0.45);
+
+    ctx.fillStyle = `rgba(222,236,255,${alpha})`;
+    if (size > 1.7) {
+      ctx.shadowColor = index % 5 === 0 ? 'rgba(174,157,255,.8)' : 'rgba(146,204,255,.8)';
+      ctx.shadowBlur = 4 + twinkle * 5;
+    }
+    ctx.fillRect(Math.round(star.x), Math.round(star.y), size, size);
+    ctx.shadowBlur = 0;
+  });
 }
 
 function drawWalls() {
-  walls.forEach(key => {
-    const [x, y] = key.split(',').map(Number);
-    const px = x * TILE;
-    const py = y * TILE;
-
-    ctx.fillStyle = '#101820';
-    ctx.fillRect(px, py, TILE, TILE);
-    ctx.fillStyle = '#16232d';
-    ctx.fillRect(px + 3, py + 3, TILE - 6, 5);
-    ctx.fillStyle = 'rgba(73,214,255,.055)';
-    ctx.fillRect(px + 3, py + TILE - 5, TILE - 6, 2);
-    ctx.strokeStyle = 'rgba(73,214,255,.08)';
-    ctx.strokeRect(px + .5, py + .5, TILE - 1, TILE - 1);
-  });
+  // The Ark is now an open star field; world bounds are intentionally invisible.
 }
 
 function drawExitDoor(time) {
@@ -406,29 +373,7 @@ function drawExitDoor(time) {
 }
 
 function drawDoors() {
-  const doors = [
-    { x: 10, y: 3.15, label: 'R-01' },
-    { x: 30, y: 3.15, label: 'R-02' },
-    { x: 50, y: 3.15, label: 'R-03' },
-    { x: 4.15, y: 18, label: 'R-04' },
-    { x: 55.85, y: 18, label: 'R-05' },
-    { x: 11, y: 26.15, label: 'R-06' },
-    { x: 49, y: 26.15, label: 'R-07' },
-    { x: 30, y: 30.15, label: 'R-08' }
-  ];
-
-  ctx.font = '8px monospace';
-  ctx.textAlign = 'center';
-  doors.forEach(door => {
-    const px = door.x * TILE;
-    const py = door.y * TILE;
-    ctx.fillStyle = '#0b1117';
-    ctx.fillRect(px - 22, py - 7, 44, 14);
-    ctx.strokeStyle = 'rgba(73,214,255,.20)';
-    ctx.strokeRect(px - 22.5, py - 7.5, 45, 15);
-    ctx.fillStyle = 'rgba(105,119,138,.72)';
-    ctx.fillText(door.label, px, py + 3);
-  });
+  // Archive rooms are represented by interactive constellations instead of doors.
 }
 
 function drawPartialCircle(radius, progress, alpha, width = 1) {
@@ -568,92 +513,97 @@ function drawRitual(time) {
 
 function drawScore(time) {
   const dist = Math.hypot(player.x - score.x, player.y - score.y);
-  const proximity = Math.max(0, 1 - dist / 410);
+  const proximity = Math.max(0, 1 - dist / 520);
   const pulse = 0.5 + Math.sin(time * 0.0021) * 0.5;
-  const glow = 10 + proximity * 28 + pulse * 5 + (ritualComplete ? 18 : 0);
+  const bob = Math.sin(time * 0.0016) * 7;
+  const planetRadius = 42;
 
   ctx.save();
-  ctx.translate(score.x, score.y);
+  ctx.translate(score.x, score.y + bob);
+  ctx.globalCompositeOperation = 'lighter';
 
-  const halo = ctx.createRadialGradient(0, 0, 8, 0, 0, ritualComplete ? 104 : 78);
-  halo.addColorStop(0, ritualComplete
-    ? `rgba(178,153,255,${0.18 + pulse * 0.10})`
-    : `rgba(215,200,138,${0.15 + proximity * 0.16})`);
-  halo.addColorStop(1, 'rgba(215,200,138,0)');
-  ctx.fillStyle = halo;
+  const outerGlow = ctx.createRadialGradient(0, 0, planetRadius * .4, 0, 0, 118);
+  outerGlow.addColorStop(0, `rgba(164,181,225,${0.09 + proximity * 0.08 + pulse * 0.03})`);
+  outerGlow.addColorStop(.45, `rgba(94,111,176,${0.05 + proximity * 0.05})`);
+  outerGlow.addColorStop(1, 'rgba(56,70,130,0)');
+  ctx.fillStyle = outerGlow;
   ctx.beginPath();
-  ctx.arc(0, 0, ritualComplete ? 104 : 78, 0, Math.PI * 2);
+  ctx.arc(0, 0, 118, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#131a1d';
-  ctx.fillRect(-26, 18, 52, 8);
-  ctx.fillRect(-18, 26, 36, 10);
-  ctx.strokeStyle = ritualComplete ? 'rgba(178,153,255,.48)' : 'rgba(215,200,138,.25)';
-  ctx.strokeRect(-26.5, 17.5, 53, 9);
+  ctx.globalCompositeOperation = 'source-over';
 
-  ctx.shadowColor = ritualComplete ? 'rgba(178,153,255,.95)' : 'rgba(215,200,138,.8)';
-  ctx.shadowBlur = glow;
-  ctx.fillStyle = ritualComplete ? '#ded7cf' : '#d8d1b7';
-  ctx.fillRect(-35, -26, 33, 42);
-  ctx.fillRect(2, -26, 33, 42);
+  const sphere = ctx.createRadialGradient(-13, -16, 6, 0, 0, planetRadius);
+  sphere.addColorStop(0, '#d5d7db');
+  sphere.addColorStop(.28, '#a9abb3');
+  sphere.addColorStop(.58, '#777985');
+  sphere.addColorStop(.84, '#484b58');
+  sphere.addColorStop(1, '#232733');
+  ctx.fillStyle = sphere;
+  ctx.shadowColor = ritualComplete ? 'rgba(190,163,255,.82)' : 'rgba(132,159,212,.58)';
+  ctx.shadowBlur = 14 + proximity * 16 + (ritualComplete ? 14 : 0);
+  ctx.beginPath();
+  ctx.arc(0, 0, planetRadius, 0, Math.PI * 2);
+  ctx.fill();
   ctx.shadowBlur = 0;
 
-  ctx.fillStyle = '#b9ae8c';
-  ctx.fillRect(-2, -25, 4, 41);
-
-  ctx.strokeStyle = '#4d493d';
-  ctx.lineWidth = 1;
-  [-16, -11, -6, -1, 4].forEach(offset => {
+  const patches = [
+    [-16,-10,10,7,.22],[10,-17,13,8,.16],[14,8,11,7,.18],
+    [-7,19,14,6,.14],[-24,9,8,5,.16],[2,-2,9,6,.12]
+  ];
+  patches.forEach(([x,y,rx,ry,a], index) => {
+    ctx.fillStyle = index % 2
+      ? `rgba(204,193,170,${a})`
+      : `rgba(87,79,100,${a + .05})`;
     ctx.beginPath();
-    ctx.moveTo(-30, offset);
-    ctx.lineTo(-7, offset);
-    ctx.moveTo(7, offset);
-    ctx.lineTo(30, offset);
-    ctx.stroke();
-  });
-
-  const marks = [[-25,-8],[-17,1],[-10,-13],[11,-3],[18,-11],[26,2]];
-  ctx.fillStyle = '#3d3a32';
-  marks.forEach(([x, y], index) => {
-    ctx.beginPath();
-    ctx.arc(x, y, 2.1, 0, Math.PI * 2);
+    ctx.ellipse(x, y, rx, ry, index * .6, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillRect(x + 1.5, y - (index % 2 ? 9 : 7), 1.2, index % 2 ? 10 : 8);
   });
 
-  if (ritualComplete) {
-    ctx.strokeStyle = `rgba(111,76,154,${0.55 + pulse * 0.25})`;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.arc(0, -5, 9, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(-7, -5);
-    ctx.lineTo(7, -5);
-    ctx.moveTo(0, -12);
-    ctx.lineTo(0, 2);
-    ctx.stroke();
-  } else {
-    ctx.fillStyle = `rgba(255,244,202,${0.35 + pulse * 0.3})`;
-    ctx.fillRect(-1, -33, 2, 4);
-    ctx.fillRect(-1, 21, 2, 4);
-    ctx.fillRect(-42, -5, 4, 2);
-    ctx.fillRect(38, -5, 4, 2);
+  ctx.fillStyle = 'rgba(224,218,201,.25)';
+  ctx.beginPath();
+  ctx.ellipse(-6, 2, 12, 8, -.28, 0, Math.PI * 2);
+  ctx.ellipse(6, 1, 11, 7, .24, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = `rgba(151,177,221,${0.20 + pulse * 0.18})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, 3, 62, 16, -.18, 0, Math.PI * 2);
+  ctx.stroke();
+
+  for (let i = 0; i < 5; i += 1) {
+    const angle = time * (0.00022 + i * 0.00003) + i * 1.26;
+    const radius = 67 + (i % 2) * 9;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius * .34;
+    const s = i % 2 ? 1.4 : 2;
+    ctx.fillStyle = `rgba(208,229,255,${0.34 + pulse * 0.28})`;
+    ctx.fillRect(x, y, s, s);
   }
 
+  ctx.font = '8px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(166,188,220,.56)';
+  ctx.fillText('PLUTO / CENTRAL RESONANCE', 0, 69);
   ctx.restore();
 }
 
 function drawPlayer() {
-  const bob = Math.sin(player.step) * 1.2;
+  const bob = Math.sin(player.step) * 1.1;
   const x = Math.round(player.x);
   const y = Math.round(player.y + bob);
 
   ctx.save();
   ctx.translate(x, y);
 
-  ctx.fillStyle = 'rgba(0,0,0,.4)';
-  ctx.fillRect(-8, 8, 16, 5);
+  const footGlow = ctx.createRadialGradient(0, 9, 1, 0, 9, 18);
+  footGlow.addColorStop(0, 'rgba(92,190,225,.16)');
+  footGlow.addColorStop(1, 'rgba(92,190,225,0)');
+  ctx.fillStyle = footGlow;
+  ctx.beginPath();
+  ctx.ellipse(0, 9, 18, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.fillStyle = '#a8c9d6';
   ctx.fillRect(-6, -7, 12, 13);
@@ -673,16 +623,16 @@ function drawPlayer() {
 }
 
 function drawLighting() {
-  const gradient = ctx.createRadialGradient(player.x, player.y, 85, player.x, player.y, 330);
+  const gradient = ctx.createRadialGradient(player.x, player.y, 110, player.x, player.y, 430);
   gradient.addColorStop(0, 'rgba(0,0,0,0)');
-  gradient.addColorStop(.58, 'rgba(0,0,0,.18)');
-  gradient.addColorStop(1, 'rgba(0,0,0,.68)');
+  gradient.addColorStop(.64, 'rgba(0,0,0,.05)');
+  gradient.addColorStop(1, 'rgba(0,0,0,.24)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 
-  const scoreGlow = ctx.createRadialGradient(score.x, score.y, 18, score.x, score.y, ritualComplete ? 190 : 150);
-  scoreGlow.addColorStop(0, ritualComplete ? 'rgba(178,153,255,.12)' : 'rgba(215,200,138,.07)');
-  scoreGlow.addColorStop(1, 'rgba(215,200,138,0)');
+  const scoreGlow = ctx.createRadialGradient(score.x, score.y, 24, score.x, score.y, ritualComplete ? 230 : 175);
+  scoreGlow.addColorStop(0, ritualComplete ? 'rgba(178,153,255,.12)' : 'rgba(115,145,205,.07)');
+  scoreGlow.addColorStop(1, 'rgba(80,100,160,0)');
   ctx.fillStyle = scoreGlow;
   ctx.fillRect(0, 0, WORLD_W, WORLD_H);
 }
@@ -712,18 +662,18 @@ function render(time) {
   ctx.save();
   ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
-  drawFloor();
+  drawFloor(time);
   drawWalls();
   drawDoors();
   drawRitual(time);
   drawScore(time);
+  drawPlayer();
+  drawLighting();
 
   if (typeof drawWorldInteractables === 'function') {
     drawWorldInteractables(time);
   }
 
-  drawPlayer();
-  drawLighting();
   drawExitDoor(time);
 
   ctx.restore();
