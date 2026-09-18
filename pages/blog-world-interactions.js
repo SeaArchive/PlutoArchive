@@ -10,11 +10,11 @@ const ARK_ROOMS = [
 ];
 
 const ARK_OBJECTS = [
-  {id:'globe',kind:'globe',x:1180,y:380,radius:62,prompt:'ROTATE CELESTIAL GLOBE',tag:'FLOATING RELIC / CELESTIAL INDEX',title:'CELESTIAL GLOBE'},
-  {id:'bell',kind:'bell',x:650,y:440,radius:62,prompt:'RING RESONANCE BELL',tag:'FLOATING RELIC / BELL-02',title:'RESONANCE BELL'},
-  {id:'crystal',kind:'crystal',x:1280,y:705,radius:62,prompt:'TOUCH MEMORY CRYSTAL',tag:'FLOATING RELIC / MEMORY FRAGMENT',title:'MEMORY CRYSTAL'},
-  {id:'reliquary',kind:'reliquary',x:720,y:760,radius:68,prompt:'EXAMINE SEALED RELIQUARY',tag:'FLOATING RELIC / RELIQUARY',title:'SEALED RELIQUARY'},
-  {id:'clock',kind:'clock',x:1060,y:835,radius:62,prompt:'TURN BROKEN CHRONOMETER',tag:'FLOATING RELIC / CHRONOMETER',title:'BROKEN CHRONOMETER'}
+  {id:'globe',kind:'globe',x:1180,y:380,radius:62,prompt:'TOUCH CELESTIAL INDEX',tag:'RELIC CONSTELLATION / CELESTIAL INDEX',title:'CELESTIAL GLOBE'},
+  {id:'bell',kind:'bell',x:650,y:440,radius:62,prompt:'TOUCH RESONANCE SIGIL',tag:'RELIC CONSTELLATION / RESONANCE',title:'RESONANCE BELL'},
+  {id:'crystal',kind:'crystal',x:1280,y:705,radius:62,prompt:'TOUCH MEMORY CONSTELLATION',tag:'RELIC CONSTELLATION / MEMORY',title:'MEMORY CRYSTAL'},
+  {id:'reliquary',kind:'reliquary',x:720,y:760,radius:68,prompt:'TOUCH SEALED CONSTELLATION',tag:'RELIC CONSTELLATION / RELIQUARY',title:'SEALED RELIQUARY'},
+  {id:'clock',kind:'clock',x:1060,y:835,radius:62,prompt:'TOUCH CHRONOMETER CONSTELLATION',tag:'RELIC CONSTELLATION / CHRONOMETER',title:'BROKEN CHRONOMETER'}
 ];
 
 const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,clockReversed:false,bellPulseStart:-99999};
