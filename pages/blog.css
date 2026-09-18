@@ -529,3 +529,11 @@ body {
   color: #e8f7ff;
   box-shadow: 0 0 22px rgba(73,214,255,.09);
 }
+
+
+.interaction-panel.constellation-room {
+  border-color: rgba(145,190,235,.46);
+  color: #e7f4ff;
+  box-shadow: 0 0 28px rgba(115,165,225,.12);
+  background: rgba(2,6,14,.86);
+}
