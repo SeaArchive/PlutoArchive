@@ -1,0 +1,33 @@
+@charset "UTF-8";
+
+.system {
+  isolation: isolate;
+}
+
+.pluto-vortex {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: .95;
+  transform: translateZ(1px);
+}
+
+.system .orbit,
+.system .axis,
+.system .satellite {
+  z-index: 2;
+}
+
+.system .pluto {
+  z-index: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pluto-vortex {
+    opacity: .36;
+  }
+}
