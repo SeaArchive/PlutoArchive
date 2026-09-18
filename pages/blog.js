@@ -1,6 +1,7 @@
 const canvas = document.getElementById('arkCanvas');
 const ctx = canvas.getContext('2d');
 const bgm = document.getElementById('arkBgm');
+const starLightBgm = document.getElementById('starLightBgm');
 const interaction = document.getElementById('interactionPanel');
 const volumeText = document.getElementById('volumeText');
 const distanceText = document.getElementById('distanceText');
@@ -190,11 +191,14 @@ function movePlayer(dx, dy, dt) {
 
 function startBgm() {
   if (!bgmEnabled) return;
-  if (bgmStarted && !bgm.paused) return;
+  if (bgmStarted && !bgm.paused && !starLightBgm.paused) return;
 
   bgmStarted = true;
   if (!Number.isFinite(bgm.volume)) bgm.volume = 0;
-  bgm.play().catch(() => {
+  if (!Number.isFinite(starLightBgm.volume)) starLightBgm.volume = 0;
+
+  const plays = [bgm.play(), starLightBgm.play()];
+  Promise.all(plays).catch(() => {
     bgmStarted = false;
   });
 }
@@ -729,10 +733,12 @@ function setAudioEnabled(enabled) {
 
   if (!enabled) {
     bgm.pause();
+    starLightBgm.pause();
     bgmStarted = false;
     currentVolume = 0;
     targetVolume = 0;
     bgm.volume = 0;
+    starLightBgm.volume = 0;
   } else {
     startBgm();
   }
