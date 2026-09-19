@@ -77,6 +77,7 @@ function sanitizeSensitivity() {
   return rounded;
 }
 
+const breachFragment = document.createDocumentFragment();
 for (let i = 0; i < 80; i += 1) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -85,9 +86,10 @@ for (let i = 0; i < 80; i += 1) {
   button.innerHTML = `<span class="node-code">N-${String(i + 1).padStart(2, '0')}</span>`;
   button.setAttribute('aria-label', `Aim node ${i + 1}`);
   button.addEventListener('click', () => handleBreachNode(button));
-  breachBoard.appendChild(button);
+  breachFragment.appendChild(button);
   breachNodes.push(button);
 }
+breachBoard.appendChild(breachFragment);
 
 function currentBreachAccuracy() {
   const attempts = breachHitsValue + breachMissesValue;
@@ -349,6 +351,7 @@ const rhythmLanes = [...document.querySelectorAll('.rhythm-lane')];
 const laneButtons = [...document.querySelectorAll('.lane-button')];
 
 const laneKeys = ['d', 'f', 'j', 'k'];
+const RHYTHM_SPEED = 195;
 let rhythmRunning = false;
 let rhythmAnimation = null;
 let rhythmScheduler = null;
@@ -362,6 +365,19 @@ let rhythmAttempts = 0;
 let rhythmTimeValue = 30;
 let nextNoteId = 0;
 let beatCounter = 0;
+let rhythmLastFrame = 0;
+let rhythmTargetY = 0;
+
+function refreshRhythmGeometry() {
+  rhythmTargetY = Math.max(0, rhythmWrap.clientHeight - 62);
+}
+
+if (typeof ResizeObserver !== 'undefined') {
+  const rhythmResizeObserver = new ResizeObserver(refreshRhythmGeometry);
+  rhythmResizeObserver.observe(rhythmWrap);
+} else {
+  window.addEventListener('resize', refreshRhythmGeometry, { passive: true });
+}
 
 function updateRhythmStats() {
   rhythmScore.textContent = String(rhythmScoreValue).padStart(5, '0');
@@ -445,28 +461,33 @@ function scheduleBeat() {
 
 function removeNote(note) {
   if (note.element.isConnected) note.element.remove();
-  rhythmNotes = rhythmNotes.filter(item => item !== note);
+  const index = rhythmNotes.indexOf(note);
+  if (index !== -1) rhythmNotes.splice(index, 1);
 }
 
-function animateRhythm() {
+function animateRhythm(now) {
   if (!rhythmRunning) return;
-  const targetY = rhythmWrap.clientHeight - 62;
-  const speed = 3.25;
 
-  [...rhythmNotes].forEach(note => {
-    note.y += speed;
-    note.element.style.transform = `translateY(${note.y}px)`;
+  if (!rhythmLastFrame) rhythmLastFrame = now;
+  const dt = Math.min(0.05, Math.max(0.001, (now - rhythmLastFrame) / 1000));
+  rhythmLastFrame = now;
 
-    if (note.y > targetY + 58) {
+  for (let index = rhythmNotes.length - 1; index >= 0; index -= 1) {
+    const note = rhythmNotes[index];
+    note.y += RHYTHM_SPEED * dt;
+    note.element.style.transform = `translate3d(0, ${note.y.toFixed(2)}px, 0)`;
+
+    if (note.y > rhythmTargetY + 58) {
       rhythmAttempts += 1;
       rhythmComboValue = 0;
       rhythmMessage.textContent = 'MISS';
       rhythmLanes[note.laneIndex].classList.add('miss');
       window.setTimeout(() => rhythmLanes[note.laneIndex].classList.remove('miss'), 100);
-      removeNote(note);
+      if (note.element.isConnected) note.element.remove();
+      rhythmNotes.splice(index, 1);
       updateRhythmStats();
     }
-  });
+  }
 
   rhythmAnimation = requestAnimationFrame(animateRhythm);
 }
@@ -482,28 +503,33 @@ function hitLane(laneIndex) {
 
   if (!rhythmRunning) return;
 
-  const targetY = rhythmWrap.clientHeight - 62;
-  const candidates = rhythmNotes
-    .filter(note => note.laneIndex === laneIndex)
-    .map(note => ({ note, distance: Math.abs(note.y - targetY) }))
-    .sort((a, b) => a.distance - b.distance);
+  let closestNote = null;
+  let closestDistance = Infinity;
+  for (let index = 0; index < rhythmNotes.length; index += 1) {
+    const note = rhythmNotes[index];
+    if (note.laneIndex !== laneIndex) continue;
+    const distance = Math.abs(note.y - rhythmTargetY);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestNote = note;
+    }
+  }
 
   rhythmAttempts += 1;
-  if (!candidates.length || candidates[0].distance > 54) {
+  if (!closestNote || closestDistance > 54) {
     rhythmComboValue = 0;
     rhythmMessage.textContent = 'MISS';
     updateRhythmStats();
     return;
   }
 
-  const { note, distance } = candidates[0];
   let grade = 'GOOD';
   let points = 100;
-  if (distance <= 18) {
+  if (closestDistance <= 18) {
     grade = 'PERFECT';
     points = 300;
     spawnRhythmStar();
-  } else if (distance <= 34) {
+  } else if (closestDistance <= 34) {
     grade = 'GREAT';
     points = 200;
   }
@@ -512,7 +538,7 @@ function hitLane(laneIndex) {
   rhythmComboValue += 1;
   rhythmScoreValue += points + Math.min(200, rhythmComboValue * 5);
   rhythmMessage.textContent = grade;
-  removeNote(note);
+  removeNote(closestNote);
   updateRhythmStats();
 }
 
@@ -523,6 +549,7 @@ function clearRhythmTimers() {
   rhythmAnimation = null;
   rhythmScheduler = null;
   rhythmClock = null;
+  rhythmLastFrame = 0;
 }
 
 function stopRhythm(completed = false) {
@@ -545,6 +572,7 @@ function startRhythm() {
   rhythmNotes.forEach(note => note.element.remove());
   rhythmNotes = [];
   clearRhythmStars();
+  refreshRhythmGeometry();
 
   rhythmRunning = true;
   rhythmScoreValue = 0;
@@ -553,6 +581,7 @@ function startRhythm() {
   rhythmAttempts = 0;
   rhythmTimeValue = 30;
   beatCounter = 0;
+  rhythmLastFrame = performance.now();
   rhythmStart.disabled = true;
   rhythmStart.textContent = 'RUNNING';
   rhythmStop.disabled = false;
