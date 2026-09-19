@@ -10,13 +10,18 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
   "image/avif"
 ]);
+const DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+});
+const publicUrlCache = new Map();
 
 const grid = document.getElementById("galleryGrid");
 const itemCount = document.getElementById("itemCount");
 const ownerZone = document.getElementById("ownerZone");
 const uploadDialog = document.getElementById("uploadDialog");
 const uploadForm = document.getElementById("uploadForm");
-const uploadOpenButton = document.getElementById("uploadOpenButton");
 const uploadCloseButton = document.getElementById("uploadCloseButton");
 const titleInput = document.getElementById("galleryTitle");
 const descriptionInput = document.getElementById("galleryDescription");
@@ -39,16 +44,15 @@ let currentItems = [];
 let previewObjectUrl = null;
 
 function formatDate(value) {
-  const date = new Date(value);
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(date);
+  return DATE_FORMATTER.format(new Date(value));
 }
 
 function getPublicImageUrl(path) {
+  const cached = publicUrlCache.get(path);
+  if (cached) return cached;
+
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
+  publicUrlCache.set(path, data.publicUrl);
   return data.publicUrl;
 }
 
@@ -120,6 +124,8 @@ async function deleteItem(item, button) {
   const { error: storageError } = await supabase.storage
     .from(BUCKET)
     .remove([item.image_path]);
+
+  publicUrlCache.delete(item.image_path);
 
   if (storageError) {
     console.warn("Gallery image cleanup failed:", storageError);
@@ -195,10 +201,11 @@ function renderGallery() {
     return;
   }
 
-  grid.replaceChildren();
+  const fragment = document.createDocumentFragment();
   currentItems.forEach((item, index) => {
-    grid.append(createCard(item, index));
+    fragment.append(createCard(item, index));
   });
+  grid.replaceChildren(fragment);
 }
 
 async function loadGallery() {
@@ -357,7 +364,7 @@ async function publishItem(event) {
   const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(path, file, {
-      cacheControl: "3600",
+      cacheControl: "31536000",
       contentType: file.type,
       upsert: false
     });
@@ -429,6 +436,11 @@ lightboxClose.addEventListener("click", () => lightbox.close());
 
 uploadDialog.addEventListener("close", () => {
   if (!publishButton.disabled) resetUploadForm();
+});
+
+lightbox.addEventListener("close", () => {
+  lightboxImage.removeAttribute("src");
+  lightboxImage.alt = "";
 });
 
 [uploadDialog, lightbox].forEach(dialog => {
