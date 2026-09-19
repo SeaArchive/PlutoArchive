@@ -7,7 +7,6 @@
 
   const compact = Math.min(window.innerWidth, window.innerHeight) < 720;
   const QUALITY_RENDER_SCALE = compact ? 1.15 : 1.35;
-  const FRAME_INTERVAL = 1000 / 60;
 
   function adaptiveRate(distance, nearRate, farRate, range) {
     const t = clamp(distance / range, 0, 1);
@@ -23,20 +22,12 @@
     return current + (target - current) * follow;
   }
 
-  // A stable 60 Hz world loop prevents a 120/144/165 Hz monitor from forcing
-  // the entire 2D Ark scene to redraw at the monitor refresh rate. Animation
-  // phase still uses requestAnimationFrame timestamps, so motion speed is not
-  // slowed when a frame is skipped.
-  let lastPresented = 0;
+  // The shared fps-cap.js scheduler owns the 60 FPS ceiling. Keeping a second
+  // interval check here caused 144/165 Hz displays to occasionally fall to
+  // roughly half-rate, so this loop only handles simulation and presentation.
   loop = function qualityLoop(now) {
-    if (lastPresented && now - lastPresented < FRAME_INTERVAL - 0.75) {
-      requestAnimationFrame(loop);
-      return;
-    }
-
     const dt = Math.min(0.04, Math.max(0.001, (now - lastTime) / 1000));
     lastTime = now;
-    lastPresented = now;
     update(dt);
     render(now);
     requestAnimationFrame(loop);
@@ -48,9 +39,18 @@
     const height = Math.max(1, rect.height || window.innerHeight || 640);
     const aspect = width / height;
     const logicalWidth = Math.max(1, Math.round(VIEW_H * aspect));
+    const targetHeight = Math.round(VIEW_H * QUALITY_RENDER_SCALE);
+    const targetWidth = Math.round(logicalWidth * QUALITY_RENDER_SCALE);
 
-    canvas.height = Math.round(VIEW_H * QUALITY_RENDER_SCALE);
-    canvas.width = Math.round(logicalWidth * QUALITY_RENDER_SCALE);
+    if (
+      canvas.width === targetWidth &&
+      canvas.height === targetHeight &&
+      camera.w === logicalWidth &&
+      camera.h === VIEW_H
+    ) return;
+
+    canvas.height = targetHeight;
+    canvas.width = targetWidth;
     camera.w = logicalWidth;
     camera.h = VIEW_H;
     camera.initialized = false;
