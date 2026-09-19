@@ -21,6 +21,11 @@ const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,b
 const loreTagNode=loreModal.querySelector('.tag');
 const loreTitleNode=document.getElementById('loreTitle');
 const loreBodyNode=loreModal.querySelector('p');
+const interactionScan={best:null,bestRatioSq:Infinity};
+let cachedInteractionX=NaN;
+let cachedInteractionY=NaN;
+let cachedInteractionComplete=null;
+let cachedInteraction=null;
 let currentStarLightVolume=0;
 let targetStarLightVolume=0;
 let lastVolumeLabel='';
@@ -28,41 +33,48 @@ let lastDistanceLabel='';
 let lastProximityPercent=-1;
 let lastInteractionSignature='';
 
-function interactionCandidate(best,bestRatio,type,dist,radius,prompt,room=null,object=null){
-  if(dist>=radius)return [best,bestRatio];
-  const ratio=dist/radius;
-  if(ratio>=bestRatio)return [best,bestRatio];
-  return [{type,dist,radius,prompt,room,object},ratio];
+function considerInteraction(type,x,y,radius,prompt,room=null,object=null){
+  const dx=player.x-x;
+  const dy=player.y-y;
+  const distSq=dx*dx+dy*dy;
+  const radiusSq=radius*radius;
+  if(distSq>=radiusSq)return;
+
+  const ratioSq=distSq/radiusSq;
+  if(ratioSq>=interactionScan.bestRatioSq)return;
+
+  interactionScan.bestRatioSq=ratioSq;
+  interactionScan.best={type,dist:Math.sqrt(distSq),radius,prompt,room,object};
 }
 
 function getNearestArkInteraction(){
-  let best=null;
-  let bestRatio=Infinity;
-  let result;
+  if(
+    player.x===cachedInteractionX&&
+    player.y===cachedInteractionY&&
+    ritualComplete===cachedInteractionComplete
+  )return cachedInteraction;
 
-  const exitDist=Math.hypot(player.x-exitDoor.x,player.y-exitDoor.y);
-  result=interactionCandidate(best,bestRatio,'exit',exitDist,exitDoor.radius,'RETURN TO MAIN ARCHIVE');
-  [best,bestRatio]=result;
+  interactionScan.best=null;
+  interactionScan.bestRatioSq=Infinity;
 
-  const plutoDist=Math.hypot(player.x-score.x,player.y-score.y);
-  result=interactionCandidate(best,bestRatio,'pluto',plutoDist,76,ritualComplete?'OPEN THE HIDDEN PAGE':'TOUCH PLUTO');
-  [best,bestRatio]=result;
+  considerInteraction('exit',exitDoor.x,exitDoor.y,exitDoor.radius,'RETURN TO MAIN ARCHIVE');
+  considerInteraction('pluto',score.x,score.y,76,ritualComplete?'OPEN THE HIDDEN PAGE':'TOUCH PLUTO');
 
   for(let i=0;i<ARK_ROOMS.length;i+=1){
     const room=ARK_ROOMS[i];
-    const dist=Math.hypot(player.x-room.x,player.y-room.y);
-    result=interactionCandidate(best,bestRatio,'room',dist,room.radius,`ENTER ${room.id} · ${room.name}`,room);
-    [best,bestRatio]=result;
+    considerInteraction('room',room.x,room.y,room.radius,`ENTER ${room.id} · ${room.name}`,room);
   }
 
   for(let i=0;i<ARK_OBJECTS.length;i+=1){
     const object=ARK_OBJECTS[i];
-    const dist=Math.hypot(player.x-object.x,player.y-object.y);
-    result=interactionCandidate(best,bestRatio,'object',dist,object.radius,object.prompt,null,object);
-    [best,bestRatio]=result;
+    considerInteraction('object',object.x,object.y,object.radius,object.prompt,null,object);
   }
 
-  return best;
+  cachedInteractionX=player.x;
+  cachedInteractionY=player.y;
+  cachedInteractionComplete=ritualComplete;
+  cachedInteraction=interactionScan.best;
+  return cachedInteraction;
 }
 
 openLore=function openArkLore(data=null){
