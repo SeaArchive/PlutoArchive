@@ -117,16 +117,48 @@
 
   <script>
     const nodes = document.querySelectorAll('.node');
+    let activeNode = null;
+    let activeRect = null;
+    let pointerX = 0;
+    let pointerY = 0;
+    let pointerFrame = null;
+
+    function flushPointerGlow() {
+      pointerFrame = null;
+      if (!activeNode) return;
+      if (!activeRect) activeRect = activeNode.getBoundingClientRect();
+      activeNode.style.setProperty('--x', `${pointerX - activeRect.left}px`);
+      activeNode.style.setProperty('--y', `${pointerY - activeRect.top}px`);
+    }
 
     nodes.forEach((node, index) => {
       node.style.setProperty('--delay', `${index * 28}ms`);
 
+      node.addEventListener('pointerenter', event => {
+        activeNode = node;
+        activeRect = node.getBoundingClientRect();
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+      }, { passive: true });
+
       node.addEventListener('pointermove', event => {
-        const rect = node.getBoundingClientRect();
-        node.style.setProperty('--x', `${event.clientX - rect.left}px`);
-        node.style.setProperty('--y', `${event.clientY - rect.top}px`);
-      });
+        activeNode = node;
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (pointerFrame === null) pointerFrame = requestAnimationFrame(flushPointerGlow);
+      }, { passive: true });
+
+      node.addEventListener('pointerleave', () => {
+        if (activeNode === node) {
+          activeNode = null;
+          activeRect = null;
+        }
+      }, { passive: true });
     });
+
+    window.addEventListener('resize', () => {
+      activeRect = null;
+    }, { passive: true });
   </script>
 </body>
 </html>
