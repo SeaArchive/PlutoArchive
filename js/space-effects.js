@@ -3,11 +3,10 @@
   if (!space) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const FRAME_INTERVAL = 1000 / 60;
   const layer = document.createElement('div');
   layer.className = 'space-effects';
-  space.appendChild(layer);
 
+  const staticFragment = document.createDocumentFragment();
   const sparkCount = 64;
   for (let i = 0; i < sparkCount; i += 1) {
     const star = document.createElement('span');
@@ -19,7 +18,7 @@
     star.style.setProperty('--spark-duration', `${(3.2 + Math.random() * 6.4).toFixed(2)}s`);
     star.style.setProperty('--spark-delay', `${(-Math.random() * 9).toFixed(2)}s`);
     star.style.setProperty('--spark-depth', `${(.35 + Math.random() * .9).toFixed(3)}`);
-    layer.appendChild(star);
+    staticFragment.appendChild(star);
   }
 
   const constellations = [
@@ -101,8 +100,11 @@
     text.textContent = data.label;
     svg.appendChild(text);
 
-    layer.appendChild(svg);
+    staticFragment.appendChild(svg);
   });
+
+  layer.appendChild(staticFragment);
+  space.appendChild(layer);
 
   function spawnFlash() {
     const flash = document.createElement('span');
@@ -154,14 +156,14 @@
 
   if (!reducedMotion) scheduleMeteor();
 
-  // Same motion model as the hidden page: large pointer offsets are followed
-  // quickly, then the final few pixels settle more slowly.
+  let viewportWidth = Math.max(1, window.innerWidth);
+  let viewportHeight = Math.max(1, window.innerHeight);
   let targetX = 0;
   let targetY = 0;
   let currentX = 0;
   let currentY = 0;
   let lastFrame = performance.now();
-  let lastRenderFrame = 0;
+  let frameId = null;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -175,34 +177,47 @@
     return value + (target - value) * (1 - Math.exp(-dt * rate));
   }
 
+  function ensureFrame() {
+    if (reducedMotion || frameId !== null) return;
+    lastFrame = performance.now();
+    frameId = requestAnimationFrame(animateSky);
+  }
+
   window.addEventListener('pointermove', event => {
     if (reducedMotion) return;
-    targetX = ((event.clientX / window.innerWidth) - .5) * -8;
-    targetY = ((event.clientY / window.innerHeight) - .5) * -6;
+    targetX = ((event.clientX / viewportWidth) - .5) * -8;
+    targetY = ((event.clientY / viewportHeight) - .5) * -6;
+    ensureFrame();
   }, { passive: true });
 
   document.documentElement.addEventListener('pointerleave', () => {
     targetX = 0;
     targetY = 0;
+    ensureFrame();
   });
 
-  function animateSky(now) {
-    if (now - lastRenderFrame < FRAME_INTERVAL) {
-      requestAnimationFrame(animateSky);
-      return;
-    }
+  window.addEventListener('resize', () => {
+    viewportWidth = Math.max(1, window.innerWidth);
+    viewportHeight = Math.max(1, window.innerHeight);
+  }, { passive: true });
 
+  function animateSky(now) {
+    frameId = null;
     const dt = Math.min(50, Math.max(1, now - lastFrame));
     lastFrame = now;
-    lastRenderFrame = now;
 
     currentX = approach(currentX, targetX, dt, 8);
     currentY = approach(currentY, targetY, dt, 6);
 
+    const settled = Math.abs(currentX - targetX) < .004 && Math.abs(currentY - targetY) < .004;
+    if (settled) {
+      currentX = targetX;
+      currentY = targetY;
+    }
+
     layer.style.setProperty('--sky-x', `${currentX.toFixed(3)}px`);
     layer.style.setProperty('--sky-y', `${currentY.toFixed(3)}px`);
-    requestAnimationFrame(animateSky);
-  }
 
-  requestAnimationFrame(animateSky);
+    if (!settled) ensureFrame();
+  }
 })();
