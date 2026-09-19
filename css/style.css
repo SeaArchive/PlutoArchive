@@ -403,7 +403,6 @@ body {
     background 520ms var(--motion-curve),
     transform 620ms var(--motion-curve),
     box-shadow 620ms var(--motion-curve);
-  will-change: transform;
 }
 
 .nav-item:last-child {
