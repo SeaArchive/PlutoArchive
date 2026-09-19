@@ -19,30 +19,50 @@ const ARK_OBJECTS = [
 
 const arkObjectState={starChartOn:false,crystalAwake:false,reliquaryOpen:false,bellPulseStart:-99999};
 const loreTagNode=loreModal.querySelector('.tag');
+const loreTitleNode=document.getElementById('loreTitle');
 const loreBodyNode=loreModal.querySelector('p');
 let currentStarLightVolume=0;
 let targetStarLightVolume=0;
+let lastVolumeLabel='';
+let lastDistanceLabel='';
+let lastProximityPercent=-1;
+let lastInteractionSignature='';
+
+function interactionCandidate(best,bestRatio,type,dist,radius,prompt,room=null,object=null){
+  if(dist>=radius)return [best,bestRatio];
+  const ratio=dist/radius;
+  if(ratio>=bestRatio)return [best,bestRatio];
+  return [{type,dist,radius,prompt,room,object},ratio];
+}
 
 function getNearestArkInteraction(){
-  const candidates=[];
+  let best=null;
+  let bestRatio=Infinity;
+  let result;
+
   const exitDist=Math.hypot(player.x-exitDoor.x,player.y-exitDoor.y);
-  if(exitDist<exitDoor.radius)candidates.push({type:'exit',dist:exitDist,radius:exitDoor.radius,prompt:'RETURN TO MAIN ARCHIVE'});
+  result=interactionCandidate(best,bestRatio,'exit',exitDist,exitDoor.radius,'RETURN TO MAIN ARCHIVE');
+  [best,bestRatio]=result;
 
   const plutoDist=Math.hypot(player.x-score.x,player.y-score.y);
-  if(plutoDist<76)candidates.push({type:'pluto',dist:plutoDist,radius:76,prompt:ritualComplete?'OPEN THE HIDDEN PAGE':'TOUCH PLUTO'});
+  result=interactionCandidate(best,bestRatio,'pluto',plutoDist,76,ritualComplete?'OPEN THE HIDDEN PAGE':'TOUCH PLUTO');
+  [best,bestRatio]=result;
 
-  ARK_ROOMS.forEach(room=>{
+  for(let i=0;i<ARK_ROOMS.length;i+=1){
+    const room=ARK_ROOMS[i];
     const dist=Math.hypot(player.x-room.x,player.y-room.y);
-    if(dist<room.radius)candidates.push({type:'room',dist,radius:room.radius,room,prompt:`ENTER ${room.id} · ${room.name}`});
-  });
+    result=interactionCandidate(best,bestRatio,'room',dist,room.radius,`ENTER ${room.id} · ${room.name}`,room);
+    [best,bestRatio]=result;
+  }
 
-  ARK_OBJECTS.forEach(object=>{
+  for(let i=0;i<ARK_OBJECTS.length;i+=1){
+    const object=ARK_OBJECTS[i];
     const dist=Math.hypot(player.x-object.x,player.y-object.y);
-    if(dist<object.radius)candidates.push({type:'object',dist,radius:object.radius,object,prompt:object.prompt});
-  });
+    result=interactionCandidate(best,bestRatio,'object',dist,object.radius,object.prompt,null,object);
+    [best,bestRatio]=result;
+  }
 
-  candidates.sort((a,b)=>(a.dist/a.radius)-(b.dist/b.radius));
-  return candidates[0]||null;
+  return best;
 }
 
 openLore=function openArkLore(data=null){
@@ -52,7 +72,7 @@ openLore=function openArkLore(data=null){
     body:'방주의 중심에 떠 있는 명왕성. 가까워질수록 자장가가 더 선명해지고, 오랫동안 곁에 머물면 주변의 별자리와 룬이 반응하기 시작합니다.'
   };
   loreTagNode.textContent=content.tag;
-  document.getElementById('loreTitle').textContent=content.title;
+  loreTitleNode.textContent=content.title;
   loreBodyNode.textContent=content.body;
   modalOpen=true;
   keys.clear();
@@ -102,6 +122,41 @@ function openObjectLore(object){
   }
 }
 
+function updateArkHud(dist,proximity,nearby){
+  const volumeLabel=`ARK ${Math.round(currentVolume*100)}% · STAR ${Math.round(currentStarLightVolume*100)}%`;
+  if(volumeLabel!==lastVolumeLabel){
+    lastVolumeLabel=volumeLabel;
+    volumeText.textContent=volumeLabel;
+  }
+
+  const distanceLabel=`${(dist/TILE).toFixed(1)} TILE`;
+  if(distanceLabel!==lastDistanceLabel){
+    lastDistanceLabel=distanceLabel;
+    distanceText.textContent=distanceLabel;
+  }
+
+  const proximityPercent=Math.round(proximity*100);
+  if(proximityPercent!==lastProximityPercent){
+    lastProximityPercent=proximityPercent;
+    proximityBar.style.width=`${proximityPercent}%`;
+  }
+
+  const show=Boolean(nearby)&&!modalOpen;
+  const unlocked=Boolean(nearby&&nearby.type==='pluto'&&ritualComplete);
+  const type=show?nearby.type:'';
+  const prompt=show?nearby.prompt:'';
+  const signature=`${show?1:0}|${unlocked?1:0}|${type}|${prompt}`;
+  if(signature===lastInteractionSignature)return;
+
+  lastInteractionSignature=signature;
+  interaction.classList.toggle('visible',show);
+  interaction.classList.toggle('unlocked',unlocked);
+  interaction.classList.toggle('exit-door',type==='exit');
+  interaction.classList.toggle('world-object',type==='object');
+  interaction.classList.toggle('constellation-room',type==='room');
+  interaction.textContent=show?`E  /  ${prompt}`:'';
+}
+
 updateAudio=function updateArkAudio(dt){
   const dist=Math.hypot(player.x-score.x,player.y-score.y);
   const fadeDistance=720;
@@ -132,18 +187,8 @@ updateAudio=function updateArkAudio(dt){
   bgm.volume=currentVolume;
   starLightBgm.volume=currentStarLightVolume;
 
-  volumeText.textContent=`ARK ${Math.round(currentVolume*100)}% · STAR ${Math.round(currentStarLightVolume*100)}%`;
-  distanceText.textContent=`${(dist/TILE).toFixed(1)} TILE`;
-  proximityBar.style.width=`${Math.round(proximity*100)}%`;
-
   const nearby=getNearestArkInteraction();
-  const show=Boolean(nearby)&&!modalOpen;
-  interaction.classList.toggle('visible',show);
-  interaction.classList.toggle('unlocked',nearby?.type==='pluto'&&ritualComplete);
-  interaction.classList.toggle('exit-door',nearby?.type==='exit');
-  interaction.classList.toggle('world-object',nearby?.type==='object');
-  interaction.classList.toggle('constellation-room',nearby?.type==='room');
-  interaction.textContent=show?`E  /  ${nearby.prompt}`:'';
+  updateArkHud(dist,proximity,nearby);
 };
 
 interactCenter=function interactWithArk(){
