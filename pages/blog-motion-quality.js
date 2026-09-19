@@ -5,8 +5,7 @@
 (() => {
   'use strict';
 
-  const compact = Math.min(window.innerWidth, window.innerHeight) < 720;
-  const QUALITY_RENDER_SCALE = compact ? 1.15 : 1.35;
+  let qualityRenderScale = Math.min(window.innerWidth, window.innerHeight) < 720 ? 1.15 : 1.35;
 
   function adaptiveRate(distance, nearRate, farRate, range) {
     const t = clamp(distance / range, 0, 1);
@@ -39,8 +38,9 @@
     const height = Math.max(1, rect.height || window.innerHeight || 640);
     const aspect = width / height;
     const logicalWidth = Math.max(1, Math.round(VIEW_H * aspect));
-    const targetHeight = Math.round(VIEW_H * QUALITY_RENDER_SCALE);
-    const targetWidth = Math.round(logicalWidth * QUALITY_RENDER_SCALE);
+    qualityRenderScale = Math.min(window.innerWidth, window.innerHeight) < 720 ? 1.15 : 1.35;
+    const targetHeight = Math.round(VIEW_H * qualityRenderScale);
+    const targetWidth = Math.round(logicalWidth * qualityRenderScale);
 
     if (
       canvas.width === targetWidth &&
@@ -57,6 +57,10 @@
     ctx.imageSmoothingEnabled = false;
   }
 
+  // blog.js installs a fallback resize handler before this quality layer loads.
+  // Once this layer is active, keeping both listeners causes two canvas backing
+  // store reallocations on the same resize/orientation event.
+  window.removeEventListener('resize', resizeGameCanvas);
   qualityResizeGameCanvas();
   window.addEventListener('resize', qualityResizeGameCanvas, { passive: true });
 
@@ -185,7 +189,7 @@
   render = function renderBalanced(time) {
     updateCamera();
 
-    ctx.setTransform(QUALITY_RENDER_SCALE, 0, 0, QUALITY_RENDER_SCALE, 0, 0);
+    ctx.setTransform(qualityRenderScale, 0, 0, qualityRenderScale, 0, 0);
     ctx.fillStyle = '#020406';
     ctx.fillRect(0, 0, camera.w, camera.h);
 
