@@ -1,0 +1,13 @@
+# Pluto Archive contributor instructions
+
+Read `docs/HANDOFF.md`, `docs/architecture.md`, and `docs/master-development-prompt.md` before changes.
+Preserve root README.md byte-for-byte (baseline Git blob cb2b0c1cb64a61362a3536fb91657d297a60974c).
+Use Node >=22 and pnpm 11.19.0. Run `pnpm install --frozen-lockfile`, `pnpm typecheck`, and `pnpm build`.
+Public is burgundy/silver; Workspace charcoal/green; Admin ivory/gold. Radius 0–4px; no glow.
+Do not treat preview apps as persistent functionality. Do not invent portfolio content or performance results.
+Keep data, config, renderers and services separated. Every private operation requires server authorization and RLS.
+Preserve existing Supabase gallery and administrator data until a tested migration copies and validates it.
+Never put service secrets in NEXT_PUBLIC variables or Git. Google API grants are separate from sign-in.
+Update HANDOFF after meaningful changes so desktop and web agents can continue from GitHub.
+
+Before ending work or hitting usage limits, update docs/progress.md with current status, completed work, remaining work and recommended next steps, then sync to GitHub.

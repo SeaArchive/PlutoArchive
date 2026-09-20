@@ -1,0 +1,12 @@
+{
+  "name": "PLUTO ARCHIVE",
+  "introduction": "그림으로 상상하고, 구조로 완성합니다.",
+  "description": "작품과 프로젝트, 그리고 그 사이의 생각을 기록하는 공간.",
+  "navigation": [
+    { "label": "Works", "href": "/works" },
+    { "label": "Projects", "href": "/projects" },
+    { "label": "Process", "href": "/process" },
+    { "label": "About", "href": "/about" }
+  ],
+  "github": "https://github.com/SeaArchive"
+}

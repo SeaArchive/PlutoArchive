@@ -1,0 +1,16 @@
+{
+  "name": "pluto-archive",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @pluto/web dev",
+    "build": "pnpm --filter @pluto/web build",
+    "typecheck": "pnpm --filter @pluto/web typecheck"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "devDependencies": {
+    "prettier": "3.9.8"
+  }
+}
