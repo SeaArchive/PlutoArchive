@@ -5,7 +5,7 @@
 
 ## 현재 진행 상태
 
-Master Prompt 분석과 Foundation 구현·로컬 빌드 검증 완료. 공개 화면 및 기존 작품 연결, 보호된 Workspace/Admin 진입과 Google OAuth 코드, Workspace 미리보기를 구현했다. 전체 플랫폼 완성이 아니라 Phase 01 중심의 첫 구현이다. GitHub 동기화 검증은 아래 완료 기록을 기준으로 확인한다.
+Foundation 위에 GitHub Pages 정적 배포 구성을 추가했다. codex/platform-foundation 브랜치의 루트에 공개 사이트와 Workspace 미리보기 HTML/자산을 생성했으며, 로컬 정적 검증을 통과했다. 원격 배포 확인은 아래 최신 기록을 기준으로 확인한다. 전체 플랫폼은 여전히 Foundation 단계이며 CMS·영속 저장은 미완료다.
 
 ## 완료된 작업
 
@@ -39,7 +39,7 @@ Master Prompt 분석과 Foundation 구현·로컬 빌드 검증 완료. 공개 �
 - Phase 06–07: 창 이동/크기조절/디바이스별 저장, Notes/Tasks 서버 동기화, Code/Files/Reference/Music 및 설정 앱.
 - Phase 08: Drive/YouTube incremental OAuth 및 서버 측 토큰 저장.
 - Phase 09–10: 이미지 파생본, 폰트 최적화, 성능 실측, 접근성 심화 검증, 모바일 네이티브 클라이언트.
-- Node 지원 운영 호스팅 선택·배포·기존 GitHub Pages 전환. main 병합 안 됨.
+- 서버 로그인·관리자 기능을 위한 Node 호스팅 및 OAuth 실설정. 공개 사이트는 GitHub Pages 정적 배포로 제공하며 main 병합은 하지 않음.
 
 ## 다음 권장 작업
 
@@ -60,3 +60,15 @@ Master Prompt 분석과 Foundation 구현·로컬 빌드 검증 완료. 공개 �
 - GitHub Actions Linux/Node 22 환경에서 frozen-lockfile 설치, TypeScript, production build 모두 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/35516498866
 - 코드·전체 프롬프트·진행 문서가 원격 브랜치에 있으며 웹 환경에서 이어받을 수 있다.
 - 운영 사이트 배포 및 main 병합은 하지 않았다. README의 기존 GitHub Pages 링크는 기존 사이트를 가리킨다.
+
+
+## 최신 작업: GitHub Pages 브랜치 루트 배포
+
+- 사용자 지정: `codex/platform-foundation` → `/(root)` 설정 유지.
+- 완료: 정적 export 스크립트, `/PlutoArchive` basePath, trailingSlash, `.nojekyll`, 루트 HTML/JS/CSS 및 전환 자산 93개, 공개 작품 스냅샷, 재배포 문서 및 CI 정적 검사.
+- 서버 소스는 그대로 유지. Pages의 `/workspace/`는 공개 미리보기이며 `/admin/`·`/login/`은 준비 안내 화면이다. 개인 데이터는 내보내지 않았다.
+- 로컬 검증: 정적 빌드·TypeScript 통과, HTML 14개 및 내부 경로 248개 검사 통과, 작품 상세 링크/직접 새로고침·Workspace 인터랙션 확인.
+- 미완료: 원격 Pages 배포 결과 확인(푸시 후 갱신 예정), OAuth·CMS·DB/RLS 마이그레이션·영속 Workspace는 기존 미완료 범위 유지.
+- 다음 권장 작업: Pages 실접속 확인 → CMS 스키마/RLS → 게시 흐름 구현. 공개 작품 변경 후 `pnpm refresh:pages`로 데이터를 갱신하고 재빌드·푸시한다.
+
+- 추가 검증 완료: Windows 정적 export의 페이지 전환 payload 경로를 보정하고 회귀 검사를 추가했다. 재검증에서 브라우저 오류 및 동일 출처 404 요청 0건, 모바일 8개 경로 가로 넘침 0건. 기존 서버 앱 production build도 재통과했다.

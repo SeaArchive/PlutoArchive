@@ -4,7 +4,10 @@
   "scripts": {
     "dev": "pnpm --filter @pluto/web dev",
     "build": "pnpm --filter @pluto/web build",
-    "typecheck": "pnpm --filter @pluto/web typecheck"
+    "typecheck": "pnpm --filter @pluto/web typecheck",
+    "build:pages": "node scripts/build-pages.mjs",
+    "refresh:pages": "node scripts/build-pages.mjs --refresh",
+    "check:pages": "node scripts/check-pages.mjs"
   },
   "engines": {
     "node": ">=22"

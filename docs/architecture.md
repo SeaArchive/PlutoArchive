@@ -21,4 +21,4 @@ Public reads use a fresh anonymous Supabase client and RLS. Public pages can rev
 
 The current registry launches dynamically imported React apps. They are session-only previews. The shared Window contract exists; movement, resizing and device-specific persistence are not implemented yet. App lifecycle currently follows React mount/unmount.
 
-Next.js server features require a Node-capable host. The README's historic GitHub Pages URL cannot run OAuth handlers or server rendering. GitHub remains the source of truth; choose a production host before merging a deployment change.
+Next.js server features require a Node-capable host. GitHub Pages now has a separate static-export build profile derived from shared source. It publishes public pages and Workspace previews at the branch root; private routes show a static preparation screen. OAuth handlers and private data remain only in the server application. See `docs/github-pages.md`.

@@ -1,0 +1,18 @@
+{
+  "state": "ready",
+  "items": [
+    {
+      "id": "0de42567-df1d-4e10-8335-93208ac9f8aa",
+      "type": "artwork",
+      "slug": "0de42567-df1d-4e10-8335-93208ac9f8aa",
+      "title": "The First",
+      "summary": "첫 게시물. Horolozium",
+      "status": "published",
+      "visibility": "public",
+      "featured": false,
+      "featured_order": 0,
+      "thumbnail_url": "https://ytpoqdhujdhfwijevsuz.supabase.co/storage/v1/object/public/gallery/00753a39-2a46-4a4e-a7f9-2e74014bbf03/1789479681877-c0b0f63e-0f48-4d34-a3c8-ada09957881c.jpg",
+      "published_at": "2026-09-15T13:41:22.689577+00:00"
+    }
+  ]
+}

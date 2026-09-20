@@ -11,3 +11,5 @@ Never put service secrets in NEXT_PUBLIC variables or Git. Google API grants are
 Update HANDOFF after meaningful changes so desktop and web agents can continue from GitHub.
 
 Before ending work or hitting usage limits, update docs/progress.md with current status, completed work, remaining work and recommended next steps, then sync to GitHub.
+
+GitHub Pages publishes this branch's root. Root HTML, route folders and `_next` are generated artifacts; edit apps/web and run `pnpm build:pages` then `pnpm check:pages` before pushing UI changes. See docs/github-pages.md. Do not export private records or server authentication handlers.

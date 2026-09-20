@@ -1,0 +1,24 @@
+1:"$Sreact.fragment"
+2:I[56007,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js","/PlutoArchive/_next/static/chunks/1lxwo_0_ywx2f.js"],""]
+3:I[748,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+8:I[748,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"ViewportBoundary"]
+9:I[748,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"MetadataBoundary"]
+a:I[98126,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"IconMark"]
+c:I[1503,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"default"]
+d:I[45046,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js"],"default"]
+10:I[65739,["/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js","/PlutoArchive/_next/static/chunks/0cu_w6e848i_2.js"],"default"]
+:HL["/PlutoArchive/_next/static/chunks/1ltwd7myujzr9.css","style"]
+7:X
+f:X
+f:C
+0:{"buildId":"i0uZUCK0-JCWUhFmh1Fl1","data":[{"rsc":["$","$1","c",{"children":[["$","div",null,{"className":"public-space","children":[["$","header",null,{"className":"topbar","children":[["$","$L2",null,{"className":"brand","href":"/","aria-label":"Pluto Archive 홈","children":[["$","span",null,{"className":"brand-mark","children":"P↗"}],"PLUTO ARCHIVE"]}],["$","nav",null,{"aria-label":"주 메뉴","children":[["$","$L2","/works",{"href":"/works","children":"Works"}],["$","$L2","/projects",{"href":"/projects","children":"Projects"}],["$","$L2","/process",{"href":"/process","children":"Process"}],["$","$L2","/about",{"href":"/about","children":"About"}]]}],["$","$L2",null,{"className":"workspace-link","href":"/workspace","children":["Workspace ",["$","span",null,{"children":"↗"}]]}]]}],["$","main",null,{"id":"main","children":["$","section",null,{"className":"section statement","children":[["$","span",null,{"className":"meta","children":"03 / THINKING & PROCESS"}],["$","h1",null,{"className":"page-title","children":"In the making."}],["$","p",null,{"className":"intro","children":"계획부터 구현까지, 작업의 판단과 과정을 기록합니다. 공개할 기록을 준비하고 있습니다."}],false]}]}],["$","footer",null,{"children":[["$","$L2",null,{"href":"/","children":"PLUTO ARCHIVE"}],["$","span",null,{"children":"ART · DESIGN · DEVELOPMENT"}],["$","$L2",null,{"href":"/contact","children":"연락하기 ↗"}],["$","span",null,{"children":["© ",2026," SEAARCHIVE"]}]]}]]}],[["$","script","script-0",{"src":"/PlutoArchive/_next/static/chunks/1lxwo_0_ywx2f.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Pluto Archive — Art, Design & Development"}],["$","meta","1",{"name":"description","content":"작품과 프로젝트, 그리고 그 사이의 생각을 기록하는 공간."}],["$","link","2",{"rel":"icon","href":"/PlutoArchive/icon.svg?icon.10jzuwn76-89s.svg","sizes":"any","type":"image/svg+xml"}],["$","$La","3",{}]]}]}]}],null]}],"isPartial":"$@b","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}]}]]}],"isPartial":"$@e","staleTime":"$7","varyParams":"$f"},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/PlutoArchive/_next/static/chunks/1ltwd7myujzr9.css","precedence":"next"}],["$","script","script-0",{"src":"/PlutoArchive/_next/static/chunks/36j5ce8dx5jas.js","async":true}]],["$","html",null,{"lang":"ko","children":["$","body",null,{"children":[["$","a",null,{"className":"skip-link","href":"#main","children":"본문으로 건너뛰기"}],["$","$Lc",null,{"parallelRouterKey":"children","error":"$10","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/PlutoArchive/_next/static/chunks/0cu_w6e848i_2.js","async":true}]],"template":["$","$Ld",null,{}],"notFound":[["$","main",null,{"id":"main","className":"section","children":[["$","span",null,{"className":"meta","children":"404 / OUT OF ORBIT"}],["$","h1",null,{"className":"page-title","children":"기록을 찾을 수 없습니다."}],["$","$L2",null,{"href":"/","children":"아카이브로 돌아가기 →"}]]}],[]]}]]}]}]]}],"isPartial":"$@11","staleTime":"$7","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@12","rootVaryParams":null,"needsRuntimeRequest":"$@13"}
+5:null
+7:300
+13:true
+7:C
+12:0
+b:"$undefined"
+e:"$undefined"
+11:"$undefined"
+6:"$undefined"

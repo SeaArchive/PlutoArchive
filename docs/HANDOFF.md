@@ -50,4 +50,4 @@ Unauthenticated `/admin` and `/workspace` must redirect to `/login`. `/workspace
 
 ## Deployment
 
-Not deployed or merged to main. Historical GitHub Pages is static hosting and cannot run this Next.js server application. Choose a Node-capable host, configure environment/OAuth, test production origin, and only then cut over. Existing public main remains untouched while this branch is reviewed.
+The user selected GitHub Pages from `codex/platform-foundation` at `/(root)`. The branch now includes a static export of public pages and the Workspace preview at its root. See `docs/github-pages.md` for `pnpm build:pages`, `pnpm refresh:pages`, validation and push instructions. The editable server application remains in `apps/web`; OAuth and private admin operations still require a Node-capable host. Check `docs/progress.md` for the latest deployment verification. Main remains unchanged.
