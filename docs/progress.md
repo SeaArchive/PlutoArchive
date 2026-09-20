@@ -52,3 +52,11 @@ Master Prompt 분석과 Foundation 구현·로컬 빌드 검증 완료. 공개 �
 ## 운영 규칙
 
 작업 종료 또는 사용량 제한 전에 반드시 이 문서의 진행 상태·완료·미완료·다음 작업·검증 결과를 갱신하고 GitHub에 동기화한다. 실제 동기화/배포 성공을 확인하기 전에는 완료로 기록하지 않는다. 화면 미리보기 앱은 저장 기능으로 설명하지 않는다.
+
+## GitHub 동기화 완료 기록
+
+- Foundation 커밋: `8ee5a481b39ef33c51486baa69e026a814896a97`.
+- 원격 `codex/platform-foundation` 브랜치 생성 및 로컬 추적 연결 확인.
+- GitHub Actions Linux/Node 22 환경에서 frozen-lockfile 설치, TypeScript, production build 모두 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/35516498866
+- 코드·전체 프롬프트·진행 문서가 원격 브랜치에 있으며 웹 환경에서 이어받을 수 있다.
+- 운영 사이트 배포 및 main 병합은 하지 않았다. README의 기존 GitHub Pages 링크는 기존 사이트를 가리킨다.
