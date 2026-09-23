@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap");
 :root {
   --bg: #1a0101;
+  --home-bg: #000817;
   --surface: #260808;
   --text: #edfffe;
   --muted: #aeb8b8;
@@ -20,6 +21,9 @@ body {
   color: var(--text);
   font-family: "Noto Sans KR", Arial, sans-serif;
   font-size: 14px;
+}
+body:has(.public-home) {
+  --bg: var(--home-bg);
 }
 a {
   color: inherit;

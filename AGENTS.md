@@ -3,7 +3,7 @@
 Read `docs/HANDOFF.md`, `docs/architecture.md`, and `docs/master-development-prompt.md` before changes.
 Preserve root README.md byte-for-byte (baseline Git blob cb2b0c1cb64a61362a3536fb91657d297a60974c).
 Use Node >=22 and pnpm 11.19.0. Run `pnpm install --frozen-lockfile`, `pnpm typecheck`, and `pnpm build`.
-Public is burgundy/silver; Workspace charcoal/green; Admin ivory/gold. Radius 0–4px; no glow.
+Home background is #000817 (latest user override); other Public pages are burgundy/silver; Workspace charcoal/green; Admin ivory/gold. Radius 0–4px; no glow.
 Do not treat preview apps as persistent functionality. Do not invent portfolio content or performance results.
 Keep data, config, renderers and services separated. Every private operation requires server authorization and RLS.
 Preserve existing Supabase gallery and administrator data until a tested migration copies and validates it.
@@ -13,3 +13,5 @@ Update HANDOFF after meaningful changes so desktop and web agents can continue f
 Before ending work or hitting usage limits, update docs/progress.md with current status, completed work, remaining work and recommended next steps, then sync to GitHub.
 
 GitHub Pages publishes this branch's root. Root HTML, route folders and `_next` are generated artifacts; edit apps/web and run `pnpm build:pages` then `pnpm check:pages` before pushing UI changes. See docs/github-pages.md. Do not export private records or server authentication handlers.
+
+Current next-work priority: complete the authenticated Workspace (runtime, persistent app data, windows, responsive shell and core apps). Read docs/workspace-roadmap.md. CMS remains required but follows Workspace except for shared prerequisites.

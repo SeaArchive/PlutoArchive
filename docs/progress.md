@@ -2,6 +2,10 @@
 
 ## Current Phase
 
+**최신 사용자 우선순위 변경 (2026-09-23): 다음 작업의 주 목표는 워크스페이스 완성.** 기존 CMS 게시 흐름 우선 계획을 변경한다. Workspace에 필요한 인증·DB/RLS 선행 작업부터 진행하며, CMS 기능 요구사항은 후순위로 유지한다. 상세 실행 순서·완료 기준: `docs/workspace-roadmap.md`.
+
+메인페이지(`/`) 배경색을 `#000817`로 변경했다. Home 전용 표식을 사용해 페이지 이동 시 배경이 해당 경로에 맞게 적용되도록 했다.
+
 **Phase 02 — Database / Auth / Security 진행 중.** 2026-09-23 CMS DB 기반 작업을 완료하고 실제 Supabase에 적용·검증했다. Foundation과 GitHub Pages 공개 배포는 유지된다. 관리자 편집 UI와 게시 흐름은 아직 미구현이며, 전체 플랫폼 완료가 아니다.
 
 작업 브랜치: `codex/platform-foundation`.
@@ -52,11 +56,16 @@
 
 ## Next
 
-1. 관리자용 서버 역할 가드 및 프로필 초기화 연결.
-2. CMS 콘텐츠 생성/수정 + Draft → Preview → Publish 구현. 입력 검증과 원자적 저장을 적용.
-3. 공개 읽기 어댑터를 신규 contents/media로 전환할 때 기존 gallery API와 이미지 공개 범위, Pages 스냅샷 갱신을 함께 처리. 비공개 전환이 기존 공개본까지 차단한다고 오인시키지 말 것.
-4. 콘텐츠별 Block Renderer/Editor 및 안전한 미디어 업로드·비공개 원본 전달 구현.
-5. Workspace 영속 데이터와 창 상태 저장 구현.
+주 목표: **Workspace 완성**. 이번 요청은 배경색 변경과 다음 작업 목표 설정이며, Workspace 구현 완료를 의미하지 않는다.
+
+1. 기존 Workspace Shell/App Registry/SDK 및 Notes/Tasks/Timer의 현재 상태를 확인한다.
+2. 로그인 가능한 서버 환경, 프로필 초기화, 사용자별 DB·RLS와 서버 권한 검증을 먼저 연결한다.
+3. Notes/Tasks 영속 CRUD를 구현하고 새로고침·재로그인 후 복원을 검증한다.
+4. Window Manager의 이동·크기조절·최소화·복원·포커스와 디바이스별 레이아웃 저장을 완성한다.
+5. Command Palette·알림·설정·모바일 App Launcher 및 마스터 프롬프트의 기본 앱을 순차 완성한다.
+6. 외부 앱 권한 연결과 오류·접근성·반응형·개인 데이터 격리를 검증한 뒤 CMS 게시 흐름으로 돌아간다.
+
+세부 범위 및 완료 기준은 `docs/workspace-roadmap.md`를 따른다.
 
 ## Pending
 
@@ -77,6 +86,8 @@
 
 ## Decisions
 
+- 2026-09-23 최신 사용자 지정: Home 배경 #000817; 다음 주 목표 Workspace 완성. 기존 CMS 우선 순서를 조정하되 요구 기능은 삭제하지 않는다.
+
 - 기존 작품·관리자·Storage를 보존하는 추가형 마이그레이션 유지.
 - 이번 단위는 CMS DB 기반까지. 저장 UI와 서비스가 없는 Workspace/외부 연동 테이블을 미리 확장하지 않음.
 - 역할 정보는 신뢰된 DB 레코드에서 조회. 사용자 metadata 및 클라이언트 역할 변경은 불허.
@@ -86,7 +97,7 @@
 
 ## Handoff
 
-Current Task: CMS DB 기반 완료; 다음은 서버 CMS 권한 및 게시 흐름.
+Current Task: CMS DB 기반 완료. 메인페이지 배경 #000817 적용 및 다음 주 목표를 Workspace 완성으로 변경. 다음 구현은 Workspace 인증/저장 기반부터 진행.
 
 Files Modified: `supabase/migrations/*`, `supabase/tests/*`, `scripts/test-database.mjs`, `package.json`, `pnpm-lock.yaml`, `.github/workflows/ci.yml`, `docs/{database,progress,HANDOFF,architecture,auth,master-development-prompt}.md`.
 
@@ -109,3 +120,10 @@ GitHub Sync: 구현 commit `9b5bcbbcf0210113012df7c24fc9e8167a1c1143`가 작업 
 - Foundation CI: https://github.com/SeaArchive/PlutoArchive/actions/runs/35516498866
 - Pages 루트 배포: `37c79d3` (Windows 페이지 전환 payload 보정 포함).
 - main 병합 없음. 작업은 `codex/platform-foundation`에서 이어간다.
+
+## Latest change: Home background and Workspace priority
+
+- Home 배경을 #000817로 적용. `AGENTS.md`, 마스터 프롬프트, 디자인 문서, HANDOFF, progress와 Workspace 실행 계획에 최신 사용자 요구를 반영.
+- 검증 및 원격 반영 결과는 이번 변경 commit과 Actions를 기준으로 확인한다. 이전 절의 CI 링크는 CMS 기반 commit의 검증 기록이다.
+- 이번 변경 로컬 검증: frozen-lockfile 설치, TypeScript, production build, Pages 재빌드, HTML 14개/링크·자산 248개 검사 통과. Home 전용 표식과 연결된 CSS의 #000817 값을 확인.
+- 브라우저 실화면 검증은 로컬 Chromium 설치/다운로드 실패로 수행하지 못함. 이미지 출력 없음.

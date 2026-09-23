@@ -1,8 +1,14 @@
 import Link from "next/link";
 import site from "@/config/site.json";
-export function PublicShell({ children }: { children: React.ReactNode }) {
+export function PublicShell({
+  children,
+  home = false,
+}: {
+  children: React.ReactNode;
+  home?: boolean;
+}) {
   return (
-    <div className="public-space">
+    <div className={home ? "public-space public-home" : "public-space"}>
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Pluto Archive 홈">
           <span className="brand-mark">P↗</span>

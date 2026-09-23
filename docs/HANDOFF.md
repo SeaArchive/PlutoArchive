@@ -5,7 +5,7 @@
 Repository: https://github.com/SeaArchive/PlutoArchive
 Working branch: `codex/platform-foundation`.
 Read `AGENTS.md` and `docs/master-development-prompt.md`. README.md is protected and unchanged.
-The user's latest instruction is to keep progress accessible from both desktop and web environments through GitHub.
+The user's latest instruction (2026-09-23): set the home background to #000817 and make **Workspace completion the primary goal of the next work session**. Keep progress accessible through GitHub. See `docs/workspace-roadmap.md`.
 
 ## Current delivery: Phase 02 CMS database foundation
 
@@ -45,12 +45,13 @@ Unauthenticated `/admin` and `/workspace` must redirect to `/login`. `/workspace
 
 ## Next concrete milestone
 
-1. Read progress/database docs and confirm branch + remote migration versions.
-2. Add server editor/admin guards and profile initialization; preserve `is_admin()` compatibility.
-3. Implement CMS CRUD and Draft → Preview → Publish with validation/atomic updates.
-4. Switch the public gallery adapter only with an explicit legacy exposure/Pages snapshot transition. CMS privacy alone does not hide old gallery URLs or static exports.
-5. Add versioned block renderer/editor and private-original media delivery.
-6. Add persistent workspace schema/data and device-specific layouts.
+1. Read progress/workspace-roadmap/database docs and inspect the current Workspace registry, shell and preview apps.
+2. Establish authenticated Workspace prerequisites: Node hosting/OAuth configuration, server profile initialization, per-user schema/RLS and authorization.
+3. Replace Notes/Tasks preview-only state with persistent CRUD and reload/relogin verification.
+4. Complete window move/resize/focus/minimize/restore, per-device saved layouts and mobile app launcher.
+5. Complete shared command/notification/settings services and required core apps in the master prompt; implement Google integration with separate grants.
+6. Verify error handling, permissions, responsive/keyboard behavior and real persistence against the roadmap's completion criteria.
+7. Resume CMS CRUD/publishing and legacy public-reader migration after Workspace, unless a shared prerequisite is required earlier.
 
 Run `pnpm test:database` before TypeScript/build. Earlier remote migrations are not yet in the repo: reconcile history before CLI push/reset/repair. Do not run the legacy test fixture on production.
 
