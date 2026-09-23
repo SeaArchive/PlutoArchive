@@ -92,7 +92,12 @@ Files Modified: `supabase/migrations/*`, `supabase/tests/*`, `scripts/test-datab
 
 Database Changes: 위 두 migration 원격 적용 완료. 원본 데이터 변경 없음.
 
-GitHub Sync: 이번 코드·문서 commit을 작업 브랜치에 동기화한 뒤 실제 원격 SHA와 CI 결과를 확인한다. 이 문서 자체는 아직 실행되지 않은 push/CI를 성공으로 간주하지 않는다. 최신 commit과 Actions 결과를 함께 확인할 것.
+GitHub Sync: 구현 commit `9b5bcbbcf0210113012df7c24fc9e8167a1c1143`가 작업 브랜치에 반영됐고, 원격 tree가 로컬 검증본과 일치함을 확인했다. 일반 git push의 자격증명 부재로 연결된 GitHub 플러그인을 사용했다.
+
+- 원격 Node 22 CI 전체 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/35866911324
+- DB 173개 검사, TypeScript, 서버 production build, Pages 재빌드 및 경로 검사 전부 성공.
+- 동일 구현 commit의 Pages 배포 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/35866910634
+- 이 결과 기록은 후속 문서 전용 commit으로 저장한다. 위 검증은 명시된 구현 commit 기준이다.
 
 ## Last Modified
 
