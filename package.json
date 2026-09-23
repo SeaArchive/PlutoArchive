@@ -7,13 +7,15 @@
     "typecheck": "pnpm --filter @pluto/web typecheck",
     "build:pages": "node scripts/build-pages.mjs",
     "refresh:pages": "node scripts/build-pages.mjs --refresh",
-    "check:pages": "node scripts/check-pages.mjs"
+    "check:pages": "node scripts/check-pages.mjs",
+    "test:database": "node scripts/test-database.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "packageManager": "pnpm@11.19.0",
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "prettier": "3.9.8"
   }
 }

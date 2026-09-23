@@ -22,3 +22,7 @@ Public reads use a fresh anonymous Supabase client and RLS. Public pages can rev
 The current registry launches dynamically imported React apps. They are session-only previews. The shared Window contract exists; movement, resizing and device-specific persistence are not implemented yet. App lifecycle currently follows React mount/unmount.
 
 Next.js server features require a Node-capable host. GitHub Pages now has a separate static-export build profile derived from shared source. It publishes public pages and Workspace previews at the branch root; private routes show a static preparation screen. OAuth handlers and private data remain only in the server application. See `docs/github-pages.md`.
+
+## Phase 02 update — 2026-09-23
+
+The additive CMS foundation is now applied: nine identity/content/media/taxonomy tables with RLS, trusted role lookup and preserved gallery copy. See `database.md` for grants, publication semantics and migration history. Existing readers, server administrator guard and Storage remain on the legacy path until CMS cutover. `content_media` normalizes block attachments so metadata visibility follows the public parent. PGlite is a dev-only SQL regression harness; it adds no runtime dependency to the web client.

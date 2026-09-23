@@ -7,13 +7,17 @@ Working branch: `codex/platform-foundation`.
 Read `AGENTS.md` and `docs/master-development-prompt.md`. README.md is protected and unchanged.
 The user's latest instruction is to keep progress accessible from both desktop and web environments through GitHub.
 
-## Current delivery: Foundation milestone
+## Current delivery: Phase 02 CMS database foundation
+
+Latest source of truth: `docs/progress.md` and `docs/database.md`. On 2026-09-23 nine CMS/identity tables, role-based RLS, legacy gallery metadata copy, and two versioned migrations were applied and verified on Supabase. The original gallery/admin/Storage records remain untouched. `pnpm test:database` runs 173 PostgreSQL checks; live RLS smoke also passed with rollback. CMS editing/publishing UI, server editor-role routing and public-reader cutover are still pending. The attached updated master prompt is now the repository master prompt.
+
+### Prior Foundation delivery
 
 Implemented: Next.js/React/TypeScript pnpm workspace, Public/Workspace/Admin route boundaries and design tokens, real existing-gallery read adapter and detail pages, explicit empty/error states, Google OAuth server handlers, server-only HttpOnly sessions, existing administrator RPC guard, Notes/Tasks/Timer session previews, command palette, shared domain/block/app contracts, responsive layouts and reduced motion.
 
-Not yet implemented: normalized CMS schema and migrations, editor role, content editing/publishing, block renderer/editor, categories/tags/navigation/settings admin, media variants/upload UI, persistent notes/tasks, draggable/resizable windows, app installation/settings, Code/Files/Reference/Music/Cloud apps, Google incremental grants, performance benchmarks, native client. These remain required in the master prompt. Do not describe this milestone as a completed platform.
+Not yet implemented: server editor-role guards/profile onboarding, content editing/publishing, block renderer/editor, categories/tags/navigation/settings admin, media variants/upload UI, persistent notes/tasks, draggable/resizable windows, app installation/settings, Code/Files/Reference/Music/Cloud apps, Google incremental grants, performance benchmarks, native client. These remain required in the master prompt. Do not describe this milestone as a completed platform.
 
-Existing cloud database has site_admins (1 row), gallery_items (1 row), and gallery storage. No cloud records, policies, buckets or auth settings were changed in this milestone. Keep old data intact when introducing the new schema.
+The Foundation originally contained site_admins (1 row), gallery_items (1 row), and gallery storage. The latest additive migration now also contains profiles (2), contents (1), media (1), content_media (1), and empty CMS block/taxonomy tables. No old records, Storage policies/buckets or Auth settings were modified.
 
 ## Run in a web coding environment or Codespaces
 
@@ -41,12 +45,14 @@ Unauthenticated `/admin` and `/workspace` must redirect to `/login`. `/workspace
 
 ## Next concrete milestone
 
-1. Reinspect remote branch and live Supabase schema/policies.
-2. Add versioned migration for profiles/roles, contents, content_blocks, taxonomies, media, settings and per-user workspace tables, with explicit grants and RLS.
-3. Copy existing gallery metadata and preserve storage paths; compare record counts and public visibility.
-4. Add admin CRUD, Draft → Preview → Publish, versioned block renderer/editor and media upload with rollback handling.
-5. Replace transitional gallery adapter only after real RLS and migration regression tests.
-6. Add persistent app data and separate responsive window layouts. Continue the remaining master phases.
+1. Read progress/database docs and confirm branch + remote migration versions.
+2. Add server editor/admin guards and profile initialization; preserve `is_admin()` compatibility.
+3. Implement CMS CRUD and Draft → Preview → Publish with validation/atomic updates.
+4. Switch the public gallery adapter only with an explicit legacy exposure/Pages snapshot transition. CMS privacy alone does not hide old gallery URLs or static exports.
+5. Add versioned block renderer/editor and private-original media delivery.
+6. Add persistent workspace schema/data and device-specific layouts.
+
+Run `pnpm test:database` before TypeScript/build. Earlier remote migrations are not yet in the repo: reconcile history before CLI push/reset/repair. Do not run the legacy test fixture on production.
 
 ## Deployment
 
