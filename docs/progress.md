@@ -220,3 +220,8 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 2. Command Registry·Palette, 알림 센터, Settings와 App 수명주기를 공통 서비스로 발전시킨다.
 3. Timer/Stopwatch/Pomodoro와 Code/Files/Reference/Cloud 등 기본 앱을 실제 기능별로 완성한다. CMS 요구사항은 계속 유지한다.
 4. 이번 변경을 작업 브랜치에 동기화하고 원격 CI/Pages 결과를 확인한다.
+
+### GitHub sync — Window Manager
+
+- 구현 commit `f9ba2e2ad80a1d32ec5de3e2ed91726f2b4fd515`를 `codex/platform-foundation`에 반영했다. GitHub tree `6db4086e1e4ec0c5846eaaab04237bfd7d8644f7`은 로컬 검증 tree와 일치한다.
+- 원격 CI/Pages 실행 결과는 확인되지 않아 성공으로 기록하지 않는다. 서버·Pages 로컬 검증과 실제 Supabase 적용/rollback 검사 결과는 위 절에 명시했다.
