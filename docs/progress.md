@@ -200,3 +200,8 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 2. Window Manager의 이동·크기조절·최소화·복원·포커스와 desktop/tablet/mobile 배치 저장을 구현한다.
 3. 공통 Command/Notification/Settings 및 나머지 기본 앱을 로드맵에 따라 이어간다. CMS 요구는 계속 유지한다.
 4. 이번 Notes/Tasks 변경의 GitHub 동기화·CI/배포 결과를 확인한다.
+
+### GitHub sync — Notes/Tasks
+
+- Notes/Tasks 구현 commit `1466e8fda98c7b0f8b37a37bb65007d68194164e`를 작업 브랜치에 반영했다. GitHub API의 tree `4e16767c4c750f6394d198c1efcbf4a4ffe84c02`는 로컬 검증 tree와 일치한다.
+- 원격 CI/Pages 실행 결과는 GitHub 플러그인의 현재 조회에서 확인되지 않아 성공으로 기록하지 않는다. 로컬 검증 결과는 위 절에 명시했다.
