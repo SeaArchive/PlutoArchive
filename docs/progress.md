@@ -158,3 +158,10 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - Chromium 실행 파일 부재 및 브라우저 다운로드 실패(손상/빈 압축 파일)로 실화면·실제 음원 재생 검증은 수행하지 못했다. 외부 API mock 검사를 실제 재생 검증으로 간주하지 않는다.
 - Pages 재빌드 중 임시 디렉터리 ENOTEMPTY가 한 번 발생했으며 재실행 성공. 현재 배포 산출물은 최신 소스에서 생성했다.
 - README blob cb2b0c1cb64a61362a3536fb91657d297a60974c 유지. GitHub 반영은 자격증명 없는 git push 대신 연결된 GitHub API를 사용한다. 원격 CI/배포 결과는 별도 확인 전에는 성공으로 간주하지 않는다.
+
+### Verified GitHub delivery — 2026-09-24
+
+- Music 구현 commit: `aac1b11954912a8848d95f2a8861457aa1437fca`; 원격 tree와 로컬 검증 tree 일치, 작업 브랜치 동기화 완료.
+- 원격 Node 22 CI 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36005101594 (DB, Music, TypeScript, server/Pages build, Pages 검사).
+- GitHub Pages 배포 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36005100636
+- 실제 브라우저 음원 재생은 미검증. 위 결과는 자동 검사/배포 성공이며 계정 연동 또는 Workspace 전체 완료를 뜻하지 않는다.
