@@ -1,5 +1,7 @@
 # Desktop ↔ Web handoff
 
+**최신 우선순위 (2026-09-24): Workspace 완성이 주 목표이며 Music(YouTube 음악 재생 앱)을 최우선으로 개발한다.**
+
 ## Start here
 
 Repository: https://github.com/SeaArchive/PlutoArchive
@@ -15,7 +17,7 @@ Latest source of truth: `docs/progress.md` and `docs/database.md`. On 2026-09-23
 
 Implemented: Next.js/React/TypeScript pnpm workspace, Public/Workspace/Admin route boundaries and design tokens, real existing-gallery read adapter and detail pages, explicit empty/error states, Google OAuth server handlers, server-only HttpOnly sessions, existing administrator RPC guard, Notes/Tasks/Timer session previews, command palette, shared domain/block/app contracts, responsive layouts and reduced motion.
 
-Not yet implemented: server editor-role guards/profile onboarding, content editing/publishing, block renderer/editor, categories/tags/navigation/settings admin, media variants/upload UI, persistent notes/tasks, draggable/resizable windows, app installation/settings, Code/Files/Reference/Music/Cloud apps, Google incremental grants, performance benchmarks, native client. These remain required in the master prompt. Do not describe this milestone as a completed platform.
+Not yet implemented: server editor-role guards/profile onboarding, content editing/publishing, block renderer/editor, categories/tags/navigation/settings admin, media variants/upload UI, persistent notes/tasks, draggable/resizable windows, app installation/settings, Code/Files/Reference/Cloud apps and Music account integration/persistence, Google incremental grants, performance benchmarks, native client. These remain required in the master prompt. Do not describe this milestone as a completed platform.
 
 The Foundation originally contained site_admins (1 row), gallery_items (1 row), and gallery storage. The latest additive migration now also contains profiles (2), contents (1), media (1), content_media (1), and empty CMS block/taxonomy tables. No old records, Storage policies/buckets or Auth settings were modified.
 
@@ -58,3 +60,8 @@ Run `pnpm test:database` before TypeScript/build. Earlier remote migrations are 
 ## Deployment
 
 The user selected GitHub Pages from `codex/platform-foundation` at `/(root)`. The branch now includes a static export of public pages and the Workspace preview at its root. See `docs/github-pages.md` for `pnpm build:pages`, `pnpm refresh:pages`, validation and push instructions. The editable server application remains in `apps/web`; OAuth and private admin operations still require a Node-capable host. Check `docs/progress.md` for the latest deployment verification. Main remains unchanged.
+
+
+## Music-first handoff (2026-09-24)
+
+Music now supports official YouTube video/playlist URLs in both Workspace and public preview, with native visible player, custom transport/volume, session link list, compact mode, retry/errors and teardown. See `docs/music.md` and the latest delivery section in `docs/progress.md`. No account data access or persistence has been added; no DB migration. Start with Music live playback validation and per-user persistence/auth prerequisites, then continue the remaining Workspace roadmap. `pnpm test:music` is a CI gate. Do not claim full Workspace or Google account integration completion.

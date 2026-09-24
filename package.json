@@ -8,7 +8,8 @@
     "build:pages": "node scripts/build-pages.mjs",
     "refresh:pages": "node scripts/build-pages.mjs --refresh",
     "check:pages": "node scripts/check-pages.mjs",
-    "test:database": "node scripts/test-database.mjs"
+    "test:database": "node scripts/test-database.mjs",
+    "test:music": "node scripts/test-music.mjs"
   },
   "engines": {
     "node": ">=22"

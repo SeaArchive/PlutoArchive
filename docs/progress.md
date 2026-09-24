@@ -1,5 +1,7 @@
 # Pluto Archive Progress
 
+**최신 우선순위 (2026-09-24): Workspace 완성이 주 목표이며 Music(YouTube 음악 재생 앱)을 최우선으로 개발한다.**
+
 ## Current Phase
 
 **최신 사용자 우선순위 변경 (2026-09-23): 다음 작업의 주 목표는 워크스페이스 완성.** 기존 CMS 게시 흐름 우선 계획을 변경한다. Workspace에 필요한 인증·DB/RLS 선행 작업부터 진행하며, CMS 기능 요구사항은 후순위로 유지한다. 상세 실행 순서·완료 기준: `docs/workspace-roadmap.md`.
@@ -97,7 +99,7 @@
 
 ## Handoff
 
-Current Task: CMS DB 기반 완료. 메인페이지 배경 #000817 적용 및 다음 주 목표를 Workspace 완성으로 변경. 다음 구현은 Workspace 인증/저장 기반부터 진행.
+Current Task: CMS DB 기반 완료. 메인페이지 배경 #000817 적용 및 다음 주 목표를 Workspace 완성으로 변경. Music 공개 링크 재생 기반 구현 후 다음은 Music 사용자별 저장 및 Workspace 인증/저장 기반.
 
 Files Modified: `supabase/migrations/*`, `supabase/tests/*`, `scripts/test-database.mjs`, `package.json`, `pnpm-lock.yaml`, `.github/workflows/ci.yml`, `docs/{database,progress,HANDOFF,architecture,auth,master-development-prompt}.md`.
 
@@ -127,3 +129,32 @@ GitHub Sync: 구현 commit `9b5bcbbcf0210113012df7c24fc9e8167a1c1143`가 작업 
 - 검증 및 원격 반영 결과는 이번 변경 commit과 Actions를 기준으로 확인한다. 이전 절의 CI 링크는 CMS 기반 commit의 검증 기록이다.
 - 이번 변경 로컬 검증: frozen-lockfile 설치, TypeScript, production build, Pages 재빌드, HTML 14개/링크·자산 248개 검사 통과. Home 전용 표식과 연결된 CSS의 #000817 값을 확인.
 - 브라우저 실화면 검증은 로컬 Chromium 설치/다운로드 실패로 수행하지 못함. 이미지 출력 없음.
+
+
+## Latest delivery — Music playback foundation (2026-09-24)
+
+- Workspace 첫 앱으로 Music 등록. 기존 Notes/Tasks/Timer 및 Home #000817 유지.
+- 공식 YouTube IFrame Player API를 사용. YouTube Music/YouTube/watch/shorts/live/embed/youtu.be 및 공개 재생목록 링크를 검증·정규화한다. 임의 HTML/호스트/추적 파라미터는 iframe에 전달하지 않는다.
+- 링크별 이름, 세션 목록(최대 50), 선택·삭제, 재생/일시정지, 재생목록 이전/다음, 볼륨, 현재 곡 외부 링크, 간단히/펼치기 구현. 곡 제목·썸네일·재생목록 내 선택은 공식 플레이어 UI에서도 제공된다.
+- API는 링크 선택 후 로드. 연결 실패/시간 초과/삭제·비공개/외부 재생 금지/153 오류/자동재생 차단 안내 및 재시도. 링크 변경·닫기 시 플레이어 제거; 페이지 숨김 시 일시정지. 간단히 모드에서도 영상 표시 유지.
+- 앱 동적 로더를 registry로 이동해 새 앱 추가 시 Shell의 renderer map을 수정하지 않도록 정리.
+- DB·Auth·외부 OAuth 설정 변경 없음. Music 계정 보관함/검색/서버 저장/재로그인 복원은 미구현. 현재 세션 목록을 영속 저장으로 표현하지 않는다.
+- Music 검사: 35개 URL·임베드·오류 매핑 검증 + API 중복 로드·실패·재시도·재사용 검증 통과. CI에 test:music 추가.
+- 기존 DB 회귀 173개 통과, TypeScript·서버 빌드 통과. Pages 및 브라우저 검증 결과는 아래 최종 기록 참조.
+
+### Next: Music → persistent Workspace
+
+1. 공개 환경에서 실제 재생·곡 넘김·볼륨·모바일 및 제한 콘텐츠 확인. 사용자 네트워크/지역/콘텐츠 소유자의 삽입 허용 여부가 재생에 영향을 준다.
+2. Node 호스팅·Google 로그인 설정을 확인하고 사용자별 Music 링크/재생목록·설정 저장 schema/RLS/API를 구현한다. 로그인별 데이터 격리 및 재로그인 복원을 검증한다.
+3. 필요 시 별도 YouTube OAuth 동의를 받아 계정 재생목록 연결. YouTube Music 사이트 자체 삽입이나 오디오 추출 방식으로 대체하지 않는다.
+4. Notes/Tasks 저장, 창 관리·레이아웃 복원, 공통 서비스 및 나머지 앱 순으로 Workspace를 완성한다. CMS 요구사항은 유지한다.
+
+Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.css, scripts/test-music.mjs, package.json, CI, docs 및 재생성된 Pages 산출물. README 변경 없음.
+
+### Music delivery validation
+
+- TypeScript, server production build, Pages production build 통과. Pages HTML 14개 / 로컬 링크·자산 250개 통과.
+- Music URL/임베드/오류 검사 35개 + API 로더 중복·실패·재시도·재사용 검사, 기존 DB 173개 통과.
+- Chromium 실행 파일 부재 및 브라우저 다운로드 실패(손상/빈 압축 파일)로 실화면·실제 음원 재생 검증은 수행하지 못했다. 외부 API mock 검사를 실제 재생 검증으로 간주하지 않는다.
+- Pages 재빌드 중 임시 디렉터리 ENOTEMPTY가 한 번 발생했으며 재실행 성공. 현재 배포 산출물은 최신 소스에서 생성했다.
+- README blob cb2b0c1cb64a61362a3536fb91657d297a60974c 유지. GitHub 반영은 자격증명 없는 git push 대신 연결된 GitHub API를 사용한다. 원격 CI/배포 결과는 별도 확인 전에는 성공으로 간주하지 않는다.

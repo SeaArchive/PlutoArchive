@@ -1,17 +1,9 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { apps } from "./registry";
-const Notes = dynamic(() => import("./notes"));
-const Tasks = dynamic(() => import("./tasks"));
-const Timer = dynamic(() => import("./timer"));
-const renderers: Record<
-  string,
-  React.ComponentType<{ notify: (message: string) => void }>
-> = { notes: () => <Notes />, tasks: () => <Tasks />, timer: Timer };
+import { apps, renderers } from "./registry";
 export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
-  const [opened, setOpened] = useState(["notes", "timer"]);
+  const [opened, setOpened] = useState(["music", "notes", "timer"]);
   const [palette, setPalette] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -56,7 +48,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
       <main id="main" className="workspace-main">
         <div className="workspace-heading">
           <div>
-            <span className="meta">WORKSPACE / FOUNDATION</span>
+            <span className="meta">WORKSPACE / MUSIC FIRST</span>
             <h1>A space to focus.</h1>
           </div>
           <button ref={triggerRef} onClick={() => setPalette(true)}>
@@ -64,9 +56,9 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
           </button>
         </div>
         <p className="preview-banner">
-          {preview ? "공개 미리보기" : "초기 Workspace"} · 메모와 작업은 현재
-          화면에서만 유지됩니다. 새로고침·앱 닫기 시 초기화됩니다. 서버 동기화는
-          다음 단계에서 연결합니다.
+          {preview ? "공개 미리보기" : "초기 Workspace"} · 음악 목록·메모·작업은
+          현재 화면에서만 유지됩니다. 새로고침·앱 닫기 시 초기화됩니다. 서버
+          동기화는 다음 단계에서 연결합니다.
         </p>
         <div className="launcher" aria-label="앱 런처">
           {apps.map((app, i) => (
@@ -87,7 +79,11 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
           {opened.map((id) => {
             const App = renderers[id];
             return (
-              <section className="app-window" key={id} aria-label={id}>
+              <section
+                className={`app-window${id === "music" ? " music-window" : ""}`}
+                key={id}
+                aria-label={id}
+              >
                 <header className="window-title">
                   <span>{apps.find((app) => app.id === id)?.name}</span>
                   <button

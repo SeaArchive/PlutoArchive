@@ -804,3 +804,157 @@ footer {
     animation: none !important;
   }
 }
+
+/* Music keeps the official player visible in both full and compact modes. */
+.music-window {
+  grid-column: 1 / -1;
+}
+.music-heading,
+.music-list-heading,
+.music-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.music-heading h2 {
+  font-size: 20px;
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.music-heading button {
+  flex-shrink: 0;
+}
+.music-help {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.music-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 20px;
+}
+.music-playback {
+  flex: 1 1 420px;
+  min-width: 200px;
+}
+.music-library {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.music-library[hidden] {
+  display: none;
+}
+.music-player {
+  width: 100%;
+  min-height: 220px;
+  aspect-ratio: 16 / 9;
+  background: #1d1e25;
+}
+.music-player iframe {
+  display: block;
+  border: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+}
+.music-empty {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  background: #1d1e25;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+}
+.music-empty > span {
+  font-size: 32px;
+  color: var(--accent);
+}
+.music-status {
+  min-height: 48px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.music-status span {
+  white-space: nowrap;
+  color: var(--accent);
+}
+.music-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.music-volume {
+  flex: 1 1 120px;
+  font-size: 12px;
+}
+.music-volume input {
+  display: block;
+  padding: 0;
+  accent-color: var(--accent);
+}
+.music-app button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.music-library form {
+  display: grid;
+  gap: 10px;
+}
+.music-library label {
+  font-size: 12px;
+}
+.music-library input {
+  min-width: 0;
+}
+.music-list-heading {
+  margin-top: 24px;
+}
+.music-list-heading h3 {
+  font-size: 14px;
+}
+.music-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.music-list li {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.music-list li button:first-child {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.music-list button[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+.music-list button[aria-pressed="true"]::before {
+  content: "▶ ";
+  color: var(--accent);
+}
+@media (max-width: 400px) {
+  .music-window .app-body {
+    padding: 12px;
+  }
+  .music-heading {
+    flex-wrap: wrap;
+  }
+}
+
+.music-compact .music-playback {
+  max-width: 480px;
+}
