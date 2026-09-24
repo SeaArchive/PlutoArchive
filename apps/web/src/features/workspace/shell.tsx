@@ -58,7 +58,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
         <p className="preview-banner">
           {preview
             ? "공개 미리보기 · 음악 목록·메모·작업은 현재 화면에서만 유지됩니다."
-            : "개인 Workspace · 음악 링크는 계정에 저장됩니다. 메모·작업은 아직 현재 화면에서만 유지됩니다."}
+            : "개인 Workspace · 음악 링크, 저장한 메모 및 작업은 계정에 보관됩니다."}
         </p>
         <div className="launcher" aria-label="앱 런처">
           {apps.map((app, i) => (

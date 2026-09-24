@@ -181,3 +181,22 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 2. Notes/Tasks 본문과 사용자별 DB/RLS/API를 구현하고 복원·격리를 검사한다.
 3. Window Manager 및 디바이스별 레이아웃 저장, 공통 서비스와 나머지 앱을 `docs/workspace-roadmap.md` 순서대로 이어간다.
 4. GitHub 동기화와 CI/Pages 결과를 확인해 이 절에 커밋 및 실행 결과를 추가한다.
+
+### GitHub sync — Music storage
+
+- Music 저장 구현 `e9e3e8db9d3860350ac000c50e436bf92c30bb65`가 작업 브랜치에 반영됐다. 연결된 GitHub API가 반환한 tree `54030162226687085b42fa1a471c7116a89a9f15`는 로컬 검증 tree와 동일하다. 일반 git push에는 자격증명이 없어 연결된 플러그인을 이용했다.
+- 원격 CI/Pages 배포 결과는 별도 확인 전에는 성공으로 기록하지 않는다.
+
+## Latest work — persistent Notes and Tasks (2026-09-24)
+
+- 개인 Workspace에서 메모와 작업을 사용자별로 생성·조회·수정·삭제한다. Notes 본문/색상/고정과 Tasks 완료/우선순위/마감일을 별도 테이블에 저장하며 메모 검색과 오늘/완료 작업 필터를 추가했다. Notes 본문은 사용자가 저장 버튼을 눌러야 반영되고, 미저장 상태가 표시된다. 공개 미리보기는 서버 요청 없이 세션 상태를 사용한다.
+- `20260924140233_workspace_notes_tasks`를 실제 Supabase에 적용했다. 두 테이블의 모든 CRUD에 본인 RLS와 서버 `getUser()` 검사가 있으며 다른 사용자/관리자에게 개인 레코드가 보이지 않는다. 서버는 요청 필드를 허용 목록으로 제한하고 쓰기 Origin을 검사한다.
+- 로컬 PGlite 210개 검사, Music 회귀, TypeScript, 서버 빌드, Pages 재빌드와 검사(HTML 14개, 로컬 링크·자산 250개) 통과. 실제 Supabase에서는 rollback 트랜잭션으로 본인 쓰기·타인 읽기 차단을 검사했고 Music/Notes/Tasks 시험 행은 0개다. 보안 advisor에 신규 스키마 지적 없음. 원격 CI 결과는 후속 기록 예정.
+- Google 공급자와 Node 호스팅 설정이 없어 브라우저에서 실제 로그인·새로고침·재로그인 복원은 미검증이다. Window Manager/레이아웃 및 나머지 앱도 아직 미구현이므로 Workspace 전체 완료가 아니다.
+
+### Next handoff (updated)
+
+1. Node 배포와 Google OAuth/콜백을 구성해 Music/Notes/Tasks의 사용자별 재로그인 복원 및 실제 YouTube 재생을 확인한다.
+2. Window Manager의 이동·크기조절·최소화·복원·포커스와 desktop/tablet/mobile 배치 저장을 구현한다.
+3. 공통 Command/Notification/Settings 및 나머지 기본 앱을 로드맵에 따라 이어간다. CMS 요구는 계속 유지한다.
+4. 이번 Notes/Tasks 변경의 GitHub 동기화·CI/배포 결과를 확인한다.

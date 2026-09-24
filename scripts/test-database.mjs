@@ -26,6 +26,8 @@ const tables = [
   "content_categories",
   "content_tags",
   "music_links",
+  "notes",
+  "tasks",
 ];
 async function scalar(sql, params = []) {
   return Object.values((await db.query(sql, params)).rows[0])[0];
@@ -103,7 +105,7 @@ try {
       "select count(*)::int from pg_class where relname = any($1) and relrowsecurity",
       [tables],
     ),
-    10,
+    12,
     "RLS on all new tables",
   );
   for (const role of ["anon", "authenticated"])
@@ -268,7 +270,7 @@ try {
     ];
     for (const sql of inserts) await denied(sql);
     for (const table of tables.filter(
-      (t) => t !== "profiles" && t !== "music_links",
+      (t) => !["profiles", "music_links", "notes", "tasks"].includes(t),
     )) {
       if (role === "anon") {
         await denied(`delete from ${table}`);
@@ -306,7 +308,7 @@ try {
       "staff see drafts",
     );
     for (const table of tables.filter(
-      (t) => t !== "profiles" && t !== "music_links",
+      (t) => !["profiles", "music_links", "notes", "tasks"].includes(t),
     )) {
       equal(
         (
@@ -463,6 +465,63 @@ try {
     50,
     "deletion frees slot",
   );
+  await db.query("insert into notes(user_id,body) values ($1,'Private note')", [
+    user,
+  ]);
+  await db.query(
+    "insert into tasks(user_id,title,priority,due_date) values ($1,'Private task','high','2026-09-25')",
+    [user],
+  );
+  for (const table of ["notes", "tasks"]) {
+    equal(
+      await scalar(`select count(*)::int from ${table}`),
+      1,
+      `${table} owner read`,
+    );
+    await denied(
+      `insert into ${table}(user_id,${table === "notes" ? "body" : "title"}) values ($1,'Intrusion')`,
+      [other],
+    );
+    await denied(`update ${table} set user_id = $1`, [other]);
+    await denied(`update ${table} set id = $1`, [id(70)]);
+  }
+  await db.query(
+    "update notes set body='Edited',pinned=true where user_id=$1",
+    [user],
+  );
+  await db.query("update tasks set status='done' where user_id=$1", [user]);
+  equal(await scalar("select body from notes"), "Edited", "own note edit");
+  equal(await scalar("select status from tasks"), "done", "own task edit");
+  await as("authenticated", other);
+  for (const table of ["notes", "tasks"]) {
+    equal(
+      await scalar(`select count(*)::int from ${table}`),
+      0,
+      `${table} other owner isolation`,
+    );
+    equal(
+      (await db.query(`delete from ${table} returning id`)).rows.length,
+      0,
+      `${table} other cannot delete`,
+    );
+  }
+  await as("authenticated", admin);
+  for (const table of ["notes", "tasks"])
+    equal(
+      await scalar(`select count(*)::int from ${table}`),
+      0,
+      `${table} admin isolation`,
+    );
+  await as("anon");
+  for (const table of ["notes", "tasks"])
+    await denied(`select * from ${table}`);
+  await as("authenticated", user);
+  for (const table of ["notes", "tasks"])
+    equal(
+      (await db.query(`delete from ${table} returning id`)).rows.length,
+      1,
+      `${table} owner delete`,
+    );
   await as("postgres");
   equal(
     (await db.query("select * from gallery_items")).rows,
