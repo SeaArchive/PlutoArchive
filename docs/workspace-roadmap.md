@@ -8,7 +8,8 @@
 ## 현재 상태
 
 - 구현: 공통 App Manifest/SDK 계약, 동적 앱 로딩, 앱 런처, 검색 팔레트, 공통 알림, Notes/Tasks/Timer 세션 미리보기, 모바일 레이아웃.
-- 미구현: 사용자 데이터 영속 저장, 완전한 Window Manager, 저장된 디바이스별 레이아웃, 나머지 기본 앱과 외부 서비스 연동.
+- 부분 구현: 개인 Workspace의 Music 링크 목록은 사용자별 DB/RLS/API로 저장한다. 공개 미리보기는 세션 전용이다.
+- 미구현: Notes/Tasks 영속 저장, 완전한 Window Manager, 저장된 디바이스별 레이아웃, 나머지 기본 앱과 외부 서비스 연동.
 - GitHub Pages의 Workspace는 공개 미리보기다. 실제 개인 Workspace에는 Node 서버 호스팅, Google OAuth 실설정 및 사용자별 권한 검증이 필요하다.
 
 ## 권장 구현 순서

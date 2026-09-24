@@ -33,7 +33,7 @@ Content and block types are extensible identifiers. The UI/block registry valida
 
 Legacy `site_admins` membership remains authoritative for the original administrator. Other role assignments come from profiles, never user-editable JWT metadata. Role changes are visible on the next SQL statement rather than waiting for token refresh. Existing server `/admin` still uses `is_admin()`; editor routing/guards will be connected with CMS UI in the next milestone.
 
-Existing Auth users are backfilled. New users can insert their own profile with the default user role. There is deliberately no Auth signup trigger; profile initialization will be added to the application boundary with the CMS/auth milestone.
+Existing Auth users are backfilled. New users can insert their own profile with the default user role. There is deliberately no Auth signup trigger; `requireUser` now creates a missing profile at the authenticated server boundary and cannot set the role.
 
 Unlisted is currently denied to public clients. A later narrowly scoped detail endpoint must implement unlisted links without making them enumerable. It must not broaden the list RLS policy.
 
@@ -70,6 +70,7 @@ pnpm build
 - New overlapping SELECT policies were consolidated in a second migration; access semantics are unchanged.
 - The legacy `gallery_items.created_by` foreign key lacks an index ([advisor](https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys)); one row currently exists. It is outside the additive CMS migration scope.
 - Newly created lookup indexes can be reported as unused until CMS traffic exists; retain them for foreign keys and planned queries.
-- Pending: server role guards/profile onboarding, CMS CRUD + publish transactions, private media upload/delivery, legacy/public reader cutover, workspace tables, settings/navigation schema, OAuth end-to-end verification.
+- Music storage: `20260924135127_workspace_music_links` adds owner-only links with RLS, column-scoped insert, URL/title constraints, unique owner/URL, serialized 50-link limit, and cascading user deletion. Applied to the live project; isolated PostgreSQL checks cover owner/other/admin/anon, limit and deletion. There is no service-role bypass in the web API.
+- Pending: editor route guards, CMS CRUD + publish transactions, private media upload/delivery, legacy/public reader cutover, remaining workspace tables, settings/navigation schema, OAuth end-to-end verification.
 
 References: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [PGlite](https://pglite.dev/docs/). Supabase changelog reviewed 2026-09-23; no relevant API break affects this SQL-only change.

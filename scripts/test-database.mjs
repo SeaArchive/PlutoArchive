@@ -25,6 +25,7 @@ const tables = [
   "tags",
   "content_categories",
   "content_tags",
+  "music_links",
 ];
 async function scalar(sql, params = []) {
   return Object.values((await db.query(sql, params)).rows[0])[0];
@@ -102,7 +103,7 @@ try {
       "select count(*)::int from pg_class where relname = any($1) and relrowsecurity",
       [tables],
     ),
-    9,
+    10,
     "RLS on all new tables",
   );
   for (const role of ["anon", "authenticated"])
@@ -266,7 +267,9 @@ try {
       `insert into content_tags values ('${id(10)}','${id(320)}')`,
     ];
     for (const sql of inserts) await denied(sql);
-    for (const table of tables.filter((t) => t !== "profiles")) {
+    for (const table of tables.filter(
+      (t) => t !== "profiles" && t !== "music_links",
+    )) {
       if (role === "anon") {
         await denied(`delete from ${table}`);
         await denied(
@@ -302,7 +305,9 @@ try {
       7,
       "staff see drafts",
     );
-    for (const table of tables.filter((t) => t !== "profiles")) {
+    for (const table of tables.filter(
+      (t) => t !== "profiles" && t !== "music_links",
+    )) {
       equal(
         (
           await db.query(
@@ -383,6 +388,80 @@ try {
   );
   await denied(
     "insert into contents(type,slug,title) values ('artwork','revoked','Revoked')",
+  );
+  await as("postgres");
+  const musicUrl = (n) =>
+    `https://www.youtube.com/watch?v=${String(n).padStart(11, "0")}`;
+  await as("authenticated", user);
+  await db.query(
+    "insert into music_links(user_id,url,title) values ($1,$2,'My link')",
+    [user, musicUrl(1)],
+  );
+  equal(
+    await scalar("select count(*)::int from music_links"),
+    1,
+    "owner sees own music",
+  );
+  await denied(
+    "insert into music_links(user_id,url,title) values ($1,$2,'Intrusion')",
+    [other, musicUrl(2)],
+  );
+  await denied("update music_links set user_id = $1", [other]);
+  await assert.rejects(
+    db.query(
+      "insert into music_links(user_id,url,title) values ($1,$2,'Invalid')",
+      [user, "https://evil.example/watch?v=00000000001"],
+    ),
+    (e) => e.code === "23514",
+  );
+  checks++;
+  await as("authenticated", other);
+  equal(
+    await scalar("select count(*)::int from music_links"),
+    0,
+    "other user sees no music",
+  );
+  equal(
+    (await db.query("delete from music_links returning id")).rows.length,
+    0,
+    "other user cannot delete music",
+  );
+  await as("authenticated", admin);
+  equal(
+    await scalar("select count(*)::int from music_links"),
+    0,
+    "admin cannot read another owner's music",
+  );
+  await as("anon");
+  await denied("select * from music_links");
+  await as("authenticated", user);
+  for (let n = 2; n <= 50; n++)
+    await db.query(
+      "insert into music_links(user_id,url,title) values ($1,$2,'Link')",
+      [user, musicUrl(n)],
+    );
+  equal(
+    await scalar("select count(*)::int from music_links"),
+    50,
+    "50 saved links allowed",
+  );
+  await assert.rejects(
+    db.query(
+      "insert into music_links(user_id,url,title) values ($1,$2,'Extra')",
+      [user, musicUrl(51)],
+    ),
+    (e) => e.code === "23514",
+  );
+  checks++;
+  await db.query("delete from music_links where url = $1", [musicUrl(1)]);
+  await db.query(
+    "insert into music_links(user_id,url,title) values ($1,$2,'Replacement')",
+    [user, musicUrl(51)],
+  );
+  equal(
+    await scalar("select count(*)::int from music_links"),
+    50,
+    "deletion frees slot",
   );
   await as("postgres");
   equal(

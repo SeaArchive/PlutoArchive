@@ -104,6 +104,7 @@ await writeFile(
 const stagedSource = path.join(web, "src");
 await rm(path.join(stagedSource, "proxy.ts"));
 await rm(path.join(stagedSource, "app/auth"), { recursive: true });
+await rm(path.join(stagedSource, "app/api"), { recursive: true });
 const notice = `import Link from 'next/link';
 export const metadata={title:'Private space',robots:{index:false,follow:false}};
 export default function Page(){return <div className="private-space login-page"><main id="main" className="login-panel"><Link href="/" className="meta">← PLUTO ARCHIVE</Link><span className="meta status">PRIVATE SPACE</span><h1>Your own<br/>working orbit.</h1><p>현재 공개 사이트에서는 작품 감상과 Workspace 미리보기를 이용할 수 있습니다.</p><p>계정 로그인과 관리자 편집 기능은 준비 중입니다.</p><Link className="text-link" href="/workspace/preview">Workspace 미리보기 →</Link></main></div>;}\n`;

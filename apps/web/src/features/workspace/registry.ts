@@ -19,7 +19,10 @@ export const apps: AppManifest[] = ["Music", "Notes", "Tasks", "Timer"].map(
 
 export const renderers: Record<
   string,
-  React.ComponentType<{ notify: (message: string) => void }>
+  React.ComponentType<{
+    notify: (message: string) => void;
+    persistent?: boolean;
+  }>
 > = {
   music: dynamic(() => import("./music")),
   notes: dynamic(() => import("./notes")),

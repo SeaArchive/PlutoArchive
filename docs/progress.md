@@ -165,3 +165,19 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 원격 Node 22 CI 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36005101594 (DB, Music, TypeScript, server/Pages build, Pages 검사).
 - GitHub Pages 배포 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36005100636
 - 실제 브라우저 음원 재생은 미검증. 위 결과는 자동 검사/배포 성공이며 계정 연동 또는 Workspace 전체 완료를 뜻하지 않는다.
+
+## Latest work — personal Music storage (2026-09-24)
+
+- `docs/progress.md`의 직전 중단 지점부터 재개. 인증된 Node Workspace의 Music 링크를 `public.music_links`에 사용자별 보관하고 새로고침·재로그인 시 조회한다. 공개 Pages 미리보기는 계속 세션 전용이다.
+- `20260924135127_workspace_music_links` 원격 Supabase 적용 확인. RLS는 본인 SELECT/INSERT/DELETE만 허용하며 URL/이름 제약, 고유 링크, 동시 삽입을 직렬화한 50개 제한이 있다. 다른 사용자는 관리자 역할이더라도 개인 링크를 읽지 못한다. 기존 gallery/CMS/Storage 데이터는 수정하지 않았다.
+- `/api/music/links`에 서버 `getUser()` 검사와 쓰기 요청 Origin 검사, 링크 재검증, 오류 응답, no-store 적용. `requireUser`에서 누락 프로필을 기본 user 역할로 생성한다. 역할 필드는 클라이언트가 쓰지 못한다.
+- `pnpm test:database` 186개, `pnpm test:music` 35개 및 API 로더 검사, `pnpm typecheck`, 서버 `pnpm build`, `pnpm build:pages`, `pnpm check:pages` 통과. Pages HTML 14개/로컬 링크·자산 250개 검사 통과. README blob `cb2b0c1cb64a61362a3536fb91657d297a60974c` 유지.
+- 실제 Supabase 마이그레이션 이력과 보안 advisor를 확인했다. 신규 스키마 보안 지적 없음. 기존 유출 비밀번호 차단 설정 경고는 남아 있다.
+- 실제 브라우저 Google 로그인, 개인 목록의 재로그인 복원, YouTube 음원 재생은 Node 호스팅/OAuth 설정이 없어 아직 검증하지 못했다. GitHub Pages는 서버 API를 제공하지 않는다. 현 단계는 Workspace 전체 완료가 아니다.
+
+### Next handoff
+
+1. Node 배포 원본 URL과 Google OAuth 공급자/콜백을 설정한 뒤 실제 로그인, 링크 저장·삭제·재로그인 복원 및 재생을 확인한다.
+2. Notes/Tasks 본문과 사용자별 DB/RLS/API를 구현하고 복원·격리를 검사한다.
+3. Window Manager 및 디바이스별 레이아웃 저장, 공통 서비스와 나머지 앱을 `docs/workspace-roadmap.md` 순서대로 이어간다.
+4. GitHub 동기화와 CI/Pages 결과를 확인해 이 절에 커밋 및 실행 결과를 추가한다.

@@ -56,9 +56,9 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
           </button>
         </div>
         <p className="preview-banner">
-          {preview ? "공개 미리보기" : "초기 Workspace"} · 음악 목록·메모·작업은
-          현재 화면에서만 유지됩니다. 새로고침·앱 닫기 시 초기화됩니다. 서버
-          동기화는 다음 단계에서 연결합니다.
+          {preview
+            ? "공개 미리보기 · 음악 목록·메모·작업은 현재 화면에서만 유지됩니다."
+            : "개인 Workspace · 음악 링크는 계정에 저장됩니다. 메모·작업은 아직 현재 화면에서만 유지됩니다."}
         </p>
         <div className="launcher" aria-label="앱 런처">
           {apps.map((app, i) => (
@@ -96,7 +96,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                   </button>
                 </header>
                 <div className="app-body">
-                  <App notify={notify} />
+                  <App notify={notify} persistent={!preview} />
                 </div>
               </section>
             );
