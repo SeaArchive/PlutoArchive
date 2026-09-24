@@ -205,3 +205,18 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 
 - Notes/Tasks 구현 commit `1466e8fda98c7b0f8b37a37bb65007d68194164e`를 작업 브랜치에 반영했다. GitHub API의 tree `4e16767c4c750f6394d198c1efcbf4a4ffe84c02`는 로컬 검증 tree와 일치한다.
 - 원격 CI/Pages 실행 결과는 GitHub 플러그인의 현재 조회에서 확인되지 않아 성공으로 기록하지 않는다. 로컬 검증 결과는 위 절에 명시했다.
+
+## Latest work — Workspace windows and device layouts (2026-09-24)
+
+- 기존 Shell의 단순 2열 나열을 창 관리로 확장했다. 데스크톱/태블릿은 창 이동·크기조절·포커스·최소화·복원·닫기, Dock 및 키보드 이동(창 제목에 Alt+방향키)·크기조절(핸들에 방향키)을 지원한다. 창을 모두 닫은 상태도 저장된다.
+- 모바일에는 데스크톱 창을 축소하지 않고 Home/Apps/Search/Notifications/Settings 탐색과 단일 앱 화면을 제공한다. 현재 Settings는 기기 배치 초기화, Notifications는 현재 알림 표시 범위다. 전체 공통 서비스 구현을 뜻하지 않는다.
+- 창 실행 상태·크기·위치·순서는 앱 본문과 분리된 `workspace_layouts`에 기기별 저장한다. `20260924143603_workspace_window_layout`을 실제 Supabase에 적용했고, `getUser()` 서버 검사·쓰기 Origin 검사·앱 ID/숫자 검증·본인 RLS가 적용됐다. 공개 Pages 미리보기의 배치는 세션 전용이다.
+- 로컬 PGlite **222개** 검사, `pnpm test:layout`의 기기 경계·비정상 레이아웃·화면 맞춤 검사, 기존 Music 검사, TypeScript, 서버 빌드, Pages 빌드·검사 통과. Pages HTML 14개/로컬 링크·자산 244개. README blob `cb2b0c1cb64a61362a3536fb91657d297a60974c` 보존.
+- 실제 Supabase의 임시 레이아웃 생성·본인 조회·타인 차단은 rollback 트랜잭션으로 확인했고 시험 행은 0개다. 신규 스키마 보안 advisor 지적 없음. 실제 브라우저 드래그·터치·재로그인 복원과 Google OAuth는 Node 호스팅 설정 부재로 미검증이다.
+
+### Remaining / next
+
+1. Node 호스팅과 Google 로그인 설정 후 Music/Notes/Tasks/창 배치의 실제 재접속 복원, 모바일 터치 및 YouTube 재생을 확인한다.
+2. Command Registry·Palette, 알림 센터, Settings와 App 수명주기를 공통 서비스로 발전시킨다.
+3. Timer/Stopwatch/Pomodoro와 Code/Files/Reference/Cloud 등 기본 앱을 실제 기능별로 완성한다. CMS 요구사항은 계속 유지한다.
+4. 이번 변경을 작업 브랜치에 동기화하고 원격 CI/Pages 결과를 확인한다.

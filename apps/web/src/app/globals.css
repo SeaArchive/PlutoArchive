@@ -842,6 +842,62 @@ footer {
 }
 
 /* Music keeps the official player visible in both full and compact modes. */
+.workspace-canvas {
+  position: relative;
+  min-height: 760px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.floating-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  min-height: 260px;
+}
+.floating-window.window-active { border-color: var(--accent); }
+.floating-window .app-body { flex: 1; min-height: 0; overflow: auto; }
+.window-drag { cursor: move; touch-action: none; }
+.window-drag:focus-visible, .window-resize:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.window-actions { display: flex; gap: 6px; }
+.window-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  cursor: nwse-resize;
+  touch-action: none;
+  background: var(--surface);
+  border-color: var(--border);
+}
+.workspace-dock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-top: 0;
+}
+.workspace-dock button[aria-pressed="true"] { border-color: var(--accent); }
+.canvas-empty { padding: 24px; color: var(--muted); }
+.mobile-workspace { min-height: 55vh; padding-bottom: 72px; }
+.mobile-home { display: grid; gap: 12px; align-content: start; }
+.mobile-home button { text-align: left; }
+.mobile-app { width: 100%; }
+.mobile-workspace-nav {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 20;
+}
+.mobile-workspace-nav button { min-width: 0; padding: 12px 2px; font-size: 11px; text-transform: capitalize; }
+.mobile-workspace-nav button[aria-current="page"] { border-color: var(--accent); color: var(--accent); }
 .music-window {
   grid-column: 1 / -1;
 }

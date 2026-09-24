@@ -28,6 +28,7 @@ const tables = [
   "music_links",
   "notes",
   "tasks",
+  "workspace_layouts",
 ];
 async function scalar(sql, params = []) {
   return Object.values((await db.query(sql, params)).rows[0])[0];
@@ -105,7 +106,7 @@ try {
       "select count(*)::int from pg_class where relname = any($1) and relrowsecurity",
       [tables],
     ),
-    12,
+    13,
     "RLS on all new tables",
   );
   for (const role of ["anon", "authenticated"])
@@ -270,7 +271,14 @@ try {
     ];
     for (const sql of inserts) await denied(sql);
     for (const table of tables.filter(
-      (t) => !["profiles", "music_links", "notes", "tasks"].includes(t),
+      (t) =>
+        ![
+          "profiles",
+          "music_links",
+          "notes",
+          "tasks",
+          "workspace_layouts",
+        ].includes(t),
     )) {
       if (role === "anon") {
         await denied(`delete from ${table}`);
@@ -308,7 +316,14 @@ try {
       "staff see drafts",
     );
     for (const table of tables.filter(
-      (t) => !["profiles", "music_links", "notes", "tasks"].includes(t),
+      (t) =>
+        ![
+          "profiles",
+          "music_links",
+          "notes",
+          "tasks",
+          "workspace_layouts",
+        ].includes(t),
     )) {
       equal(
         (
@@ -522,6 +537,68 @@ try {
       1,
       `${table} owner delete`,
     );
+  await db.query(
+    "insert into workspace_layouts(user_id,device_type,windows) values ($1,'desktop','[]')",
+    [user],
+  );
+  await db.query(
+    "insert into workspace_layouts(user_id,device_type,windows) values ($1,'tablet','[{\"id\":\"music\"}]')",
+    [user],
+  );
+  equal(
+    await scalar("select count(*)::int from workspace_layouts"),
+    2,
+    "device layouts separate",
+  );
+  equal(
+    await scalar(
+      "select windows::text from workspace_layouts where device_type='desktop'",
+    ),
+    "[]",
+    "empty layout persists",
+  );
+  await db.query(
+    "insert into workspace_layouts(user_id,device_type,windows) values ($1,'desktop','[]') on conflict (user_id,device_type) do update set windows=excluded.windows",
+    [user],
+  );
+  await denied(
+    "insert into workspace_layouts(user_id,device_type) values ($1,'mobile')",
+    [other],
+  );
+  await denied("update workspace_layouts set user_id=$1", [other]);
+  await assert.rejects(
+    db.query(
+      "insert into workspace_layouts(user_id,device_type,windows) values ($1,'mobile','{}')",
+      [user],
+    ),
+    (e) => e.code === "23514",
+  );
+  checks++;
+  await as("authenticated", other);
+  equal(
+    await scalar("select count(*)::int from workspace_layouts"),
+    0,
+    "other user layout isolation",
+  );
+  equal(
+    (await db.query("delete from workspace_layouts returning *")).rows.length,
+    0,
+    "other user cannot delete layout",
+  );
+  await as("authenticated", admin);
+  equal(
+    await scalar("select count(*)::int from workspace_layouts"),
+    0,
+    "admin cannot read personal layout",
+  );
+  await as("anon");
+  await denied("select * from workspace_layouts");
+  await as("authenticated", user);
+  equal(
+    (await db.query("delete from workspace_layouts returning *")).rows.length,
+    2,
+    "owner removes device layouts",
+  );
   await as("postgres");
   equal(
     (await db.query("select * from gallery_items")).rows,
