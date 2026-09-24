@@ -225,3 +225,8 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 
 - 구현 commit `f9ba2e2ad80a1d32ec5de3e2ed91726f2b4fd515`를 `codex/platform-foundation`에 반영했다. GitHub tree `6db4086e1e4ec0c5846eaaab04237bfd7d8644f7`은 로컬 검증 tree와 일치한다.
 - 원격 CI/Pages 실행 결과는 확인되지 않아 성공으로 기록하지 않는다. 서버·Pages 로컬 검증과 실제 Supabase 적용/rollback 검사 결과는 위 절에 명시했다.
+
+### Live Pages preview check
+
+- 공개 미리보기 `https://seaarchive.github.io/PlutoArchive/workspace/preview/`에서 최신 창 UI 로드를 확인했다. Notes 창을 키보드로 20px 이동, 너비를 20px 확장했고 마우스 드래그 이동 및 최소화→Dock 복원이 실제 브라우저에서 동작했다.
+- 이 검증은 공개 미리보기의 데스크톱 인터랙션이다. 모바일 터치·개인 계정 RLS/재로그인 저장은 Node 서버·OAuth 환경에서 아직 검증하지 않았다. 원격 Actions 실행 결과는 확인되지 않았다.
