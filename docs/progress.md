@@ -237,3 +237,9 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 최신 문서 commit `fa7ea4a2f4033af7760d980833efab9a15a7953e`의 Validate platform 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36014613121
 - 최신 Pages 배포 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36014608558
 - 이 결과는 자동 검사와 공개 미리보기 배포 기준이다. Node 인증 API의 실제 브라우저 이용·모바일 터치·개인 데이터 복원은 미검증이다.
+
+## Latest work — Public background alignment (2026-09-24)
+
+- 모든 Public 페이지의 바탕, Public 입력 영역, 작품 이미지 배경을 홈과 동일한 `#000817`로 통일했다. Workspace/Admin 색상과 콘텐츠는 변경하지 않았다. 수정 원본: `apps/web/src/app/globals.css`; 색상 지침: `AGENTS.md`.
+- `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm build`, `pnpm build:pages`, `pnpm check:pages` 통과. Pages HTML 14개와 링크·자산 244개 검사 통과. README blob `cb2b0c1cb64a61362a3536fb91657d297a60974c` 유지.
+- DB 마이그레이션 없음. 다음 작업: 기존 Workspace 로드맵을 이어가고 Node/OAuth 환경에서 개인 데이터 복원 및 모바일 동작을 검증한다.

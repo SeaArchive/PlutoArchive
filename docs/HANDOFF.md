@@ -77,3 +77,7 @@ The personal Workspace also has Notes/Tasks CRUD at `/api/workspace/notes` and `
 ### Follow-up: window layout and mobile navigation
 
 The window manager now handles move/resize/focus/minimize/restore/close and a Dock on desktop/tablet, with keyboard adjustments on the title/resize control. Mobile uses Home/Apps/Search/Notifications/Settings navigation and one app screen at a time. Open windows and placements save separately for desktop/tablet/mobile through `/api/workspace/layout`; the Pages preview remains ephemeral. Migration `20260924143603_workspace_window_layout` is applied remotely with owner-only RLS. Local PGlite checks: 222. `pnpm test:layout` checks device thresholds, hostile stored layouts, closed-all state and viewport fitting. Live browser/relogin interactions still need a Node deployment and configured Google login. Next milestone: shared commands/notifications/settings, then remaining core apps; see `docs/progress.md`.
+
+### Public color update (2026-09-24)
+
+All Public page backgrounds, including artwork image areas, now use the home `#000817` color. Public input surfaces match it as well. The CSS source is `apps/web/src/app/globals.css`; Workspace/Admin palettes remain separate. Continue the Workspace milestone described above.
