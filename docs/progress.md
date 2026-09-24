@@ -230,3 +230,10 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 
 - 공개 미리보기 `https://seaarchive.github.io/PlutoArchive/workspace/preview/`에서 최신 창 UI 로드를 확인했다. Notes 창을 키보드로 20px 이동, 너비를 20px 확장했고 마우스 드래그 이동 및 최소화→Dock 복원이 실제 브라우저에서 동작했다.
 - 이 검증은 공개 미리보기의 데스크톱 인터랙션이다. 모바일 터치·개인 계정 RLS/재로그인 저장은 Node 서버·OAuth 환경에서 아직 검증하지 않았다. 원격 Actions 실행 결과는 확인되지 않았다.
+
+### Verified remote runs
+
+- Window Manager 구현 commit `f9ba2e2ad80a1d32ec5de3e2ed91726f2b4fd515`의 GitHub Actions Validate platform 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36014197571
+- 최신 문서 commit `fa7ea4a2f4033af7760d980833efab9a15a7953e`의 Validate platform 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36014613121
+- 최신 Pages 배포 성공: https://github.com/SeaArchive/PlutoArchive/actions/runs/36014608558
+- 이 결과는 자동 검사와 공개 미리보기 배포 기준이다. Node 인증 API의 실제 브라우저 이용·모바일 터치·개인 데이터 복원은 미검증이다.
