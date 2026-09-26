@@ -262,3 +262,4 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - `/projects/pluto-archive` 정적 내보내기를 위해 기존 최상위 `[section]` catch-all을 Projects/Process/About/Contact 명시적 경로로 분리했다. Pages 빌드와 필수 경로 검사에 새 상세 페이지를 포함했다. UI 원본은 `apps/web/src`이며 공개 산출물은 스크립트로 재생성했다.
 - 최종 콘텐츠 기준 frozen-lockfile 설치, 타입 검사와 서버 빌드, Pages HTML 15개·로컬 링크/자산 282개 검사 및 주요 공개 문구 확인 통과. README와 DB/RLS는 이번 변경에서 수정하지 않았다. 실제 브라우저 화면·모바일 감상은 아직 확인하지 못했다.
 - 다음: 사용자에게 목표 직무·검증 가능한 게임/팀 경험·실제 연락 수단을 받아 About/프로젝트 내용을 정교화한다. Works 분류/Featured와 실제 프로젝트 추가, CMS 게시·레거시 공개 경로 전환, 모바일/접근성/성능 실측이 남아 있다. Public 전체 완료로 표시하지 않는다.
+- GitHub 동기화: 검증한 구현 트리 `3c74a421268d034c88336fd12de5f41fb3ce9a42`를 작업 브랜치 commit `db9e5c9a5176a62a43b9146d101062f17bf41283`에 반영했다. 원격 CI/Pages 실제 배포 결과는 별도 확인 전 성공으로 기록하지 않는다.
