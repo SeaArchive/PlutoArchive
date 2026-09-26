@@ -144,12 +144,6 @@ let detailSource = (await readFile(detail, "utf8")).replace(
 detailSource +=
   "\nexport const dynamicParams = false;\nexport async function generateStaticParams(){const {items}=await getWorks();return items.map(item=>({slug:item.slug}));}\n";
 await writeFile(detail, detailSource);
-const section = path.join(stagedSource, "app/[section]/page.tsx");
-await writeFile(
-  section,
-  (await readFile(section, "utf8")) + "\nexport const dynamicParams = false;\n",
-);
-
 const result = spawnSync(
   process.execPath,
   [require.resolve("next/dist/bin/next"), "build", web],

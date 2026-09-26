@@ -14,4 +14,4 @@ Before ending work or hitting usage limits, update docs/progress.md with current
 
 GitHub Pages publishes this branch's root. Root HTML, route folders and `_next` are generated artifacts; edit apps/web and run `pnpm build:pages` then `pnpm check:pages` before pushing UI changes. See docs/github-pages.md. Do not export private records or server authentication handlers.
 
-Current next-work priority (2026-09-24): Music / official YouTube playback first, then complete the authenticated Workspace (runtime, persistent app data, windows, responsive shell and core apps). Read docs/workspace-roadmap.md. CMS remains required but follows Workspace except for shared prerequisites.
+Current next-work priority (2026-09-26): Complete Public Space first. Shape Projects, Process and About so verified work can also support a game development or game planning self-introduction; do not invent experience or outcomes. Read docs/public-roadmap.md. Workspace and CMS remain required after Public except shared prerequisites.

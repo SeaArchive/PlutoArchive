@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PublicShell } from "@/components/public-shell";
 import { WorkGrid } from "@/components/work-grid";
 import { getWorks } from "@/lib/content";
+import { processSteps, projects } from "@/config/public-content";
 import site from "@/config/site.json";
 export const revalidate = 60;
 export default async function Home() {
@@ -54,9 +55,34 @@ export default async function Home() {
         </div>
         <WorkGrid {...works} />
       </section>
+      <section className="section" id="projects">
+        <div className="section-heading">
+          <div>
+            <span className="meta">02 / PROJECT CASE STUDY</span>
+            <h2>Projects.</h2>
+          </div>
+          <Link className="text-link" href="/projects">
+            전체 프로젝트 ↗
+          </Link>
+        </div>
+        {projects.map((project) => (
+          <Link
+            className="project-entry"
+            href={`/projects/${project.slug}`}
+            key={project.slug}
+          >
+            <span className="meta">
+              {project.category} / {project.status}
+            </span>
+            <h3>{project.title}</h3>
+            <p>{project.summary}</p>
+            <span className="meta">목표 · 선택 · 구현 · 검증 ↗</span>
+          </Link>
+        ))}
+      </section>
       <section className="section split">
         <div>
-          <span className="meta">02 / SYSTEMS & EXPERIENCES</span>
+          <span className="meta">03 / THINKING & PROCESS</span>
           <h2>
             Beyond
             <br />
@@ -64,11 +90,8 @@ export default async function Home() {
           </h2>
         </div>
         <div>
-          <h3>하나의 결과, 수많은 결정.</h3>
-          <p>
-            디자인과 개발을 연결하는 프로젝트, 그리고 완성에 이르기까지의 과정을
-            기록합니다.
-          </p>
+          <h3>{processSteps[0].title}</h3>
+          <p>{processSteps[0].description}</p>
           <Link className="index-link" href="/projects">
             <span>01</span>Projects <span>↗</span>
           </Link>
@@ -78,7 +101,7 @@ export default async function Home() {
         </div>
       </section>
       <section className="section technical">
-        <span className="meta">03 / BUILT WITH INTENTION</span>
+        <span className="meta">04 / BUILT WITH INTENTION</span>
         <h2>
           보이는 것부터,
           <br />
@@ -92,12 +115,31 @@ export default async function Home() {
             <b>02 — Structure</b>콘텐츠와 기능을 연결하는 구조.
           </p>
           <p>
-            <b>03 — Performance</b>필요한 만큼, 가볍고 빠르게.
+            <b>03 — Performance</b>측정한 문제부터 개선하기.
           </p>
         </div>
       </section>
+      <section className="section split">
+        <div>
+          <span className="meta">05 / ABOUT</span>
+          <h2>
+            이미지에서
+            <br />
+            경험으로.
+          </h2>
+        </div>
+        <div>
+          <p>
+            그림과 화면을 만드는 경험을 규칙, 조작, 피드백이 있는 경험으로
+            확장하고 싶습니다. 작품과 제작 사례를 통해 현재의 작업을 보여줍니다.
+          </p>
+          <Link className="text-link" href="/about">
+            소개 읽기 ↗
+          </Link>
+        </div>
+      </section>
       <section className="section contact">
-        <span className="meta">04 / MAKE A CONNECTION</span>
+        <span className="meta">06 / MAKE A CONNECTION</span>
         <h2>
           Let’s create
           <br />

@@ -1,5 +1,7 @@
 # Workspace completion — primary next-work goal
 
+**2026-09-26 우선순위 변경:** Public Space 완성이 현재 최우선이다. 아래 Workspace 순서는 Public 목표 뒤에 재개한다. `docs/public-roadmap.md` 참조.
+
 **최신 우선순위 (2026-09-24): Workspace 완성이 주 목표이며 Music(YouTube 음악 재생 앱)을 최우선으로 개발한다.**
 
 사용자 지정: 2026-09-23. **다음 작업의 주 목표는 워크스페이스 완성**이다.

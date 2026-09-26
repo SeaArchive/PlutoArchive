@@ -1,6 +1,6 @@
 # Desktop ↔ Web handoff
 
-**최신 우선순위 (2026-09-24): Workspace 완성이 주 목표이며 Music(YouTube 음악 재생 앱)을 최우선으로 개발한다.**
+**최신 우선순위 (2026-09-26): Public Space 완성이 최우선이다. 게임 개발·기획 자기소개서 활용 가능성을 고려한다. `docs/public-roadmap.md` 참조.**
 
 ## Start here
 
@@ -85,3 +85,7 @@ All Public page backgrounds, including artwork image areas, now use the home `#0
 ### Workspace commands and notifications (2026-09-26)
 
 The command palette and mobile Search now share `apps/web/src/features/workspace/commands.ts`, which registers the existing app open commands and Workspace notification/settings actions. The desktop and mobile notification centers collect existing app messages in memory (last 30, individually or collectively dismissible). Desktop Settings exposes the existing device layout reset. These services are session-only; app-specific actions, persistent preferences, and durable notifications remain future work. Node hosting/Google OAuth are still needed to verify private data restoration. See the latest section of `docs/progress.md` for validation and next steps.
+
+### Public priority and first case study (2026-09-26)
+
+The user changed priority from Workspace to Public Space, with possible use as a game development/planning self-introduction. The only verified project case study is Pluto Archive itself, labeled ongoing and linked to its repository. Projects now has a detail route; Process and About explain decisions and interests without inventing game experience. Contact links only the known GitHub profile while a real contact channel is pending. Public routes are explicit (`about`, `contact`, `process`, `projects`) to avoid a static export conflict with project detail. See `docs/public-roadmap.md` and the latest `docs/progress.md`. Resume Public content/CMS work before Workspace.

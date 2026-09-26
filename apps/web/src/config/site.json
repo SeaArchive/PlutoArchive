@@ -6,7 +6,8 @@
     { "label": "Works", "href": "/works" },
     { "label": "Projects", "href": "/projects" },
     { "label": "Process", "href": "/process" },
-    { "label": "About", "href": "/about" }
+    { "label": "About", "href": "/about" },
+    { "label": "Contact", "href": "/contact" }
   ],
   "github": "https://github.com/SeaArchive"
 }

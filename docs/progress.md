@@ -1,5 +1,7 @@
 # Pluto Archive Progress
 
+**최신 사용자 우선순위 (2026-09-26): Public Space 완성을 최우선으로 한다. 게임 개발·게임 기획 자기소개서 활용을 고려한다.** 아래의 Workspace 우선 기록은 이전 단계의 이력이며 현재 순서는 `docs/public-roadmap.md`를 따른다.
+
 **최신 우선순위 (2026-09-24): Workspace 완성이 주 목표이며 Music(YouTube 음악 재생 앱)을 최우선으로 개발한다.**
 
 ## Current Phase
@@ -251,3 +253,12 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 데스크톱 설정 패널에서 기존 기기별 창 배치 초기화를 제공한다. 모바일 Settings 기능도 유지한다. 설정 저장 및 앱 설치 상태는 후속 작업이다.
 - 검증: frozen-lockfile 설치, TypeScript, Node production build, Pages 재생성 및 HTML 14개/로컬 링크·자산 244개 검사 통과. 기존 DB/RLS와 README는 수정하지 않았다.
 - 다음: Node 호스팅·Google OAuth 환경 확보 후 실제 로그인/재접속 복원 및 모바일 터치 검증. 독립 작업으로 Timer 상태/모드, 앱별 명령 확장, 설정 저장과 나머지 기본 앱을 로드맵대로 구현한다. Workspace 전체 완료는 아니다.
+
+## Latest work — Public project and narrative (2026-09-26)
+
+- 사용자가 Public Space 완성을 최우선으로 변경했다. 시작했던 Timer 변경은 남기지 않고 Public 작업으로 전환했다.
+- 기존 공개 작품 1건과 저장소에서 확인 가능한 Pluto Archive 제작 과정을 구분했다. Projects 목록·상세 사례, Process의 실제 선택, About의 게임 개발/기획 관심 방향, Home의 프로젝트·과정·소개 동선을 추가했다. 프로젝트는 **진행 중**으로 표기하며 경력·게임 출시·성능 수치를 만들지 않았다.
+- 실제 연락처가 없으므로 Contact는 GitHub 작업 링크와 연락 채널 준비 상태를 보여준다. 포트폴리오용 개인 이력과 실제 게임 프로젝트는 추후 사용자 자료를 받아 교정해야 한다.
+- `/projects/pluto-archive` 정적 내보내기를 위해 기존 최상위 `[section]` catch-all을 Projects/Process/About/Contact 명시적 경로로 분리했다. Pages 빌드와 필수 경로 검사에 새 상세 페이지를 포함했다. UI 원본은 `apps/web/src`이며 공개 산출물은 스크립트로 재생성했다.
+- 최종 콘텐츠 기준 frozen-lockfile 설치, 타입 검사와 서버 빌드, Pages HTML 15개·로컬 링크/자산 282개 검사 및 주요 공개 문구 확인 통과. README와 DB/RLS는 이번 변경에서 수정하지 않았다. 실제 브라우저 화면·모바일 감상은 아직 확인하지 못했다.
+- 다음: 사용자에게 목표 직무·검증 가능한 게임/팀 경험·실제 연락 수단을 받아 About/프로젝트 내용을 정교화한다. Works 분류/Featured와 실제 프로젝트 추가, CMS 게시·레거시 공개 경로 전환, 모바일/접근성/성능 실측이 남아 있다. Public 전체 완료로 표시하지 않는다.

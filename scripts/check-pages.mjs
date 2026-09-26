@@ -51,6 +51,11 @@ for (const file of htmlFiles) {
 for (const file of [
   "index.html",
   "works/index.html",
+  "projects/index.html",
+  "projects/pluto-archive/index.html",
+  "process/index.html",
+  "about/index.html",
+  "contact/index.html",
   "workspace/index.html",
   "workspace/preview/index.html",
   "login/index.html",
