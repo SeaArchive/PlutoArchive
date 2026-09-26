@@ -621,6 +621,13 @@ footer {
   color: var(--accent);
   font-size: 12px;
 }
+.workspace-tools { display: flex; gap: 8px; margin: 12px 0; }
+.workspace-panel { border: 1px solid var(--border); background: var(--surface); padding: 16px; margin-bottom: 18px; }
+.workspace-panel h2 { font-size: 18px; margin: 0 0 12px; }
+.workspace-panel button { margin-right: 8px; }
+.workspace-notification-list { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 8px; }
+.workspace-notification-list li { border: 1px solid var(--border); padding: 10px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.workspace-notification-list time { color: var(--muted); font-size: 11px; margin-left: auto; }
 .palette {
   position: fixed;
   inset: 0;

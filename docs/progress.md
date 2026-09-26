@@ -243,3 +243,11 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 모든 Public 페이지의 바탕, Public 입력 영역, 작품 이미지 배경을 홈과 동일한 `#000817`로 통일했다. Workspace/Admin 색상과 콘텐츠는 변경하지 않았다. 수정 원본: `apps/web/src/app/globals.css`; 색상 지침: `AGENTS.md`.
 - `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm build`, `pnpm build:pages`, `pnpm check:pages` 통과. Pages HTML 14개와 링크·자산 244개 검사 통과. README blob `cb2b0c1cb64a61362a3536fb91657d297a60974c` 유지.
 - DB 마이그레이션 없음. 다음 작업: 기존 Workspace 로드맵을 이어가고 Node/OAuth 환경에서 개인 데이터 복원 및 모바일 동작을 검증한다.
+
+## Latest work — Workspace commands and notifications (2026-09-26)
+
+- 기존 앱 이름 검색을 ID와 이름으로 검색 가능한 Command Registry로 확장했다. 등록된 네 앱의 열기 명령과 알림 센터·설정 열기 명령을 데스크톱 Ctrl/⌘+K 팔레트 및 모바일 Search에서 공통 사용한다. 아직 앱 내부 작업 명령 등록은 구현하지 않았다.
+- Notes/Tasks/Music/Timer의 기존 `notify` 호출을 세션 알림 목록에 모아 데스크톱/모바일 알림 센터에서 확인·개별 삭제·전체 삭제할 수 있다. 최근 30개를 메모리에 유지한다. 알림은 계정 간 동기화되거나 재접속 후 복원되지 않는다.
+- 데스크톱 설정 패널에서 기존 기기별 창 배치 초기화를 제공한다. 모바일 Settings 기능도 유지한다. 설정 저장 및 앱 설치 상태는 후속 작업이다.
+- 검증: frozen-lockfile 설치, TypeScript, Node production build, Pages 재생성 및 HTML 14개/로컬 링크·자산 244개 검사 통과. 기존 DB/RLS와 README는 수정하지 않았다.
+- 다음: Node 호스팅·Google OAuth 환경 확보 후 실제 로그인/재접속 복원 및 모바일 터치 검증. 독립 작업으로 Timer 상태/모드, 앱별 명령 확장, 설정 저장과 나머지 기본 앱을 로드맵대로 구현한다. Workspace 전체 완료는 아니다.

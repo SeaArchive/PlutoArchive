@@ -81,3 +81,7 @@ The window manager now handles move/resize/focus/minimize/restore/close and a Do
 ### Public color update (2026-09-24)
 
 All Public page backgrounds, including artwork image areas, now use the home `#000817` color. Public input surfaces match it as well. The CSS source is `apps/web/src/app/globals.css`; Workspace/Admin palettes remain separate. Continue the Workspace milestone described above.
+
+### Workspace commands and notifications (2026-09-26)
+
+The command palette and mobile Search now share `apps/web/src/features/workspace/commands.ts`, which registers the existing app open commands and Workspace notification/settings actions. The desktop and mobile notification centers collect existing app messages in memory (last 30, individually or collectively dismissible). Desktop Settings exposes the existing device layout reset. These services are session-only; app-specific actions, persistent preferences, and durable notifications remain future work. Node hosting/Google OAuth are still needed to verify private data restoration. See the latest section of `docs/progress.md` for validation and next steps.

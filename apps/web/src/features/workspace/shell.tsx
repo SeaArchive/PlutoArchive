@@ -5,6 +5,7 @@ import { apps, renderers } from "./registry";
 import { WindowManager } from "./window-manager";
 import { useWindowState } from "./window-state";
 import { fitWindow, type WindowPlacement } from "./layout";
+import { searchCommands, workspaceCommands } from "./commands";
 export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const {
     device,
@@ -23,9 +24,27 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const [palette, setPalette] = useState(false);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
+  const [notifications, setNotifications] = useState<
+    { id: number; message: string; time: string }[]
+  >([]);
+  const [desktopPanel, setDesktopPanel] = useState<
+    "notifications" | "settings" | null
+  >(null);
+  const notificationId = useRef(0);
   const searchRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const notify = useCallback((message: string) => setNotice(message), []);
+  const notify = useCallback((message: string) => {
+    setNotice(message);
+    const entry = {
+      id: ++notificationId.current,
+      message,
+      time: new Date().toLocaleTimeString("ko-KR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+    setNotifications((previous) => [entry, ...previous].slice(0, 30));
+  }, []);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -33,14 +52,14 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
         if (device === "mobile") setMobileTab("search");
         else setPalette((p) => !p);
       }
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && palette) {
         setPalette(false);
         triggerRef.current?.focus();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [device]);
+  }, [device, palette]);
   useEffect(() => {
     if (palette) searchRef.current?.focus();
   }, [palette]);
@@ -91,6 +110,53 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   function restore(id: string) {
     open(id);
   }
+  const commands = workspaceCommands({
+    open,
+    notifications: () => {
+      if (device === "mobile") setMobileTab("notifications");
+      else setDesktopPanel("notifications");
+    },
+    settings: () => {
+      if (device === "mobile") setMobileTab("settings");
+      else setDesktopPanel("settings");
+    },
+  });
+  const matches = searchCommands(commands, query);
+  function runCommand(command: (typeof commands)[number]) {
+    command.execute();
+    setPalette(false);
+    setQuery("");
+    if (device !== "mobile") triggerRef.current?.focus();
+  }
+  const notificationList = (
+    <>
+      {notifications.length === 0 ? (
+        <p>새 알림이 없습니다.</p>
+      ) : (
+        <>
+          <button onClick={() => setNotifications([])}>알림 모두 지우기</button>
+          <ul className="workspace-notification-list">
+            {notifications.map((entry) => (
+              <li key={entry.id}>
+                <span>{entry.message}</span>
+                <time>{entry.time}</time>
+                <button
+                  aria-label={`${entry.message} 알림 지우기`}
+                  onClick={() =>
+                    setNotifications((items) =>
+                      items.filter((item) => item.id !== entry.id),
+                    )
+                  }
+                >
+                  지우기
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
+  );
   const mobileVisible = windows.find(
     (item) => item.id === mobileApp && !item.minimized,
   );
@@ -125,6 +191,43 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
             ? "공개 미리보기 · 음악 목록·메모·작업은 현재 화면에서만 유지됩니다."
             : "개인 Workspace · 음악 링크, 저장한 메모 및 작업은 계정에 보관됩니다."}
         </p>
+        {device !== "mobile" && (
+          <div className="workspace-tools">
+            <button
+              onClick={() =>
+                setDesktopPanel(
+                  desktopPanel === "notifications" ? null : "notifications",
+                )
+              }
+            >
+              알림 {notifications.length > 0 ? `(${notifications.length})` : ""}
+            </button>
+            <button
+              onClick={() =>
+                setDesktopPanel(desktopPanel === "settings" ? null : "settings")
+              }
+            >
+              설정
+            </button>
+          </div>
+        )}
+        {device !== "mobile" && desktopPanel && (
+          <section
+            className="workspace-panel"
+            aria-label={desktopPanel === "notifications" ? "알림 센터" : "설정"}
+          >
+            <h2>{desktopPanel === "notifications" ? "알림 센터" : "설정"}</h2>
+            {desktopPanel === "notifications" ? (
+              notificationList
+            ) : (
+              <>
+                <p>현재 기기의 창 배치를 초기화합니다.</p>
+                <button onClick={reset}>창 배치 초기화</button>
+              </>
+            )}
+            <button onClick={() => setDesktopPanel(null)}>닫기</button>
+          </section>
+        )}
         {!loaded && (
           <div role="status" className="preview-banner">
             {layoutError ? (
@@ -172,7 +275,6 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                   {w.minimized ? " · 최소화" : ""}
                 </button>
               ))}
-              <button onClick={reset}>창 배치 초기화</button>
             </nav>
           </>
         )}
@@ -241,26 +343,26 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                 <div className="mobile-home">
                   <h2>Search</h2>
                   <input
-                    aria-label="앱 이름 검색"
+                    aria-label="명령 검색"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="앱 검색…"
+                    placeholder="앱 또는 명령 검색…"
                   />
-                  {apps
-                    .filter((app) =>
-                      app.name.toLowerCase().includes(query.toLowerCase()),
-                    )
-                    .map((app) => (
-                      <button key={app.id} onClick={() => open(app.id)}>
-                        {app.name} 열기
-                      </button>
-                    ))}
+                  {matches.length === 0 && <p>검색 결과가 없습니다.</p>}
+                  {matches.map((command) => (
+                    <button
+                      key={command.id}
+                      onClick={() => runCommand(command)}
+                    >
+                      {command.label}
+                    </button>
+                  ))}
                 </div>
               )}
               {mobileTab === "notifications" && (
                 <div className="mobile-home">
                   <h2>Notifications</h2>
-                  <p role="status">{notice || "새 알림이 없습니다."}</p>
+                  {notificationList}
                 </div>
               )}
               {mobileTab === "settings" && (
@@ -305,7 +407,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
             <div
               role="dialog"
               aria-modal="true"
-              aria-label="앱 검색"
+              aria-label="명령 팔레트"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
                 if (e.key === "Tab") {
@@ -326,29 +428,20 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                 }
               }}
             >
-              <span className="meta">COMMAND / OPEN APP</span>
+              <span className="meta">COMMAND / WORKSPACE</span>
               <input
                 ref={searchRef}
-                aria-label="앱 이름 검색"
+                aria-label="명령 검색"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="앱 검색…"
+                placeholder="앱 또는 명령 검색…"
               />
-              {apps
-                .filter((a) =>
-                  a.name.toLowerCase().includes(query.toLowerCase()),
-                )
-                .map((app) => (
-                  <button
-                    key={app.id}
-                    onClick={() => {
-                      open(app.id);
-                      triggerRef.current?.focus();
-                    }}
-                  >
-                    {app.name} 열기 →
-                  </button>
-                ))}
+              {matches.length === 0 && <p>검색 결과가 없습니다.</p>}
+              {matches.map((command) => (
+                <button key={command.id} onClick={() => runCommand(command)}>
+                  {command.label} →
+                </button>
+              ))}
               <button
                 onClick={() => {
                   setPalette(false);

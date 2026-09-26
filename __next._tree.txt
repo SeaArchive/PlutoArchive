@@ -1,2 +1,2 @@
-:HL["/PlutoArchive/_next/static/chunks/07wuk--4-lkny.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"d2F1kBpg1Mt4xgSoJl0kK"}
+:HL["/PlutoArchive/_next/static/chunks/3lxw4iz55cpl6.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}},"staleTime":300,"buildId":"lRtULfNQAGSvAvFQ0P4YC"}
