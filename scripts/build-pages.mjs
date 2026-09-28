@@ -23,6 +23,7 @@ const require = createRequire(path.join(source, "package.json"));
 const snapshotPath = path.join(source, "src/config/public-gallery.json");
 const manifestPath = path.join(root, "pages-artifact-manifest.json");
 const basePath = "/PlutoArchive";
+const liveOrigin = "https://pluto-archive.onrender.com";
 const readmeBefore = await readFile(path.join(root, "README.md"));
 
 // Only this dedicated, resolved build directory is removed recursively.
@@ -47,12 +48,14 @@ if (process.argv.includes("--refresh")) {
   // Anonymous RLS applies. Never use a service key or authenticated session here.
   if (!key.startsWith("sb_publishable_"))
     throw new Error("Only a publishable key is accepted.");
-  const { data, error } = await db
-    .from("gallery_items")
-    .select("id,title,description,image_path,created_at")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  const items = data.map((row) => ({
+  const [gallery, home] = await Promise.all([
+    db.from("gallery_items").select("id,title,description,image_path,created_at")
+      .order("created_at", { ascending: false }),
+    db.from("home_artwork").select("artwork_id").eq("slot", 1).maybeSingle(),
+  ]);
+  if (gallery.error) throw gallery.error;
+  if (home.error) throw home.error;
+  const items = gallery.data.map((row) => ({
     id: row.id,
     type: "artwork",
     slug: row.id,
@@ -60,7 +63,7 @@ if (process.argv.includes("--refresh")) {
     summary: row.description,
     status: "published",
     visibility: "public",
-    featured: false,
+    featured: row.id === home.data?.artwork_id,
     featured_order: 0,
     thumbnail_url: db.storage.from("gallery").getPublicUrl(row.image_path).data
       .publicUrl,
@@ -218,7 +221,15 @@ for (const rel of previous)
 for (const rel of files) {
   const target = artifactTarget(rel);
   await mkdir(path.dirname(target), { recursive: true });
-  await cp(path.join(out, rel), target);
+  if (rel.endsWith(".html")) {
+    const html = await readFile(path.join(out, rel), "utf8");
+    if (!html.includes("</head>")) throw new Error(`Missing HTML head: ${rel}`);
+    // Preserve old Pages links while serving the live database-backed gallery.
+    const route = rel === "404.html" || rel === "index.html" ? "/" :
+      "/" + rel.replace(/\/index\.html$/, "/");
+    const redirect = `<script>location.replace(${JSON.stringify(liveOrigin)}+location.pathname.replace(/^\\/PlutoArchive(?=\\/|$)/,'')+location.search+location.hash)</script><noscript><meta http-equiv="refresh" content="0;url=${liveOrigin}${route}"></noscript>`;
+    await writeFile(target, html.replace("</head>", redirect + "</head>"));
+  } else await cp(path.join(out, rel), target);
 }
 await writeFile(path.join(root, ".nojekyll"), "");
 await writeFile(

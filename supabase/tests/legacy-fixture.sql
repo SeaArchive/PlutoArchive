@@ -32,3 +32,7 @@ alter table public.gallery_items enable row level security;
 create policy gallery_public on public.gallery_items for select to anon, authenticated using (true);
 create policy gallery_admin_insert on public.gallery_items for insert to authenticated
   with check (is_admin() and created_by = auth.uid());
+create policy "owner can update gallery items" on public.gallery_items for update to authenticated
+  using (is_admin()) with check (is_admin() and created_by = auth.uid());
+create policy "owner can delete gallery items" on public.gallery_items for delete to authenticated
+  using (is_admin());

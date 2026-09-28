@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sessionDb } from "@/lib/supabase";
+import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -131,5 +132,7 @@ export async function POST(request: Request) {
       console.error("Admin upload cleanup failed", cleanupError);
     return fail("작품 정보를 저장하지 못했습니다. 다시 시도해 주세요.", 503);
   }
+  revalidatePath("/");
+  revalidatePath("/works");
   return NextResponse.json({ id }, { status: 201, headers });
 }

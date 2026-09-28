@@ -282,3 +282,11 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 최종 소스에서 frozen-lockfile 설치, TypeScript, Node production build, Pages 재생성·검사(HTML 15개·링크/자산 282개) 통과. Pages 산출물에서는 private API가 제외되고 Admin은 안내 화면으로 유지된다.
 - 다음: 인증 가능한 Node 호스팅과 Google redirect URL 설정, 실계정 업로드/권한 거부/실제 이미지 확인, Pages 공개 스냅샷 갱신 자동화 또는 공개 서비스의 Node 이전. 이후 CMS 초안·편집·게시 및 사용자 작품 자료 반영.
 - GitHub 작업 브랜치 구현 커밋 `6edd576b3cb7d11f36b662127544d9d7f6966eaf` 반영 완료. [Validate platform](https://github.com/SeaArchive/PlutoArchive/actions/runs/36382291157) 및 [Pages 배포](https://github.com/SeaArchive/PlutoArchive/actions/runs/36382290432) 성공. Pages 배포 성공은 관리자 업로드의 실제 사용 가능 여부를 검증하지 않는다.
+
+## Latest work — Live artwork management (2026-09-28)
+
+- 사용자 승인에 따라 Admin 작품의 제목·설명 수정, 메인 작품 지정, 삭제를 추가했다. 모든 변경 API는 세션 `getUser`, `is_admin`, Origin 및 RLS를 검사한다. 삭제는 목록과 CMS 레코드를 같은 DB 트랜잭션으로 제거하고 이미지 Storage 삭제를 별도 시도하며 실패를 관리자에게 알린다.
+- 원격 적용 migration `20260928114906_gallery_management`은 `home_artwork` 단일 슬롯에 현재 PlutoArchive 작품을 지정하고, 메타데이터 변경 및 삭제를 기존 CMS로 동기화한다. 작품 이미지 경로/소유자/등록일 변경을 차단한다. `getWorks`와 정적 스냅샷은 같은 메인 지정을 사용한다. 실제 DB에서 PlutoArchive 선택·작품 5건을 확인했으며, 관리자 수정 → CMS 동기화 테스트는 트랜잭션 rollback 후 원본 제목 보존을 확인했다.
+- GitHub Pages 정적 HTML은 같은 경로·검색어·해시를 Node 공개 서버로 전달한다. 기존 링크를 보존하면서 새 게시물과 관리 변경 사항을 Node에서 제공한다. 정적 파일은 JS 미지원 환경의 보조 스냅샷으로 남으며 수동 재생성 시 갱신된다. 무료 Render 인스턴스의 비활성 이후 첫 요청은 지연될 수 있다.
+- 로컬 DB 237개 검사, 타입 검사, 서버 빌드, Pages 19 HTML·374 링크/자산 검사 및 대표 리다이렉트 경로 검증 성공. Supabase 보안 advisor 신규 지적 없음(기존 유출 암호 보호 설정 경고). 실제 브라우저에서 수정·삭제·메인 변경 UI 클릭과 이미지 제거 권한은 배포 후 검증 필요. 아직 운영 작품을 삭제하거나 메인 변경하지 않았다.
+- 다음: 관리자 화면 실제 편집 흐름 검증 및 이미지 Storage 정리 여부 확인, 작품별 분류/설명·게임 프로젝트 사례/연락 경로 보강. Draft/Preview/Publish와 비공개 전환은 레거시 공개 버킷 이전 후 구현한다.

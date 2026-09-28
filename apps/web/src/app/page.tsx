@@ -9,7 +9,7 @@ export default async function Home() {
   const works = await getWorks();
   const featuredWorks = {
     ...works,
-    items: works.items.filter((item) => item.id === site.featuredArtworkId),
+    items: works.items.filter((item) => item.featured),
   };
   return (
     <PublicShell home>

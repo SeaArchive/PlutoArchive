@@ -1,9 +1,9 @@
 # GitHub Pages publication
 
-URL: https://seaarchive.github.io/PlutoArchive/
+URL: https://seaarchive.github.io/PlutoArchive/ (forwards to the live Node site)
 GitHub Pages source: `codex/platform-foundation`, `/(root)` (Deploy from a branch).
 
-The branch contains both editable source and generated static HTML at its root. `.nojekyll` ensures `_next` assets are served. `basePath=/PlutoArchive` and trailing directory URLs support project Pages links and direct page refreshes.
+The branch contains both editable source and generated static HTML at its root. `.nojekyll` ensures `_next` assets are served. `basePath=/PlutoArchive` and trailing directory URLs support project Pages links and direct page refreshes. Exported HTML now forwards the same route, query, and fragment to `https://pluto-archive.onrender.com`, so new uploads and Admin edits use live data. With JavaScript unavailable, the HTML redirects to the corresponding Node route via `noscript`.
 
 ## Publish an update
 
@@ -30,6 +30,6 @@ CI validates both the server application and static export. Publication follows 
 - Workspace session-only preview, Notes/Tasks/Timer, command palette, responsive layout.
 - Login/admin preparation screens, with no private records or authentication forms.
 
-GitHub Pages cannot execute the existing Next server's HttpOnly OAuth/session routes, protected admin data loading or image optimization service. The server application in `apps/web` is preserved for a Node-capable host. Pages images link directly to existing public gallery media. Gallery changes appear after refresh, rebuild and push; ISR is not available on Pages.
+GitHub Pages cannot execute the existing Next server's HttpOnly OAuth/session routes, protected admin data loading or image optimization service. The Node application in `apps/web` now serves the live site. Static gallery data remains an export fallback; refreshing the fallback still requires a new build and push. A free Node instance may take time to wake after inactivity.
 
 Official references: [Next static export](https://nextjs.org/docs/app/guides/static-exports), [GitHub Pages publishing sources](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).

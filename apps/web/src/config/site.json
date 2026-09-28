@@ -2,7 +2,6 @@
   "name": "PLUTO ARCHIVE",
   "introduction": "그림으로 상상하고, 구조로 완성합니다.",
   "description": "작품과 프로젝트, 그리고 그 사이의 생각을 기록하는 공간.",
-  "featuredArtworkId": "ba5758d2-8114-410b-aad0-17c4e9857444",
   "navigation": [
     { "label": "Works", "href": "/works" },
     { "label": "Projects", "href": "/projects" },

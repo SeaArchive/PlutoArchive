@@ -8,14 +8,16 @@ export async function getWorks(): Promise<{
 }> {
   const db = publicDb();
   if (!db) return { items: [], state: "unconfigured" };
-  const { data, error } = await db
-    .from("gallery_items")
-    .select("id,title,description,image_path,created_at")
-    .order("created_at", { ascending: false });
-  if (error) return { items: [], state: "error" };
+  const [gallery, home] = await Promise.all([
+    db.from("gallery_items")
+      .select("id,title,description,image_path,created_at")
+      .order("created_at", { ascending: false }),
+    db.from("home_artwork").select("artwork_id").eq("slot", 1).maybeSingle(),
+  ]);
+  if (gallery.error || home.error) return { items: [], state: "error" };
   return {
     state: "ready",
-    items: (data || []).map((row) => ({
+    items: (gallery.data || []).map((row) => ({
       id: row.id,
       type: "artwork",
       slug: row.id,
@@ -23,7 +25,7 @@ export async function getWorks(): Promise<{
       summary: row.description,
       status: "published",
       visibility: "public",
-      featured: false,
+      featured: row.id === home.data?.artwork_id,
       featured_order: 0,
       thumbnail_url: db.storage.from("gallery").getPublicUrl(row.image_path)
         .data.publicUrl,

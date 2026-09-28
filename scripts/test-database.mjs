@@ -101,6 +101,10 @@ try {
     4,
     "all profiles copied",
   );
+  equal(await scalar("select artwork_id from home_artwork where slot=1"), id(10),
+    "existing artwork initially featured");
+  equal(await scalar("select relrowsecurity from pg_class where relname='home_artwork'"),
+    true, "home selection is protected by RLS");
   for (const role of ["anon", "authenticated"])
     equal(
       await scalar(
@@ -111,6 +115,10 @@ try {
       `${role} cannot truncate legacy gallery`,
     );
   await as("authenticated", user);
+  equal((await db.query("update home_artwork set artwork_id = $1 where slot=1 returning slot", [id(10)])).rows.length,
+    0, "ordinary user cannot update home selection");
+  equal((await db.query("select artwork_id from home_artwork where slot=1")).rows[0].artwork_id,
+    id(10), "public can read selected artwork");
   await assert.rejects(
     db.query(
       "insert into gallery_items(id,title,image_path,created_by) values ($1,'x','user/forbidden.png',$2)",
@@ -157,6 +165,17 @@ try {
       1,
       "admin upload links the image",
     );
+    await db.query("update gallery_items set title='수정 작품', description='수정 설명' where id=$1", [id(12)]);
+    equal((await db.query("select title,summary from contents where id=$1", [id(12)])).rows[0],
+      { title: "수정 작품", summary: "수정 설명" }, "gallery edit updates CMS");
+    await db.query("update home_artwork set artwork_id=$1 where slot=1", [id(12)]);
+    equal(await scalar("select artwork_id from home_artwork"), id(12), "admin selects one featured artwork");
+    await db.query("delete from gallery_items where id=$1", [id(12)]);
+    equal(await scalar("select artwork_id from home_artwork"), null, "deleting featured artwork clears home");
+    equal(await scalar("select count(*)::int from contents where id=$1", [id(12)]), 0,
+      "delete removes mirrored CMS record");
+    equal(await scalar("select count(*)::int from media where path='admin/new.webp'"), 0,
+      "delete removes orphaned CMS media record");
   } finally {
     await db.exec("rollback");
   }
