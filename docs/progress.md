@@ -281,3 +281,4 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - Node 인증 서버와 Google OAuth 실설정이 없어 실제 로그인/파일 업로드는 아직 검증할 수 없다. **현재 Pages 공개 URL에서는 Admin 로그인·업로드가 실행되지 않는다.** Node 서버 배포가 필요하다. Node 공개 페이지는 새 갤러리 행을 읽지만 Pages 스냅샷은 인증된 `pnpm refresh:pages`와 재배포 후 갱신된다. 초안·게시 취소는 기존 갤러리/공개 버킷 전환 전까지 제공하지 않는다.
 - 최종 소스에서 frozen-lockfile 설치, TypeScript, Node production build, Pages 재생성·검사(HTML 15개·링크/자산 282개) 통과. Pages 산출물에서는 private API가 제외되고 Admin은 안내 화면으로 유지된다.
 - 다음: 인증 가능한 Node 호스팅과 Google redirect URL 설정, 실계정 업로드/권한 거부/실제 이미지 확인, Pages 공개 스냅샷 갱신 자동화 또는 공개 서비스의 Node 이전. 이후 CMS 초안·편집·게시 및 사용자 작품 자료 반영.
+- GitHub 작업 브랜치 구현 커밋 `6edd576b3cb7d11f36b662127544d9d7f6966eaf` 반영 완료. [Validate platform](https://github.com/SeaArchive/PlutoArchive/actions/runs/36382291157) 및 [Pages 배포](https://github.com/SeaArchive/PlutoArchive/actions/runs/36382290432) 성공. Pages 배포 성공은 관리자 업로드의 실제 사용 가능 여부를 검증하지 않는다.
