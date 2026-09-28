@@ -49,6 +49,7 @@ export function WorkGrid({
             <span>↗</span>
           </div>
           {item.summary && <p>{item.summary}</p>}
+          {!!item.categories?.length && <p className="meta">{item.categories.map((category) => category.name).join(" · ")}</p>}
         </Link>
       ))}
     </div>

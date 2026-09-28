@@ -291,3 +291,10 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 로컬 DB 237개 검사, 타입 검사, 서버 빌드, Pages 19 HTML·374 링크/자산 검사 및 대표 리다이렉트 경로 검증 성공. Supabase 보안 advisor 신규 지적 없음(기존 유출 암호 보호 설정 경고). 실제 브라우저에서 수정·삭제·메인 변경 UI 클릭과 이미지 제거 권한은 배포 후 검증 필요. 아직 운영 작품을 삭제하거나 메인 변경하지 않았다.
 - 다음: 관리자 화면 실제 편집 흐름 검증 및 이미지 Storage 정리 여부 확인, 작품별 분류/설명·게임 프로젝트 사례/연락 경로 보강. Draft/Preview/Publish와 비공개 전환은 레거시 공개 버킷 이전 후 구현한다.
 - 배포 확인: 구현 커밋 `3027d492e73a46e0e527012294fb927e9859582d`의 [GitHub CI](https://github.com/SeaArchive/PlutoArchive/actions/runs/36418575416) 및 [Pages 배포](https://github.com/SeaArchive/PlutoArchive/actions/runs/36418574936) 성공. Render에서도 같은 커밋의 배포 성공을 확인했다. 실제 Pages URL에서 Node URL로 이동했고, 공개 메인은 PlutoArchive 1건, Works는 5건을 브라우저에서 확인했다. 관리자 권한으로 실제 UI 조작은 이번 검증에서 실행하지 않았다.
+
+## Latest work — Works classification (2026-09-28)
+
+- 기존 CMS `categories`/`content_categories`를 사용해 관리자 분류 생성과 작품당 하나의 분류 지정·해제를 추가했다. 사용자 작품 5건에는 분류를 임의로 넣지 않았다. 공개 작품 어댑터와 Pages 보조 스냅샷이 같은 분류 관계를 읽고, Works에서 실제로 지정된 분류가 생기면 필터 버튼과 작품별 분류명을 보여준다.
+- 분류 API는 로그인·`is_admin`·Origin·기존 CMS RLS로 보호한다. 데이터 변경 뒤 Home/Works/상세 경로를 재검증한다. 별도 DB 마이그레이션은 없다. 실제 DB에서 관리자 임시 분류 생성·연결 후 익명 공개 읽기를 트랜잭션 안에서 검증하고 rollback해 운영 데이터는 유지했다.
+- 타입 검사·서버 빌드·Pages 생성/경로 검사(19 HTML, 374 자산·링크), 기존 DB 237개 검사 통과. 관리자 UI의 실계정 클릭 및 분류 필터가 사용되는 화면은 아직 실제 작품에 분류가 없으므로 후속 검증이 필요하다.
+- 다음: 사용자가 작품 분류와 제작 설명을 정하면 실제 콘텐츠를 입력하고 필터를 검증한다. 모바일/키보드 실제 조작을 확인하고, 검증 가능한 게임 개발·기획 프로젝트 및 연락 경로 자료를 받아 Public Space 사례를 보완한다. 비공개·초안은 레거시 공개 버킷 이전 후 처리한다.

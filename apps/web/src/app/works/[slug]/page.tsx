@@ -37,6 +37,7 @@ export default async function Work({
         </Link>
         <h1 className="page-title">{work.title}</h1>
         <p className="intro">{work.summary}</p>
+        {!!work.categories?.length && <p className="meta">{work.categories.map((category) => category.name).join(" · ")}</p>}
         {work.thumbnail_url && (
           <div className="detail-image">
             <Image

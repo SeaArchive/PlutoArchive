@@ -38,6 +38,7 @@ export interface Content {
   featured_order: number;
   thumbnail_url: string | null;
   published_at: string | null;
+  categories?: Category[];
   blocks?: Block[];
 }
 export interface Category {

@@ -9,12 +9,15 @@ export const metadata = {
 };
 export default async function Admin() {
   const { db } = await requireUser(true);
-  const [gallery, home] = await Promise.all([
+  const [gallery, home, categories, assignments] = await Promise.all([
     db.from("gallery_items").select("id,title,description,created_at")
       .order("created_at", { ascending: false }),
     db.from("home_artwork").select("artwork_id").eq("slot", 1).maybeSingle(),
+    db.from("categories").select("id,name,slug").order("position"),
+    db.from("content_categories").select("content_id,category_id"),
   ]);
-  if (gallery.error || home.error) throw new Error("Could not load admin archive");
+  if (gallery.error || home.error || categories.error || assignments.error)
+    throw new Error("Could not load admin archive");
   return (
     <div className="admin-space admin-layout">
       <aside className="admin-sidebar">
@@ -40,7 +43,8 @@ export default async function Admin() {
         </div>
         <ArtworkUploadForm />
         <h2 id="portfolio">Portfolio</h2>
-        <ArtworkManager works={gallery.data || []} featuredId={home.data?.artwork_id || null} />
+        <ArtworkManager works={gallery.data || []} featuredId={home.data?.artwork_id || null}
+          categories={categories.data || []} assignments={assignments.data || []} />
         <p>
           비공개 초안·블록 편집·분류 및 게시 취소는 추후 CMS 관리 화면에서
           제공합니다.
