@@ -7,6 +7,10 @@ import site from "@/config/site.json";
 export const revalidate = 60;
 export default async function Home() {
   const works = await getWorks();
+  const featuredWorks = {
+    ...works,
+    items: works.items.filter((item) => item.id === site.featuredArtworkId),
+  };
   return (
     <PublicShell home>
       <section className="hero">
@@ -45,7 +49,7 @@ export default async function Home() {
               Artwork
               <span className="count">
                 {" "}
-                / {String(works.items.length).padStart(2, "0")}
+                / {String(featuredWorks.items.length).padStart(2, "0")}
               </span>
             </h2>
           </div>
@@ -53,7 +57,7 @@ export default async function Home() {
             전체 작품 ↗
           </Link>
         </div>
-        <WorkGrid {...works} />
+        <WorkGrid {...featuredWorks} />
       </section>
       <section className="section" id="projects">
         <div className="section-heading">
