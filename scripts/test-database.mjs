@@ -101,6 +101,66 @@ try {
     4,
     "all profiles copied",
   );
+  for (const role of ["anon", "authenticated"])
+    equal(
+      await scalar(
+        "select has_table_privilege($1, 'gallery_items', 'TRUNCATE')",
+        [role],
+      ),
+      false,
+      `${role} cannot truncate legacy gallery`,
+    );
+  await as("authenticated", user);
+  await assert.rejects(
+    db.query(
+      "insert into gallery_items(id,title,image_path,created_by) values ($1,'x','user/forbidden.png',$2)",
+      [id(11), user],
+    ),
+    (e) => e.code === "42501",
+  );
+  checks++;
+  await as("authenticated", admin);
+  await db.exec("begin");
+  try {
+    await db.query(
+      "insert into gallery_items(id,title,description,image_path,created_by) values ($1,'새 작품','새 설명','admin/new.webp',$2)",
+      [id(12), admin],
+    );
+    equal(
+      (
+        await db.query(
+          "select title,summary,status,visibility from contents where id=$1",
+          [id(12)],
+        )
+      ).rows[0],
+      {
+        title: "새 작품",
+        summary: "새 설명",
+        status: "published",
+        visibility: "public",
+      },
+      "admin upload creates published CMS entry in the same transaction",
+    );
+    equal(
+      await scalar(
+        "select m.path from media m join contents c on c.thumbnail_media_id=m.id where c.id=$1",
+        [id(12)],
+      ),
+      "admin/new.webp",
+      "admin upload preserves image path in CMS",
+    );
+    equal(
+      await scalar(
+        "select count(*)::int from content_media where content_id=$1",
+        [id(12)],
+      ),
+      1,
+      "admin upload links the image",
+    );
+  } finally {
+    await db.exec("rollback");
+  }
+  await as("postgres");
   equal(
     await scalar(
       "select count(*)::int from pg_class where relname = any($1) and relrowsecurity",

@@ -7,9 +7,9 @@ export const metadata = {
 export default async function Login({
   searchParams,
 }: {
-  searchParams: Promise<{ reason?: string }>;
+  searchParams: Promise<{ reason?: string; next?: string }>;
 }) {
-  const { reason } = await searchParams;
+  const { reason, next } = await searchParams;
   const messages: Record<string, string> = {
     configuration: "서버의 Supabase 연결 설정이 필요합니다.",
     permission: "이 공간에 접근할 관리자 권한이 없습니다.",
@@ -35,7 +35,12 @@ export default async function Login({
             {messages[reason] || "로그인을 다시 시도해 주세요."}
           </p>
         )}
-        <form action="/auth/sign-in" method="post">
+        <form
+          action={
+            next === "admin" ? "/auth/sign-in?next=admin" : "/auth/sign-in"
+          }
+          method="post"
+        >
           <button className="primary" disabled={!configured()}>
             Google 계정으로 로그인 ↗
           </button>

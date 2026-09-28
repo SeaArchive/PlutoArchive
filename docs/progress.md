@@ -272,3 +272,12 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - Next route typegen, TypeScript, 서버 production build, Pages 재생성, HTML 15개·로컬 링크/자산 282개 검사 통과. 생성된 HTML의 메타데이터와 메뉴 마크업 확인. 실제 작은 화면과 키보드 브라우저 조작은 아직 검증하지 못했다.
 - 다음: 실제 모바일·키보드 탐색을 확인하고, 사용자 제공 경험·연락 경로와 작품 설명이 확보되면 Public 사례를 보강한다. CMS 게시와 기존 공개 경로 정합화도 남아 있다. Public 전체 완료 아님.
 - 이번 작업의 GitHub 동기화·원격 CI/Pages 결과는 별도로 확인한다.
+
+## Latest work — Admin artwork upload (2026-09-28)
+
+- 관리자 페이지에 제목·설명·이미지 업로드 폼과 공개 갤러리 목록을 연결했다. `/admin`에서 시작한 Google 로그인은 고정 callback을 거쳐 관리자 화면으로 돌아온다. 업로드 API는 서버 `getUser()`, `is_admin()`, Origin, 요청·파일 크기, MIME과 파일 시그니처를 검사한다.
+- JPG/PNG/GIF/WebP, 최대 6MB만 기존 공개 `gallery` 버킷의 새 UUID 경로로 저장한다. 갤러리 행 저장 실패 시 이미지를 삭제하도록 시도한다. 이미지 저장과 DB 기록 사이에는 분산 트랜잭션이 없으므로 보상 삭제까지 실패하면 고아 이미지가 남을 수 있다.
+- 실제 DB에 `20260928052705_gallery_admin_upload_sync` 적용. 기존 1개 작품 보존, 새 갤러리 행의 CMS 메타데이터 동시 생성, API 역할의 TRUNCATE 제거. 로컬 PostgreSQL 228개 검사 통과, 실제 DB 시험 INSERT/검사는 트랜잭션으로 되돌림. 보안 advisor에 신규 지적 없음(기존 Auth 유출 암호 경고 유지).
+- Node 인증 서버와 Google OAuth 실설정이 없어 실제 로그인/파일 업로드는 아직 검증할 수 없다. **현재 Pages 공개 URL에서는 Admin 로그인·업로드가 실행되지 않는다.** Node 서버 배포가 필요하다. Node 공개 페이지는 새 갤러리 행을 읽지만 Pages 스냅샷은 인증된 `pnpm refresh:pages`와 재배포 후 갱신된다. 초안·게시 취소는 기존 갤러리/공개 버킷 전환 전까지 제공하지 않는다.
+- 최종 소스에서 frozen-lockfile 설치, TypeScript, Node production build, Pages 재생성·검사(HTML 15개·링크/자산 282개) 통과. Pages 산출물에서는 private API가 제외되고 Admin은 안내 화면으로 유지된다.
+- 다음: 인증 가능한 Node 호스팅과 Google redirect URL 설정, 실계정 업로드/권한 거부/실제 이미지 확인, Pages 공개 스냅샷 갱신 자동화 또는 공개 서비스의 Node 이전. 이후 CMS 초안·편집·게시 및 사용자 작품 자료 반영.

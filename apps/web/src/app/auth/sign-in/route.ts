@@ -17,8 +17,21 @@ export async function POST(request: Request) {
       scopes: "openid email profile",
     },
   });
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     error || !data.url ? new URL("/login?reason=provider", origin) : data.url,
     303,
   );
+  if (
+    !error &&
+    data.url &&
+    new URL(request.url).searchParams.get("next") === "admin"
+  )
+    response.cookies.set("pluto_next", "admin", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/auth/callback",
+      maxAge: 600,
+    });
+  return response;
 }

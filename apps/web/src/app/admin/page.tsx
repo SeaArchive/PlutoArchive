@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
+import { ArtworkUploadForm } from "./upload-form";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Admin",
@@ -21,19 +22,21 @@ export default async function Admin() {
         <p className="meta">CONTENT ADMINISTRATION</p>
         <nav>
           <a href="#dashboard">Dashboard</a>
+          <a href="#upload-heading">Upload</a>
           <a href="#portfolio">Portfolio</a>
           <Link href="/workspace">Workspace ↗</Link>
         </nav>
       </aside>
       <main id="main" className="admin-content">
-        <span className="meta">ADMIN / FOUNDATION</span>
+        <span className="meta">ADMIN / PORTFOLIO</span>
         <h1 id="dashboard">Archive overview.</h1>
-        <p>기존 갤러리와 연결된 관리자 대시보드입니다.</p>
+        <p>공개 작품을 올리고 기존 갤러리를 확인하는 관리자 공간입니다.</p>
         <div className="admin-stat">
           <span className="meta">PUBLISHED ARTWORK</span>
           <b>{data?.length || 0}</b>
-          <span>기존 작품 보존됨</span>
+          <span>공개 갤러리</span>
         </div>
+        <ArtworkUploadForm />
         <h2 id="portfolio">Portfolio</h2>
         <table className="admin-table">
           <thead>
@@ -56,7 +59,8 @@ export default async function Admin() {
           </tbody>
         </table>
         <p>
-          블록 편집·분류·게시 관리 기능은 CMS 마이그레이션 단계에서 추가됩니다.
+          비공개 초안·블록 편집·분류 및 게시 취소는 추후 CMS 관리 화면에서
+          제공합니다.
         </p>
         <form method="post" action="/auth/sign-out">
           <button>로그아웃</button>

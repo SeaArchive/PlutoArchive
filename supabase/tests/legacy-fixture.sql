@@ -30,3 +30,5 @@ create table public.gallery_items (
 );
 alter table public.gallery_items enable row level security;
 create policy gallery_public on public.gallery_items for select to anon, authenticated using (true);
+create policy gallery_admin_insert on public.gallery_items for insert to authenticated
+  with check (is_admin() and created_by = auth.uid());

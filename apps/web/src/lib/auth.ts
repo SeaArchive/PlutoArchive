@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 import { sessionDb } from "./supabase";
 export async function requireUser(admin = false) {
   const db = await sessionDb();
-  if (!db) redirect("/login?reason=configuration");
+  if (!db)
+    redirect("/login?reason=configuration" + (admin ? "&next=admin" : ""));
   const {
     data: { user },
   } = await db.auth.getUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(admin ? "/login?next=admin" : "/login");
   // The database default role is 'user'; client metadata cannot assign roles.
   const { data: profile, error: readError } = await db
     .from("profiles")
@@ -24,7 +25,7 @@ export async function requireUser(admin = false) {
   }
   if (admin) {
     const { data, error } = await db.rpc("is_admin");
-    if (error || data !== true) redirect("/login?reason=permission");
+    if (error || data !== true) redirect("/login?reason=permission&next=admin");
   }
   return { db, user };
 }

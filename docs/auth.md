@@ -8,6 +8,8 @@ Private pages call getUser, not getSession. Admin additionally calls existing is
 
 Sign-in and sign-out verify Origin against SITE_URL. The callback destination is fixed; no arbitrary next URL is accepted. Credentials, service keys and Google refresh tokens must never be committed.
 
+When login begins at `/admin`, a short-lived HttpOnly `pluto_next=admin` cookie on the fixed callback path sends the signed-in user back to `/admin`. The server then verifies `is_admin()` again; the cookie grants no role. The upload route independently verifies user, Admin role and Origin for each request.
+
 References reviewed: https://supabase.com/docs/guides/auth/server-side/creating-a-client and https://supabase.com/docs/guides/auth/server-side/advanced-guide .
 
 ## Database roles — 2026-09-23

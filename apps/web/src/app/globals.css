@@ -737,6 +737,19 @@ footer {
   font-size: 44px;
   margin: 10px 0;
 }
+.admin-upload {
+  border-top: 1px solid var(--border);
+  padding: 35px 0 55px;
+  max-width: 720px;
+}
+.admin-upload h2 { font-size: 32px; }
+.admin-upload form { display: grid; gap: 12px; }
+.admin-upload label { font-weight: 600; margin-top: 10px; }
+.admin-upload textarea,
+.admin-upload input { width: 100%; }
+.admin-upload input[type="file"] { background: var(--surface); }
+.admin-upload .fine { margin: 0; }
+.admin-upload button { justify-self: start; margin-top: 8px; }
 .admin-table {
   width: 100%;
   border-collapse: collapse;

@@ -93,3 +93,7 @@ The user changed priority from Workspace to Public Space, with possible use as a
 ### Public accessibility and metadata (2026-09-28)
 
 The narrow-screen Public navigation now scrolls horizontally; keyboard focus outlines the artwork image, and the decorative split Home title has a readable accessible name. Public index and artwork detail pages have route-specific descriptions. Source changes are under `apps/web/src`, with Pages artifacts rebuilt at the repository root. TypeScript, server build, static export and 15-page/282-link checks passed. Actual small-screen and keyboard browser testing remains; details and remaining Public work are in the latest `docs/progress.md` section.
+
+### Admin artwork upload (2026-09-28)
+
+Admin now has an upload form and a Node API guarded by Google session, `is_admin`, Origin and existing gallery/Storage RLS. The upload mirrors metadata into CMS through migration `20260928052705_gallery_admin_upload_sync`, applied to the live project and verified with a rollback-only insert. The Google callback can return an Admin login to `/admin` through a short-lived HttpOnly cookie. The image is public as soon as it is saved. GitHub Pages has no server login/API; a Node host with configured Google OAuth and Supabase settings is needed to use the form, and Pages artwork requires a credentialed refresh/build/push. No actual account upload or image playback was tested. See `docs/database.md` and the latest `docs/progress.md` for constraints.
