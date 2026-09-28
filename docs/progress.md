@@ -298,3 +298,4 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 분류 API는 로그인·`is_admin`·Origin·기존 CMS RLS로 보호한다. 데이터 변경 뒤 Home/Works/상세 경로를 재검증한다. 별도 DB 마이그레이션은 없다. 실제 DB에서 관리자 임시 분류 생성·연결 후 익명 공개 읽기를 트랜잭션 안에서 검증하고 rollback해 운영 데이터는 유지했다.
 - 타입 검사·서버 빌드·Pages 생성/경로 검사(19 HTML, 374 자산·링크), 기존 DB 237개 검사 통과. 관리자 UI의 실계정 클릭 및 분류 필터가 사용되는 화면은 아직 실제 작품에 분류가 없으므로 후속 검증이 필요하다.
 - 다음: 사용자가 작품 분류와 제작 설명을 정하면 실제 콘텐츠를 입력하고 필터를 검증한다. 모바일/키보드 실제 조작을 확인하고, 검증 가능한 게임 개발·기획 프로젝트 및 연락 경로 자료를 받아 Public Space 사례를 보완한다. 비공개·초안은 레거시 공개 버킷 이전 후 처리한다.
+- 배포 확인: 구현 커밋 `9a387058f16e350c861dd628638c6ae662971616`의 [GitHub CI](https://github.com/SeaArchive/PlutoArchive/actions/runs/36424578583)와 [Pages 배포](https://github.com/SeaArchive/PlutoArchive/actions/runs/36424577003) 성공. Render에서도 같은 커밋이 Live로 배포됐고 공개 Works에서 기존 작품 5건을 확인했다. 실제 작품 분류는 0건으로 유지했으므로 분류 필터의 운영 UI 조작은 아직 검증하지 않았다.

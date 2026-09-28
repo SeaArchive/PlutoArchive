@@ -107,3 +107,5 @@ Implementation commit `3027d492e73a46e0e527012294fb927e9859582d` passed CI and P
 ### Works classification (2026-09-28)
 
 Admin can create a category and assign at most one to each artwork using existing CMS categories and content_categories; there is no new migration. The public adapter and Pages fallback include category labels and Works shows filters only after categories are assigned. No category labels were inferred for the five real artworks. A rollback-only remote smoke test confirmed admin creation/assignment and anonymous read via RLS. TypeScript, production and static builds, links, and database regression checks passed. See latest `docs/progress.md` for the next content and mobile verification tasks.
+
+Implementation commit `9a387058f16e350c861dd628638c6ae662971616` passed CI and Pages deployment and is Live on Render. The live Works route still lists five artworks. Admin category creation and filter interaction with actual classified artwork remain to be checked in a browser; existing artworks are unclassified.
