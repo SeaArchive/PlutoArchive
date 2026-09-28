@@ -89,3 +89,7 @@ The command palette and mobile Search now share `apps/web/src/features/workspace
 ### Public priority and first case study (2026-09-26)
 
 The user changed priority from Workspace to Public Space, with possible use as a game development/planning self-introduction. The only verified project case study is Pluto Archive itself, labeled ongoing and linked to its repository. Projects now has a detail route; Process and About explain decisions and interests without inventing game experience. Contact links only the known GitHub profile while a real contact channel is pending. Public routes are explicit (`about`, `contact`, `process`, `projects`) to avoid a static export conflict with project detail. See `docs/public-roadmap.md` and the latest `docs/progress.md`. Resume Public content/CMS work before Workspace.
+
+### Public accessibility and metadata (2026-09-28)
+
+The narrow-screen Public navigation now scrolls horizontally; keyboard focus outlines the artwork image, and the decorative split Home title has a readable accessible name. Public index and artwork detail pages have route-specific descriptions. Source changes are under `apps/web/src`, with Pages artifacts rebuilt at the repository root. TypeScript, server build, static export and 15-page/282-link checks passed. Actual small-screen and keyboard browser testing remains; details and remaining Public work are in the latest `docs/progress.md` section.

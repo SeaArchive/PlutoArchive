@@ -263,3 +263,12 @@ Files: apps/web/src/features/workspace/music/*, registry.ts, shell.tsx, globals.
 - 최종 콘텐츠 기준 frozen-lockfile 설치, 타입 검사와 서버 빌드, Pages HTML 15개·로컬 링크/자산 282개 검사 및 주요 공개 문구 확인 통과. README와 DB/RLS는 이번 변경에서 수정하지 않았다. 실제 브라우저 화면·모바일 감상은 아직 확인하지 못했다.
 - 다음: 사용자에게 목표 직무·검증 가능한 게임/팀 경험·실제 연락 수단을 받아 About/프로젝트 내용을 정교화한다. Works 분류/Featured와 실제 프로젝트 추가, CMS 게시·레거시 공개 경로 전환, 모바일/접근성/성능 실측이 남아 있다. Public 전체 완료로 표시하지 않는다.
 - GitHub 동기화: 검증한 구현 트리 `3c74a421268d034c88336fd12de5f41fb3ce9a42`를 작업 브랜치 commit `db9e5c9a5176a62a43b9146d101062f17bf41283`에 반영했다. 원격 CI/Pages 실제 배포 결과는 별도 확인 전 성공으로 기록하지 않는다.
+
+## Latest work — Public navigation and page descriptions (2026-09-28)
+
+- 최신 원격 브랜치 `1da25a0`부터 작업을 이어받았다. Public Space 우선순위와 기존 콘텐츠·Workspace 기능은 유지했다.
+- 좁은 화면에서 주 메뉴를 가로 스크롤할 수 있게 하고, 키보드로 작품 카드에 초점을 맞출 때 이미지 경계가 표시되도록 했다. 홈의 장식용 제목은 스크린 리더에 `Pluto Archive`로 전달한다.
+- Works/Projects/Process/About/Contact 및 공개 작품 상세에 페이지 내용에 맞는 description 메타데이터를 추가했다. 작품 상세는 기존 공개 설명이 있으면 그대로 사용한다.
+- Next route typegen, TypeScript, 서버 production build, Pages 재생성, HTML 15개·로컬 링크/자산 282개 검사 통과. 생성된 HTML의 메타데이터와 메뉴 마크업 확인. 실제 작은 화면과 키보드 브라우저 조작은 아직 검증하지 못했다.
+- 다음: 실제 모바일·키보드 탐색을 확인하고, 사용자 제공 경험·연락 경로와 작품 설명이 확보되면 Public 사례를 보강한다. CMS 게시와 기존 공개 경로 정합화도 남아 있다. Public 전체 완료 아님.
+- 이번 작업의 GitHub 동기화·원격 CI/Pages 결과는 별도로 확인한다.

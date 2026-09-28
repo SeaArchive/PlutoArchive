@@ -1,7 +1,10 @@
 import { PublicShell } from "@/components/public-shell";
 import { WorkGrid } from "@/components/work-grid";
 import { getWorks } from "@/lib/content";
-export const metadata = { title: "Works" };
+export const metadata = {
+  title: "Works",
+  description: "Pluto Archive에 공개된 작품과 이미지를 살펴봅니다.",
+};
 export const revalidate = 60;
 export default async function Works() {
   return (

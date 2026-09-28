@@ -14,7 +14,7 @@ export default async function Home() {
           <span>INDEPENDENT CREATIVE ARCHIVE</span>
           <span>134340 / BEYOND THE ORDINARY</span>
         </div>
-        <h1>
+        <h1 aria-label="Pluto Archive">
           PLUTO
           <span>
             ARCHIVE<span className="asterisk">✳</span>

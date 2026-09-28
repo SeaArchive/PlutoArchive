@@ -14,7 +14,7 @@ export function PublicShell({
           <span className="brand-mark">P↗</span>
           {site.name}
         </Link>
-        <nav aria-label="주 메뉴">
+        <nav aria-label="주 메뉴" className="public-nav">
           {site.navigation.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.label}

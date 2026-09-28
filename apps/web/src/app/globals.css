@@ -139,6 +139,10 @@ select {
 .topbar nav a:hover {
   border-color: var(--accent);
 }
+.topbar nav a:focus-visible,
+.work:focus-visible .work-image {
+  border-color: var(--accent);
+}
 .workspace-link {
   font: 11px monospace;
   border: 1px solid var(--border);
@@ -760,8 +764,14 @@ footer {
   .topbar nav {
     order: 3;
     width: 100%;
-    justify-content: space-between;
-    gap: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    gap: clamp(16px, 5vw, 35px);
+    scrollbar-width: thin;
+  }
+  .topbar nav a {
+    flex: none;
   }
   .workspace-link {
     font-size: 10px;

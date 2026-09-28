@@ -1,9 +1,24 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PublicShell } from "@/components/public-shell";
 import { getWorks } from "@/lib/content";
 export const revalidate = 60;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { items } = await getWorks();
+  const work = items.find((item) => item.slug === slug);
+  if (!work) return {};
+  return {
+    title: work.title,
+    description: work.summary || `${work.title} — Pluto Archive에 공개된 작품.`,
+  };
+}
 export default async function Work({
   params,
 }: {
