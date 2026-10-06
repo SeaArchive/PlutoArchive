@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap");
 :root {
-  --home-bg: #000817;
+  --home-bg: #02050c;
   --bg: var(--home-bg);
   --surface: var(--home-bg);
   --text: #edfffe;
@@ -9,6 +9,8 @@
   --accent: #c8cbcb;
   color-scheme: dark;
 }
+.public-stars { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.public-space { position: relative; z-index: 1; }
 * {
   box-sizing: border-box;
 }

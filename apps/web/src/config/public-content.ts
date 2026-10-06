@@ -43,7 +43,7 @@ export const projects = [
         title: "From interface to data",
         paragraphs: [
           "Next.js and TypeScript organize pages and application boundaries. Public artwork is read from the existing gallery. A separate static build provides a fallback snapshot and routes visitors to the live public site.",
-          "Public pages and artwork surfaces share a #000817 background. Thin borders and typography establish the hierarchy.",
+          "Public pages and artwork surfaces share a near-black blue background. Thin borders and typography establish the hierarchy.",
         ],
       },
       {

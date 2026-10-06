@@ -21,6 +21,7 @@ jobs:
       - run: pnpm test:database
       - run: pnpm test:music
       - run: pnpm test:layout
+      - run: pnpm test:stars
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm build:pages

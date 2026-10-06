@@ -3,7 +3,7 @@
 Read `docs/HANDOFF.md`, `docs/architecture.md`, and `docs/master-development-prompt.md` before changes.
 Preserve root README.md byte-for-byte (baseline Git blob cb2b0c1cb64a61362a3536fb91657d297a60974c).
 Use Node >=22 and pnpm 11.19.0. Run `pnpm install --frozen-lockfile`, `pnpm typecheck`, and `pnpm build`.
-All Public page backgrounds and artwork backgrounds are #000817 (latest user override); Workspace charcoal/green; Admin ivory/gold. Radius 0–4px; no glow.
+All Public page backgrounds and artwork backgrounds are #02050C (2026-10-06 user override), with subtle interactive stars; Workspace charcoal/green; Admin ivory/gold. Radius 0–4px; no glow. Stars respect reduced motion, pause when hidden and stop animating when idle.
 Public interface and editorial copy are English (2026-10-06 user update). Home explanatory text uses readable code-like declarations with indentation and syntax colors. Preserve authored artwork titles/bodies; do not translate database records implicitly.
 Do not treat preview apps as persistent functionality. Do not invent portfolio content or performance results.
 Keep data, config, renderers and services separated. Every private operation requires server authorization and RLS.

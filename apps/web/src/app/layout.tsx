@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Starfield } from "@/components/starfield";
 export const metadata: Metadata = {
   title: {
     default: "Pluto Archive — Art, Design & Development",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
+        <Starfield />
         <a className="skip-link" href="#main">
           Skip to content
         </a>

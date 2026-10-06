@@ -4,6 +4,8 @@
 
 ## Start here
 
+Public background update (2026-10-06): #02050C replaces #000817. The root-mounted `Starfield` only renders on Public routes, with 30/64 tiny stars, subtle pointer response and top-line gathering on internal navigation. It settles on route changes, respects reduced motion, stops when idle/hidden and cleans up listeners. `pnpm test:stars` checks the mocked animation lifecycle; a real browser visual review remains necessary.
+
 Public presentation update (2026-10-06): English interface/editorial copy. Home explanations are rendered as readable `const` declarations by `CodeNote` with line numbers, indentation and restrained syntax colors. These are display text, not executable widgets. Authored artwork records remain intact; Home omits their summaries so its presentation stays English. Private/Admin UI remains separate.
 
 Latest profile direction (2026-10-06): planning first, focused on games/software but open to other sectors. The user reports illustration, development and accounting knowledge; present cross-team understanding and actionable planning as their intended value, without inventing collaboration outcomes. Copy lives in `site.json` and `plannerProfile` in `public-content.ts`.
@@ -11,7 +13,7 @@ Latest profile direction (2026-10-06): planning first, focused on games/software
 Repository: https://github.com/SeaArchive/PlutoArchive
 Working branch: `codex/platform-foundation`.
 Read `AGENTS.md` and `docs/master-development-prompt.md`. README.md is protected and unchanged.
-The user's latest instruction (2026-09-23): set the home background to #000817 and make **Workspace completion the primary goal of the next work session**. Keep progress accessible through GitHub. See `docs/workspace-roadmap.md`.
+The 2026-09-23 Workspace priority and #000817 background are historical. The current priority is Public completion (2026-09-26), with the #02050C background and restrained stars requested on 2026-10-06. Keep progress accessible through GitHub. Workspace requirements remain in `docs/workspace-roadmap.md`.
 
 ## Current delivery: Phase 02 CMS database foundation
 
