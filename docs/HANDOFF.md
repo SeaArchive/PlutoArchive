@@ -4,6 +4,8 @@
 
 ## Start here
 
+Latest profile direction (2026-10-06): planning first, focused on games/software but open to other sectors. The user reports illustration, development and accounting knowledge; present cross-team understanding and actionable planning as their intended value, without inventing collaboration outcomes. Copy lives in `site.json` and `plannerProfile` in `public-content.ts`.
+
 Repository: https://github.com/SeaArchive/PlutoArchive
 Working branch: `codex/platform-foundation`.
 Read `AGENTS.md` and `docs/master-development-prompt.md`. README.md is protected and unchanged.

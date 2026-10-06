@@ -1,5 +1,19 @@
 // Editorial content for the public site until CMS publishing is connected.
 // Keep factual project claims tied to work visible in this repository.
+export const plannerProfile = {
+  heading: "서로 다른 분야를 연결하는 기획",
+  background:
+    "일러스트, 개발, 회계 등 여러 분야의 지식을 갖추고 있습니다. 각 분야가 중요하게 보는 기준을 이해하고, 서로 다른 팀의 의견을 공통의 목표와 요구사항으로 연결하는 기획자를 지향합니다.",
+  approach:
+    "기획의 핵심을 여러 팀이 함께 일할 수 있도록 방향을 조율하는 데 두고 있습니다. 각 팀의 요구와 제약을 이해하고, 공통 목표와 판단 기준을 정리하기 위해 분야별 지식을 계속 쌓아가고자 합니다.",
+  direction:
+    "현재는 게임·소프트웨어 기획에 무게를 두고 있습니다. 여러 분야의 지식을 연결하는 기획 역량을 바탕으로, 다른 산업과 서비스로도 가능성을 열어 두고 있습니다.",
+  learning:
+    "앞으로 법·이커머스 등 실무 분야의 서비스와 업무를 역기획하고, 직접 기획하는 시도를 해볼 계획입니다. 법 관련 공부도 병행하며 서로 다른 팀의 관점과 제약을 이해하는 폭을 넓히고자 합니다.",
+  preview:
+    "일러스트·개발·회계의 지식을 바탕으로, 여러 팀이 함께 일할 수 있도록 방향을 조율하는 기획자를 지향합니다. 게임·소프트웨어 기획을 중심으로 다양한 실무 분야를 이해하는 폭을 넓혀가고자 합니다.",
+};
+
 export const projects = [
   {
     slug: "pluto-archive",

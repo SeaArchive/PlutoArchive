@@ -1,7 +1,7 @@
 {
   "name": "PLUTO ARCHIVE",
-  "introduction": "그림으로 상상하고, 구조로 완성합니다.",
-  "description": "작품과 프로젝트, 그리고 그 사이의 생각을 기록하는 공간.",
+  "introduction": "분야를 이해하고, 함께 실행하는 기획자.",
+  "description": "일러스트·개발·회계의 지식을 바탕으로, 서로 다른 관점을 실행 가능한 기획으로 연결하고자 합니다.",
   "navigation": [
     { "label": "Works", "href": "/works" },
     { "label": "Projects", "href": "/projects" },

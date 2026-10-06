@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { processSteps, projects } from "@/config/public-content";
+import { plannerProfile, processSteps, projects } from "@/config/public-content";
 import site from "@/config/site.json";
 
 export function ProjectsContent() {
@@ -73,17 +73,13 @@ export function AboutContent() {
         </p>
       </header>
       <section className="section case-section">
-        <span className="meta">01 / INTEREST</span>
+        <span className="meta">01 / PLANNING & COMMUNICATION</span>
         <div>
-          <h2>이미지에서 경험으로</h2>
-          <p>
-            그림과 화면 구성에서 출발해, 사람이 무엇을 보고 어떻게 움직이며 어떤
-            피드백을 받는지에 관심을 두고 있습니다.
-          </p>
-          <p>
-            게임 개발과 기획에서는 시각적 표현이 규칙, 조작, 보상과 연결되는
-            방식을 더 깊이 탐구하고 싶습니다.
-          </p>
+          <h2>{plannerProfile.heading}</h2>
+          <p>{plannerProfile.background}</p>
+          <p>{plannerProfile.approach}</p>
+          <p>{plannerProfile.direction}</p>
+          <p>{plannerProfile.learning}</p>
         </div>
       </section>
       <section className="section case-section">

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PublicShell } from "@/components/public-shell";
 import { WorkGrid } from "@/components/work-grid";
 import { getWorks } from "@/lib/content";
-import { processSteps, projects } from "@/config/public-content";
+import { plannerProfile, processSteps, projects } from "@/config/public-content";
 import site from "@/config/site.json";
 export const revalidate = 60;
 export default async function Home() {
@@ -127,16 +127,13 @@ export default async function Home() {
         <div>
           <span className="meta">05 / ABOUT</span>
           <h2>
-            이미지에서
+            분야를 이해하고,
             <br />
-            경험으로.
+            기획으로 연결합니다.
           </h2>
         </div>
         <div>
-          <p>
-            그림과 화면을 만드는 경험을 규칙, 조작, 피드백이 있는 경험으로
-            확장하고 싶습니다. 작품과 제작 사례를 통해 현재의 작업을 보여줍니다.
-          </p>
+          <p>{plannerProfile.preview}</p>
           <Link className="text-link" href="/about">
             소개 읽기 ↗
           </Link>
