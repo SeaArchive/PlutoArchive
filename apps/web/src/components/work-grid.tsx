@@ -4,9 +4,11 @@ import type { Content } from "@pluto/types";
 export function WorkGrid({
   items,
   state,
+  showSummary = true,
 }: {
   items: Content[];
   state: string;
+  showSummary?: boolean;
 }) {
   if (!items.length)
     return (
@@ -14,15 +16,15 @@ export function WorkGrid({
         <span className="meta">ARCHIVE / 00</span>
         <h3>
           {state === "error"
-            ? "작품을 불러오지 못했습니다."
+            ? "Artwork could not be loaded."
             : state === "unconfigured"
-              ? "아카이브 연결을 준비하고 있습니다."
-              : "아직 공개된 작품이 없습니다."}
+              ? "The archive connection is being prepared."
+              : "No artwork has been published yet."}
         </h3>
         <p>
           {state === "error"
-            ? "잠시 후 다시 방문해 주세요."
-            : "새로운 기록이 이곳에 모입니다."}
+            ? "Please try again later."
+            : "New work will appear here."}
         </p>
       </div>
     );
@@ -48,8 +50,12 @@ export function WorkGrid({
             <h3>{item.title}</h3>
             <span>↗</span>
           </div>
-          {item.summary && <p>{item.summary}</p>}
-          {!!item.categories?.length && <p className="meta">{item.categories.map((category) => category.name).join(" · ")}</p>}
+          {showSummary && item.summary && <p>{item.summary}</p>}
+          {!!item.categories?.length && (
+            <p className="meta">
+              {item.categories.map((category) => category.name).join(" · ")}
+            </p>
+          )}
         </Link>
       ))}
     </div>

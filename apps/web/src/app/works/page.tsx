@@ -3,7 +3,7 @@ import { WorkArchive } from "./work-archive";
 import { getWorks } from "@/lib/content";
 export const metadata = {
   title: "Works",
-  description: "Pluto Archive에 공개된 작품과 이미지를 살펴봅니다.",
+  description: "Explore published artwork and images from Pluto Archive.",
 };
 export const revalidate = 60;
 export default async function Works() {
@@ -12,7 +12,9 @@ export default async function Works() {
       <section className="section">
         <span className="meta">01 / ARTWORK ARCHIVE</span>
         <h1 className="page-title">Works.</h1>
-        <p className="intro">상상에서 시작된 이미지, 오래 남기고 싶은 장면.</p>
+        <p className="intro">
+          Images born from imagination. Scenes worth keeping.
+        </p>
         <WorkArchive {...await getWorks()} />
       </section>
     </PublicShell>

@@ -4,6 +4,8 @@
 
 ## Start here
 
+Public presentation update (2026-10-06): English interface/editorial copy. Home explanations are rendered as readable `const` declarations by `CodeNote` with line numbers, indentation and restrained syntax colors. These are display text, not executable widgets. Authored artwork records remain intact; Home omits their summaries so its presentation stays English. Private/Admin UI remains separate.
+
 Latest profile direction (2026-10-06): planning first, focused on games/software but open to other sectors. The user reports illustration, development and accounting knowledge; present cross-team understanding and actionable planning as their intended value, without inventing collaboration outcomes. Copy lives in `site.json` and `plannerProfile` in `public-content.ts`.
 
 Repository: https://github.com/SeaArchive/PlutoArchive

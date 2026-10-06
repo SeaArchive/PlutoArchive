@@ -1,87 +1,85 @@
-// Editorial content for the public site until CMS publishing is connected.
-// Keep factual project claims tied to work visible in this repository.
+// Editorial content until CMS publishing is connected. Claims must remain grounded.
 export const plannerProfile = {
-  heading: "서로 다른 분야를 연결하는 기획",
+  heading: "Planning through shared understanding",
   background:
-    "일러스트, 개발, 회계 등 여러 분야의 지식을 갖추고 있습니다. 각 분야가 중요하게 보는 기준을 이해하고, 서로 다른 팀의 의견을 공통의 목표와 요구사항으로 연결하는 기획자를 지향합니다.",
+    "I bring knowledge of illustration, development, and accounting to planning. I aim to understand what matters to each discipline and connect different perspectives through shared goals and requirements.",
   approach:
-    "기획의 핵심을 여러 팀이 함께 일할 수 있도록 방향을 조율하는 데 두고 있습니다. 각 팀의 요구와 제약을 이해하고, 공통 목표와 판단 기준을 정리하기 위해 분야별 지식을 계속 쌓아가고자 합니다.",
+    "I see coordination as a core part of planning: helping teams work toward a shared direction. I continue to build knowledge across disciplines so I can understand their needs, constraints, and decision criteria.",
   direction:
-    "현재는 게임·소프트웨어 기획에 무게를 두고 있습니다. 여러 분야의 지식을 연결하는 기획 역량을 바탕으로, 다른 산업과 서비스로도 가능성을 열어 두고 있습니다.",
+    "My current focus is game and software planning. I keep the possibility of working across other industries and services open.",
   learning:
-    "앞으로 법·이커머스 등 실무 분야의 서비스와 업무를 역기획하고, 직접 기획하는 시도를 해볼 계획입니다. 법 관련 공부도 병행하며 서로 다른 팀의 관점과 제약을 이해하는 폭을 넓히고자 합니다.",
+    "I plan to study law and explore reverse planning and original planning in practical fields such as legal services and e-commerce. These are learning plans, not completed project experience.",
   preview:
-    "일러스트·개발·회계의 지식을 바탕으로, 여러 팀이 함께 일할 수 있도록 방향을 조율하는 기획자를 지향합니다. 게임·소프트웨어 기획을 중심으로 다양한 실무 분야를 이해하는 폭을 넓혀가고자 합니다.",
+    "I aim to connect teams through knowledge of illustration, development, and accounting. Games and software are my current focus, with room to explore other practical fields.",
 };
-
 export const projects = [
   {
     slug: "pluto-archive",
     title: "Pluto Archive",
     category: "WEB · UI/UX · DEVELOPMENT",
-    status: "진행 중",
+    status: "In progress",
     summary:
-      "그림과 프로젝트의 결과물, 그 과정의 판단을 한곳에서 보여주기 위한 포트폴리오 플랫폼.",
+      "A portfolio platform connecting artwork, projects, and the decisions behind them.",
     repository: "https://github.com/SeaArchive/PlutoArchive",
     sections: [
       {
         label: "01 / PURPOSE",
-        title: "결과와 과정을 함께 보여주기",
+        title: "Show the work and the thinking",
         paragraphs: [
-          "작품 이미지만 나열하면 어떤 문제를 풀었고 왜 그런 선택을 했는지 전달하기 어렵습니다. Public Space는 작품, 프로젝트, 제작 과정이 서로 연결되도록 설계했습니다.",
-          "작품은 넓은 이미지 면을 중심으로 보여주고, 프로젝트는 목표·선택·구현·검증을 읽을 수 있는 사례 형식으로 구성합니다.",
+          "An image alone rarely explains the problem it addresses or the choices behind it. Public Space connects artwork, project cases, and process notes.",
+          "Artwork gets room to breathe. Project cases explain their purpose, decisions, implementation, and verification.",
         ],
       },
       {
         label: "02 / DESIGN DECISIONS",
-        title: "경계를 먼저 정리하기",
+        title: "Define the boundaries first",
         paragraphs: [
-          "방문자가 보는 Public Space와 개인 데이터가 들어가는 Workspace를 구분했습니다. 공개 페이지는 정적 배포가 가능하고, 개인 작업은 서버 인증과 사용자별 접근 제어가 필요한 구조입니다.",
-          "기존 작품 기록을 지우지 않고 읽기 어댑터로 연결했습니다. 새 콘텐츠 구조로 옮기는 과정에서도 원본을 보존하는 방향을 택했습니다.",
+          "Public Space is separated from the personal Workspace. Public content can be exported, while personal operations require server authentication and user-specific access control.",
+          "An adapter connects existing artwork records without deleting the originals. This preserves source data while the content model evolves.",
         ],
       },
       {
         label: "03 / IMPLEMENTATION",
-        title: "화면에서 데이터까지",
+        title: "From interface to data",
         paragraphs: [
-          "Next.js·TypeScript로 페이지와 앱 경계를 구성하고, 작품 목록은 기존 공개 갤러리 데이터에서 읽습니다. GitHub Pages용 공개 스냅샷과 Node 서버용 개인 기능은 같은 소스에서 각기 다른 빌드로 제공합니다.",
-          "작품의 이미지 영역과 Public 페이지 바탕을 #000817로 맞추고, 얇은 경계선과 타이포그래피로 정보의 순서를 구분했습니다.",
+          "Next.js and TypeScript organize pages and application boundaries. Public artwork is read from the existing gallery. A separate static build provides a fallback snapshot and routes visitors to the live public site.",
+          "Public pages and artwork surfaces share a #000817 background. Thin borders and typography establish the hierarchy.",
         ],
       },
       {
         label: "04 / VERIFICATION & NEXT",
-        title: "확인한 것과 남은 것",
+        title: "Verified work. Open questions.",
         paragraphs: [
-          "저장소에는 타입 검사, 서버 빌드, 공개 페이지 링크·자산 검사와 데이터 접근 검사가 마련돼 있습니다. 변경 사항은 기능별 진행 기록에 남깁니다.",
-          "관리자 CMS를 통한 게시, 더 많은 실제 프로젝트 사례, 개인 Workspace의 로그인·재접속 검증은 계속 진행 중입니다. 성능 개선 수치는 실측 자료가 준비되면 공개합니다.",
+          "The repository includes type checks, production builds, public link and asset checks, and data-access tests. Progress is recorded by feature.",
+          "Artwork management and classification are implemented. Full CMS publishing, more project cases, and end-to-end personal Workspace verification remain in progress. Performance results will be published when measurements are available.",
         ],
       },
     ],
   },
 ] as const;
-
 export const processSteps = [
   {
     number: "01",
-    title: "문제를 정의합니다",
+    title: "Define the problem",
     description:
-      "방문자가 결과물에서 무엇을 알아야 하는지 정하고, 작품·과정·기술 기록을 어디에 배치할지 결정합니다.",
+      "Identify what the audience needs to understand, then decide how work, process, and technical records should connect.",
     example:
-      "이 사이트에서는 작품 감상과 제작 판단을 각각 Works와 Projects/Process로 나눴습니다.",
+      "This site separates artwork viewing from project decisions through Works and Projects/Process.",
   },
   {
     number: "02",
-    title: "선택의 근거를 남깁니다",
+    title: "Explain the decision",
     description:
-      "기존 기록을 보존하면서 새로운 구조로 연결하고, 공개 화면과 개인 기능의 경계를 분명히 합니다.",
+      "Preserve existing records while building a new structure, and keep public content separate from personal operations.",
     example:
-      "기존 갤러리 데이터는 읽기 어댑터를 거쳐 보여주고 원본은 유지합니다.",
+      "Existing gallery records are displayed through a read adapter while the originals are retained.",
   },
   {
     number: "03",
-    title: "동작을 확인하고 고칩니다",
+    title: "Verify and refine",
     description:
-      "페이지 링크, 접근 권한, 화면 크기별 배치처럼 방문 경험에 영향을 주는 항목을 확인합니다.",
-    example: "정적 공개 빌드에서 페이지와 로컬 자산의 연결을 검사합니다.",
+      "Check links, access control, and responsive layouts that affect the visitor's experience.",
+    example:
+      "The public export checks page links and local assets before publication.",
   },
 ] as const;

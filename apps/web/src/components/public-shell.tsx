@@ -8,13 +8,16 @@ export function PublicShell({
   home?: boolean;
 }) {
   return (
-    <div className={home ? "public-space public-home" : "public-space"}>
+    <div
+      lang="en"
+      className={home ? "public-space public-home" : "public-space"}
+    >
       <header className="topbar">
-        <Link className="brand" href="/" aria-label="Pluto Archive 홈">
+        <Link className="brand" href="/" aria-label="Pluto Archive home">
           <span className="brand-mark">P↗</span>
           {site.name}
         </Link>
-        <nav aria-label="주 메뉴" className="public-nav">
+        <nav aria-label="Main navigation" className="public-nav">
           {site.navigation.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.label}
@@ -29,7 +32,7 @@ export function PublicShell({
       <footer>
         <Link href="/">PLUTO ARCHIVE</Link>
         <span>ART · DESIGN · DEVELOPMENT</span>
-        <Link href="/contact">연락하기 ↗</Link>
+        <Link href="/contact">Contact ↗</Link>
         <span>© {new Date().getFullYear()} SEAARCHIVE</span>
       </footer>
     </div>

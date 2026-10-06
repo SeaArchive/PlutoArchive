@@ -47,7 +47,7 @@ export default async function ProjectDetail({
             target="_blank"
             rel="noopener noreferrer"
           >
-            프로젝트 저장소 ↗
+            Project repository ↗
           </a>
         </header>
         {project.sections.map((section) => (
@@ -61,12 +61,12 @@ export default async function ProjectDetail({
             </div>
           </section>
         ))}
-        <nav className="section case-next" aria-label="이어 보기">
+        <nav className="section case-next" aria-label="Continue exploring">
           <Link className="text-link" href="/process">
-            작업 과정 보기 ↗
+            Explore the process ↗
           </Link>
           <Link className="text-link" href="/works">
-            작품 보기 ↗
+            Explore artwork ↗
           </Link>
         </nav>
       </article>

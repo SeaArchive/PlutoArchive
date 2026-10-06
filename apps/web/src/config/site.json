@@ -1,13 +1,28 @@
 {
   "name": "PLUTO ARCHIVE",
-  "introduction": "분야를 이해하고, 함께 실행하는 기획자.",
-  "description": "일러스트·개발·회계의 지식을 바탕으로, 서로 다른 관점을 실행 가능한 기획으로 연결하고자 합니다.",
+  "introduction": "Understand disciplines. Align teams. Shape plans.",
+  "description": "Connecting perspectives through knowledge of illustration, development, and accounting.",
   "navigation": [
-    { "label": "Works", "href": "/works" },
-    { "label": "Projects", "href": "/projects" },
-    { "label": "Process", "href": "/process" },
-    { "label": "About", "href": "/about" },
-    { "label": "Contact", "href": "/contact" }
+    {
+      "label": "Works",
+      "href": "/works"
+    },
+    {
+      "label": "Projects",
+      "href": "/projects"
+    },
+    {
+      "label": "Process",
+      "href": "/process"
+    },
+    {
+      "label": "About",
+      "href": "/about"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact"
+    }
   ],
   "github": "https://github.com/SeaArchive"
 }

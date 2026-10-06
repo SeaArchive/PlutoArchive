@@ -219,6 +219,20 @@ select {
   font-size: 12px;
   margin: 0;
 }
+.hero-code { max-width: 660px; min-width: 0; }
+.code-note { padding: 18px 0; min-width: 0; }
+.code-file { display: block; color: var(--muted); font: 10px "IBM Plex Mono", monospace; letter-spacing: .08em; margin-bottom: 14px; }
+.code-note code { display: block; counter-reset: code-line; font: 13px/1.9 "IBM Plex Mono", monospace; color: var(--accent); }
+.code-line { display: block; position: relative; padding-left: 34px; overflow-wrap: anywhere; }
+.code-line::before { counter-increment: code-line; content: counter(code-line, decimal-leading-zero); position: absolute; left: 0; color: var(--muted); opacity: .55; font-size: 10px; user-select: none; }
+.code-field { padding-left: 50px; }
+.code-keyword { color: #a6bbd7; }
+.code-property { color: var(--text); }
+.code-string { color: #b8d6cd; }
+.project-entry .code-note { max-width: 760px; }
+.code-principles { gap: 24px; }
+.code-principles .code-note { border-top: 1px solid var(--border); }
+.contact .code-note { max-width: 680px; margin-bottom: 20px; }
 .text-link {
   display: inline-flex;
   gap: 40px;

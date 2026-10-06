@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     default: "Pluto Archive — Art, Design & Development",
     template: "%s | Pluto Archive",
   },
-  description: "작품과 프로젝트, 그리고 그 사이의 생각을 기록하는 공간.",
+  description: "Artwork, projects, and the thinking that connects them.",
 };
 export default function RootLayout({
   children,
@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <a className="skip-link" href="#main">
-          본문으로 건너뛰기
+          Skip to content
         </a>
         {children}
       </body>

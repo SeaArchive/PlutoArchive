@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { PublicShell } from "@/components/public-shell";
 import { WorkGrid } from "@/components/work-grid";
+import { CodeNote } from "@/components/code-note";
 import { getWorks } from "@/lib/content";
-import { plannerProfile, processSteps, projects } from "@/config/public-content";
-import site from "@/config/site.json";
+import { projects } from "@/config/public-content";
 export const revalidate = 60;
 export default async function Home() {
   const works = await getWorks();
@@ -25,13 +25,28 @@ export default async function Home() {
           </span>
         </h1>
         <div className="hero-bottom">
-          <div className="frame">
+          <div className="hero-code">
             <span className="meta">01 / INTRODUCTION</span>
-            <h2>{site.introduction}</h2>
-            <p>{site.description}</p>
+            <CodeNote
+              name="planner"
+              fields={[
+                {
+                  name: "purpose",
+                  value: "Align perspectives. Shape a shared direction.",
+                },
+                {
+                  name: "knowledge",
+                  value: ["illustration", "development", "accounting"],
+                },
+                {
+                  name: "focus",
+                  value: ["game planning", "software planning"],
+                },
+              ]}
+            />
           </div>
           <Link className="text-link" href="#works">
-            아카이브 둘러보기 <span>↓</span>
+            Explore the archive <span>↓</span>
           </Link>
         </div>
         <div className="orbit-art" aria-hidden="true">
@@ -54,10 +69,10 @@ export default async function Home() {
             </h2>
           </div>
           <Link className="text-link" href="/works">
-            전체 작품 ↗
+            All artwork ↗
           </Link>
         </div>
-        <WorkGrid {...featuredWorks} />
+        <WorkGrid {...featuredWorks} showSummary={false} />
       </section>
       <section className="section" id="projects">
         <div className="section-heading">
@@ -66,7 +81,7 @@ export default async function Home() {
             <h2>Projects.</h2>
           </div>
           <Link className="text-link" href="/projects">
-            전체 프로젝트 ↗
+            All projects ↗
           </Link>
         </div>
         {projects.map((project) => (
@@ -75,12 +90,18 @@ export default async function Home() {
             href={`/projects/${project.slug}`}
             key={project.slug}
           >
-            <span className="meta">
-              {project.category} / {project.status}
-            </span>
+            <span className="meta">{project.category}</span>
             <h3>{project.title}</h3>
-            <p>{project.summary}</p>
-            <span className="meta">목표 · 선택 · 구현 · 검증 ↗</span>
+            <CodeNote
+              name="project"
+              fields={[
+                { name: "goal", value: project.summary },
+                { name: "status", value: project.status },
+              ]}
+            />
+            <span className="meta">
+              PURPOSE · DECISIONS · IMPLEMENTATION · VERIFICATION ↗
+            </span>
           </Link>
         ))}
       </section>
@@ -94,48 +115,91 @@ export default async function Home() {
           </h2>
         </div>
         <div>
-          <h3>{processSteps[0].title}</h3>
-          <p>{processSteps[0].description}</p>
+          <CodeNote
+            name="workflow"
+            fields={[
+              { name: "start", value: "Define the problem and the audience." },
+              {
+                name: "decide",
+                value: "Make constraints and trade-offs explicit.",
+              },
+              {
+                name: "verify",
+                value: "Check the outcome. Refine the next step.",
+              },
+            ]}
+          />
           <Link className="index-link" href="/projects">
-            <span>01</span>Projects <span>↗</span>
+            <span>01</span>Projects<span>↗</span>
           </Link>
           <Link className="index-link" href="/process">
-            <span>02</span>Process <span>↗</span>
+            <span>02</span>Process<span>↗</span>
           </Link>
         </div>
       </section>
       <section className="section technical">
         <span className="meta">04 / BUILT WITH INTENTION</span>
         <h2>
-          보이는 것부터,
+          From the surface
           <br />
-          보이지 않는 구조까지.
+          to the structure.
         </h2>
-        <div className="principles">
-          <p>
-            <b>01 — Clarity</b>작품에 집중하는 명확한 화면.
-          </p>
-          <p>
-            <b>02 — Structure</b>콘텐츠와 기능을 연결하는 구조.
-          </p>
-          <p>
-            <b>03 — Performance</b>측정한 문제부터 개선하기.
-          </p>
+        <div className="principles code-principles">
+          <CodeNote
+            name="clarity"
+            fields={[{ name: "goal", value: "Keep the work in focus." }]}
+          />
+          <CodeNote
+            name="structure"
+            fields={[
+              { name: "goal", value: "Connect content and functionality." },
+            ]}
+          />
+          <CodeNote
+            name="performance"
+            fields={[
+              {
+                name: "approach",
+                value: "Measure first. Improve what matters.",
+              },
+            ]}
+          />
         </div>
       </section>
       <section className="section split">
         <div>
           <span className="meta">05 / ABOUT</span>
           <h2>
-            분야를 이해하고,
+            Understand.
             <br />
-            기획으로 연결합니다.
+            Align. Plan.
           </h2>
         </div>
         <div>
-          <p>{plannerProfile.preview}</p>
+          <CodeNote
+            name="direction"
+            fields={[
+              {
+                name: "role",
+                value:
+                  "A planner who connects teams through shared understanding.",
+              },
+              {
+                name: "outlook",
+                value: "Games and software, with room to explore other fields.",
+              },
+              {
+                name: "next",
+                value: [
+                  "law studies",
+                  "e-commerce analysis",
+                  "reverse planning",
+                ],
+              },
+            ]}
+          />
           <Link className="text-link" href="/about">
-            소개 읽기 ↗
+            Read about me ↗
           </Link>
         </div>
       </section>
@@ -146,8 +210,17 @@ export default async function Home() {
           <br />
           something meaningful.
         </h2>
+        <CodeNote
+          name="connection"
+          fields={[
+            {
+              name: "intent",
+              value: "Turn different perspectives into a shared direction.",
+            },
+          ]}
+        />
         <Link href="/contact" className="text-link">
-          함께 이야기하기 ↗
+          Contact & public work ↗
         </Link>
       </section>
     </PublicShell>
