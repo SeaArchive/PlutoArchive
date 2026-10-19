@@ -1,5 +1,14 @@
 # Pluto Archive Progress
 
+## Starfield correction / Sites first — 2026-10-19
+
+- 사용자 요청: 별 효과가 보이지 않는 문제를 우선 수정. 기획 사례는 추후 역기획 과정에서 추가하므로 현재 확장하지 않는다. Sites에서 수정본을 먼저 구현하고 실제 사이트 적용은 다음 단계로 둔다.
+- 실제 Render Public Home을 브라우저로 확인하니 영어/코드형 소개 이전의 한국어 화면이 제공되고 있었다. 최신 별 효과가 포함된 GitHub 소스와 배포본이 다름을 확인했다. Render 연결 두 개 모두 `Reauthentication required`로 배포 이력 조회가 차단되어, 실패 원인/자동 배포 설정은 확인하지 못했다. 운영 배포를 수정했다고 주장하지 않는다.
+- 별의 반지름을 0.7–1.35px, 기본 불투명도를 0.32–0.56으로 조정했다. 64/30개, no-glow, 입력 통과, reduced-motion, idle/hidden 정지는 유지한다. 프리패치된 즉시 전환에서도 480ms의 장식 효과를 유지하며 실제 콘텐츠 이동을 지연하지 않는다. Pages base path도 Public 경로로 인식한다.
+- `starfield-engine.ts`로 엔진을 분리하고 React wrapper와 Sites가 동일한 구현을 사용한다. 회귀 검사는 최소 크기/밝기, 즉시 전환, base path를 추가했다. `pnpm test:stars`, frozen install, 타입 검사, 서버 빌드, Pages 빌드, 19 HTML/374 로컬 경로 검사를 통과했다. README는 변경하지 않았다.
+- Sites 소유자 전용 수정본 배포 성공: https://pluto-starfield-fix.p-hancheong.chatgpt.site / project `appgprj_6ad590ab9f448191b814c94e9149d83d` / source `341172488e01c154b51ea5468c9334bf7eac5988`. 기존 Public 정적 콘텐츠 12페이지와 공유 엔진만 제공하며 Workspace 링크는 기존 서버를 가리킨다. 인증/CMS/DB를 옮기지 않았다.
+- 한계: 필수 control-browser 스킬이 노출되지 않아 managed Sites 브라우저 시각 검증은 수행하지 않았다. 자동 엔진 검사와 정적 자산/링크 검사 및 Sites 배포 성공을 확인했다. 다음: 수정본 화면 확인 후 Render 재인증과 최신 소스 배포, 실제 별/전환·모바일 시각 확인.
+
 ## Latest background update — 2026-10-06
 
 - 사용자 요청에 따라 Public/작품 바탕을 검정에 더 가까운 청색 #02050C로 조정했다. 작은 저명도 별 64개(작은 화면 30개)가 커서 주변에서 최대 몇 px 반응하고, Public 내부 링크 전환 시 상단의 얇은 띠로 모였다가 라우트 변경 후 흩어진다. 가짜 로딩 퍼센트나 이동 지연은 없다.

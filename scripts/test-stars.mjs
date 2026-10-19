@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { stripTypeScriptTypes } from "node:module";
-const source = (
+const code = stripTypeScriptTypes(
   await readFile(
-    new URL("../apps/web/src/components/starfield.tsx", import.meta.url),
+    new URL("../apps/web/src/components/starfield-engine.ts", import.meta.url),
     "utf8",
-  )
-)
-  .replace(/import[^;]+;/g, "")
-  .replace(/return visible \? \([\s\S]*?\) : null;/, "return null;");
-const code = stripTypeScriptTypes(source);
+  ),
+);
 let run = 0;
 async function setup({
   width = 1200,
@@ -19,12 +16,12 @@ async function setup({
 } = {}) {
   const listeners = new Map(),
     frames = new Map(),
-    effects = [],
     cleanups = [];
   let points = [],
     id = 0,
     time = 0,
-    refs = 0;
+    fills = [],
+    history = [];
   const on = (name, handler) => listeners.set(name, handler);
   const off = (name) => listeners.delete(name);
   const motion = {
@@ -36,12 +33,15 @@ async function setup({
     setTransform() {},
     clearRect() {
       points = [];
+      fills = [];
     },
     beginPath() {},
     arc(x, y, r) {
       points.push([x, y, r]);
     },
-    fill() {},
+    fill() {
+      fills.push(this.fillStyle);
+    },
   };
   const canvas = { getContext: () => ctx };
   globalThis.window = {
@@ -73,19 +73,14 @@ async function setup({
     return id;
   };
   globalThis.cancelAnimationFrame = (key) => frames.delete(key);
-  globalThis.testStars = {
-    useRef: (initial) => ({ current: refs++ === 0 ? canvas : initial }),
-    useEffect: (callback) => {
-      effects.push(callback);
-      const cleanup = callback();
-      if (cleanup) cleanups.push(cleanup);
-    },
-    usePathname: () => path,
-  };
   const module = await import(
-    `data:text/javascript;base64,${Buffer.from("const {useRef,useEffect,usePathname}=globalThis.testStars;\n" + code + "\n//" + run++).toString("base64")}`
+    `data:text/javascript;base64,${Buffer.from(code + "\n//" + run++).toString("base64")}`
   );
-  module.Starfield();
+  globalThis.performance = { now: () => time };
+  const controller = module.publicPath(path)
+    ? module.mountStarfield(canvas)
+    : null;
+  if (controller) cleanups.push(controller.destroy);
   const drain = () => {
     let count = 0;
     while (frames.size) {
@@ -94,6 +89,7 @@ async function setup({
       frames.clear();
       time += 34;
       callbacks.forEach((fn) => fn(time));
+      history.push(points.map((p) => [...p]));
     }
   };
   const click = () => {
@@ -112,7 +108,9 @@ async function setup({
   return {
     listeners,
     frames,
-    effects,
+    finish: () => controller?.finish(),
+    history,
+    fills: () => fills,
     drain,
     click,
     points: () => points,
@@ -122,6 +120,14 @@ async function setup({
 const desktop = await setup();
 desktop.drain();
 assert.equal(desktop.points().length, 64);
+assert.ok(
+  desktop.points().every((p) => p[2] >= 0.7 && p[2] <= 1.35),
+  "minimum visible radius",
+);
+assert.ok(
+  desktop.fills().every((c) => Number(c.match(/,([\d.]+)\)$/)[1]) >= 0.32),
+  "minimum visible opacity",
+);
 const initial = desktop.points().map((p) => [...p]);
 desktop.listeners.get("pointermove")({
   clientX: 900,
@@ -149,7 +155,7 @@ assert.ok(
   desktop.points().every((p) => p[1] < 24),
   "navigation gathers stars at the top",
 );
-desktop.effects[1]();
+desktop.finish();
 desktop.drain();
 assert.ok(
   desktop.points().some((p) => p[1] > 100),
@@ -165,6 +171,26 @@ desktop.listeners.get("visibilitychange")();
 assert.equal(desktop.frames.size, 0);
 desktop.cleanup();
 assert.equal(desktop.listeners.size, 0);
+const fast = await setup();
+fast.drain();
+fast.click();
+fast.finish(); // Next can commit a prefetched route before the first animation frame.
+fast.drain();
+assert.ok(
+  fast.history.some(
+    (points) => points.length && points.every((p) => p[1] < 36),
+  ),
+  "instant navigation retains a visible gather cue",
+);
+assert.ok(
+  fast.points().some((p) => p[1] > 100),
+  "fast navigation disperses without delaying content",
+);
+fast.cleanup();
+const base = await setup({ path: "/PlutoArchive/works" });
+base.drain();
+assert.equal(base.points().length, 64, "Pages base path is public");
+base.cleanup();
 const reduced = await setup({ reduced: true });
 reduced.drain();
 reduced.click();
