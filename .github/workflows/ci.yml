@@ -23,6 +23,7 @@ jobs:
       - run: pnpm test:layout
       - run: pnpm test:stars
       - run: pnpm test:public-gallery
+      - run: pnpm test:keyboard
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm build:pages

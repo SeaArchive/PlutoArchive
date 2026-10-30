@@ -1,6 +1,15 @@
 # Pluto Archive Progress
 
 
+
+## Keyboard and responsive audit — 2026-10-30
+
+- 사용자 요청: 모바일·접근성 점검, Enter 저장·Shift+Enter 줄바꿈. 메모/관리자 설명 편집과 관련 제목·분류·Tasks/Music 폼에 공통 키 처리기를 적용했다. IME 조합 중 Enter와 keyCode 229를 무시하고, 반복·저장 중 입력의 중복 제출을 막으며 `requestSubmit`으로 브라우저 검증을 유지한다. Tab·기본 버튼·링크·select·파일 입력은 가로채지 않는다.
+- 명령 검색 Enter 첫 결과 실행, 모달 배경 inert/초점 복귀·최상단 레이어, Tab으로 진입한 작업창 앞으로 표시, 자식 컨트롤의 이동 단축키 버블링 방지. 새 메모 초점과 저장 중 textarea 초점, 관리자 편집 시작·완료/취소 초점, 본문 건너뛰기 대상도 보완했다.
+- 반응형 코드에서 긴 제목/작업명 줄바꿈, 입력 16px, 주요 작은 버튼 터치 영역 44px, 메뉴 초점 테두리 여백과 관리자/Workspace 입력 테두리 대비를 보완했다. 계산 대비는 관리자 입력 3.53:1, 관리자 focus 5.50:1, Workspace 입력 3.34:1.
+- 검증: frozen 설치, 키 처리·레이아웃·별 효과·공개 gallery 회귀 검사, TypeScript·Node 빌드·Pages 재생성 및 20 HTML/367 링크·자산 검사 통과. 원격 배포 후 실제 키 입력 확인을 진행한다. 운영 작품은 시험 목적으로 변경하지 않는다. Render의 서비스/배포 조회 연결이 복구됐으며 현재 Live는 9월 28일 커밋으로 확인됐다.
+- 한계: 현재 브라우저에서 모바일 viewport 변경 기능을 사용할 수 없어 실제 모바일·가상 키보드·iOS 확대·스크린 리더 검증은 남는다. 모바일은 소스의 반응형/대비 점검과 개선까지 수행했다. 세부 계약·남은 확인: `docs/accessibility.md`.
+
 ## Fast public delivery — 2026-10-30
 
 - Render 무료 서버 재시작 대기를 공개 방문에서 피하도록 GitHub Pages의 Public 전체 리다이렉트를 제거했다. 공개 HTML/스타일/별 효과는 Pages에서 제공하고, 관리자·로그인·개인 Workspace는 기존 Node 호스트로 연결한다. 이전 Node URL 직접 방문과 개인 기능에는 무료 서버 대기가 남는다.

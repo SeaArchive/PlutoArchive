@@ -6,6 +6,7 @@ import { WindowManager } from "./window-manager";
 import { useWindowState } from "./window-state";
 import { fitWindow, type WindowPlacement } from "./layout";
 import { searchCommands, workspaceCommands } from "./commands";
+import { saveOnEnter } from "@/lib/editor-keyboard";
 export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const {
     device,
@@ -33,6 +34,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const notificationId = useRef(0);
   const searchRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
   const notify = useCallback((message: string) => {
     setNotice(message);
     const entry = {
@@ -47,6 +49,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   }, []);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (e.isComposing || e.keyCode === 229) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         if (device === "mobile") setMobileTab("search");
@@ -61,8 +64,18 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
     return () => window.removeEventListener("keydown", handler);
   }, [device, palette]);
   useEffect(() => {
-    if (palette) searchRef.current?.focus();
+    if (!palette) return;
+    const origin = document.activeElement;
+    searchRef.current?.focus();
+    return () => {
+      if (origin instanceof HTMLElement && origin.isConnected) origin.focus();
+      else triggerRef.current?.focus();
+    };
   }, [palette]);
+  useEffect(() => {
+    if (device === "mobile" && mobileTab === "search")
+      mobileSearchRef.current?.focus();
+  }, [device, mobileTab]);
   function open(id: string) {
     if (!device || !loaded) return;
     change((items) => {
@@ -163,7 +176,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const MobileApp = mobileVisible ? renderers[mobileVisible.id] : null;
   return (
     <div className="private-space">
-      <header className="workspace-header">
+      <header className="workspace-header" inert={palette}>
         <Link className="brand" href="/">
           P↗ PLUTO / WORKSPACE
         </Link>
@@ -174,233 +187,260 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
           </form>
         )}
       </header>
-      <main id="main" className="workspace-main">
-        <div className="workspace-heading">
-          <div>
-            <span className="meta">WORKSPACE / MUSIC FIRST</span>
-            <h1>A space to focus.</h1>
-          </div>
-          {device !== "mobile" && (
-            <button ref={triggerRef} onClick={() => setPalette(true)}>
-              검색 <kbd>⌘ K</kbd>
-            </button>
-          )}
-        </div>
-        <p className="preview-banner">
-          {preview
-            ? "공개 미리보기 · 음악 목록·메모·작업은 현재 화면에서만 유지됩니다."
-            : "개인 Workspace · 음악 링크, 저장한 메모 및 작업은 계정에 보관됩니다."}
-        </p>
-        {device !== "mobile" && (
-          <div className="workspace-tools">
-            <button
-              onClick={() =>
-                setDesktopPanel(
-                  desktopPanel === "notifications" ? null : "notifications",
-                )
-              }
-            >
-              알림 {notifications.length > 0 ? `(${notifications.length})` : ""}
-            </button>
-            <button
-              onClick={() =>
-                setDesktopPanel(desktopPanel === "settings" ? null : "settings")
-              }
-            >
-              설정
-            </button>
-          </div>
-        )}
-        {device !== "mobile" && desktopPanel && (
-          <section
-            className="workspace-panel"
-            aria-label={desktopPanel === "notifications" ? "알림 센터" : "설정"}
-          >
-            <h2>{desktopPanel === "notifications" ? "알림 센터" : "설정"}</h2>
-            {desktopPanel === "notifications" ? (
-              notificationList
-            ) : (
-              <>
-                <p>현재 기기의 창 배치를 초기화합니다.</p>
-                <button onClick={reset}>창 배치 초기화</button>
-              </>
-            )}
-            <button onClick={() => setDesktopPanel(null)}>닫기</button>
-          </section>
-        )}
-        {!loaded && (
-          <div role="status" className="preview-banner">
-            {layoutError ? (
-              <>
-                {layoutError} <button onClick={retry}>다시 시도</button>
-              </>
-            ) : (
-              "작업 공간을 불러오는 중…"
-            )}
-          </div>
-        )}
-        {loaded && device !== "mobile" && (
-          <>
-            <div className="launcher" aria-label="앱 런처">
-              {apps.map((app, i) => (
-                <button
-                  key={app.id}
-                  aria-pressed={windows.some((w) => w.id === app.id)}
-                  onClick={() => open(app.id)}
-                >
-                  <span className="meta">0{i + 1} / APP</span>
-                  {app.name}
-                </button>
-              ))}
-              <Link className="text-link" href="/admin">
-                Admin ↗
-              </Link>
+      <main id="main" className="workspace-main" tabIndex={-1}>
+        <div inert={palette}>
+          <div className="workspace-heading">
+            <div>
+              <span className="meta">WORKSPACE / MUSIC FIRST</span>
+              <h1>A space to focus.</h1>
             </div>
-            <WindowManager
-              windows={windows}
-              change={change}
-              save={save}
-              notify={notify}
-              preview={preview}
-            />
-            <nav className="workspace-dock" aria-label="실행 중인 앱">
-              {windows.map((w) => (
-                <button
-                  key={w.id}
-                  aria-label={`${apps.find((app) => app.id === w.id)?.name} ${w.minimized ? "복원" : "앞으로"}`}
-                  aria-pressed={!w.minimized}
-                  onClick={() => restore(w.id)}
-                >
-                  {apps.find((app) => app.id === w.id)?.name}
-                  {w.minimized ? " · 최소화" : ""}
-                </button>
-              ))}
-            </nav>
-          </>
-        )}
-        {loaded && device === "mobile" && (
-          <>
-            <div className="mobile-workspace">
-              {mobileTab === "home" &&
-                (MobileApp ? (
-                  <section
-                    className="app-window mobile-app"
-                    aria-label={`${mobileVisible?.id} 앱`}
+            {device !== "mobile" && (
+              <button ref={triggerRef} onClick={() => setPalette(true)}>
+                검색 <kbd>⌘ K</kbd>
+              </button>
+            )}
+          </div>
+          <p className="preview-banner">
+            {preview
+              ? "공개 미리보기 · 음악 목록·메모·작업은 현재 화면에서만 유지됩니다."
+              : "개인 Workspace · 음악 링크, 저장한 메모 및 작업은 계정에 보관됩니다."}
+          </p>
+          {device !== "mobile" && (
+            <div className="workspace-tools">
+              <button
+                onClick={() =>
+                  setDesktopPanel(
+                    desktopPanel === "notifications" ? null : "notifications",
+                  )
+                }
+              >
+                알림{" "}
+                {notifications.length > 0 ? `(${notifications.length})` : ""}
+              </button>
+              <button
+                onClick={() =>
+                  setDesktopPanel(
+                    desktopPanel === "settings" ? null : "settings",
+                  )
+                }
+              >
+                설정
+              </button>
+            </div>
+          )}
+          {device !== "mobile" && desktopPanel && (
+            <section
+              className="workspace-panel"
+              aria-label={
+                desktopPanel === "notifications" ? "알림 센터" : "설정"
+              }
+            >
+              <h2>{desktopPanel === "notifications" ? "알림 센터" : "설정"}</h2>
+              {desktopPanel === "notifications" ? (
+                notificationList
+              ) : (
+                <>
+                  <p>현재 기기의 창 배치를 초기화합니다.</p>
+                  <button onClick={reset}>창 배치 초기화</button>
+                </>
+              )}
+              <button onClick={() => setDesktopPanel(null)}>닫기</button>
+            </section>
+          )}
+          {!loaded && (
+            <div role="status" className="preview-banner">
+              {layoutError ? (
+                <>
+                  {layoutError} <button onClick={retry}>다시 시도</button>
+                </>
+              ) : (
+                "작업 공간을 불러오는 중…"
+              )}
+            </div>
+          )}
+          {loaded && device !== "mobile" && (
+            <>
+              <div className="launcher" aria-label="앱 런처">
+                {apps.map((app, i) => (
+                  <button
+                    key={app.id}
+                    aria-pressed={windows.some((w) => w.id === app.id)}
+                    onClick={() => open(app.id)}
                   >
-                    <header className="window-title">
-                      <span>
-                        {apps.find((app) => app.id === mobileVisible?.id)?.name}
-                      </span>
-                      <button
-                        onClick={() => {
-                          change((items) =>
-                            items.filter((item) => item.id !== mobileApp),
-                          );
-                          save();
-                          setMobileApp(null);
-                        }}
-                        aria-label="앱 닫기"
-                      >
-                        ×
+                    <span className="meta">0{i + 1} / APP</span>
+                    {app.name}
+                  </button>
+                ))}
+                <Link className="text-link" href="/admin">
+                  Admin ↗
+                </Link>
+              </div>
+              <WindowManager
+                windows={windows}
+                change={change}
+                save={save}
+                notify={notify}
+                preview={preview}
+              />
+              <nav className="workspace-dock" aria-label="실행 중인 앱">
+                {windows.map((w) => (
+                  <button
+                    key={w.id}
+                    aria-label={`${apps.find((app) => app.id === w.id)?.name} ${w.minimized ? "복원" : "앞으로"}`}
+                    aria-pressed={!w.minimized}
+                    onClick={() => restore(w.id)}
+                  >
+                    {apps.find((app) => app.id === w.id)?.name}
+                    {w.minimized ? " · 최소화" : ""}
+                  </button>
+                ))}
+              </nav>
+            </>
+          )}
+          {loaded && device === "mobile" && (
+            <>
+              <div className="mobile-workspace">
+                {mobileTab === "home" &&
+                  (MobileApp ? (
+                    <section
+                      className="app-window mobile-app"
+                      aria-label={`${mobileVisible?.id} 앱`}
+                    >
+                      <header className="window-title">
+                        <span>
+                          {
+                            apps.find((app) => app.id === mobileVisible?.id)
+                              ?.name
+                          }
+                        </span>
+                        <button
+                          onClick={() => {
+                            change((items) =>
+                              items.filter((item) => item.id !== mobileApp),
+                            );
+                            save();
+                            setMobileApp(null);
+                          }}
+                          aria-label="앱 닫기"
+                        >
+                          ×
+                        </button>
+                      </header>
+                      <div className="app-body">
+                        <MobileApp notify={notify} persistent={!preview} />
+                      </div>
+                    </section>
+                  ) : (
+                    <div className="mobile-home">
+                      <h2>Workspace</h2>
+                      <p>앱을 선택해 작업을 이어가세요.</p>
+                      {windows.map((w) => (
+                        <button
+                          key={w.id}
+                          onClick={() => {
+                            setMobileApp(w.id);
+                            if (w.minimized) restore(w.id);
+                          }}
+                        >
+                          {apps.find((app) => app.id === w.id)?.name} 열기
+                        </button>
+                      ))}
+                      <button onClick={() => setMobileTab("apps")}>
+                        전체 앱 보기
                       </button>
-                    </header>
-                    <div className="app-body">
-                      <MobileApp notify={notify} persistent={!preview} />
                     </div>
-                  </section>
-                ) : (
+                  ))}
+                {mobileTab === "apps" && (
                   <div className="mobile-home">
-                    <h2>Workspace</h2>
-                    <p>앱을 선택해 작업을 이어가세요.</p>
-                    {windows.map((w) => (
-                      <button
-                        key={w.id}
-                        onClick={() => {
-                          setMobileApp(w.id);
-                          if (w.minimized) restore(w.id);
-                        }}
-                      >
-                        {apps.find((app) => app.id === w.id)?.name} 열기
+                    <h2>Apps</h2>
+                    {apps.map((app) => (
+                      <button key={app.id} onClick={() => open(app.id)}>
+                        {app.name} 열기
                       </button>
                     ))}
-                    <button onClick={() => setMobileTab("apps")}>
-                      전체 앱 보기
+                    <Link href="/admin">Admin ↗</Link>
+                  </div>
+                )}
+                {mobileTab === "search" && (
+                  <div className="mobile-home">
+                    <h2>Search</h2>
+                    <input
+                      ref={mobileSearchRef}
+                      aria-label="명령 검색"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="앱 또는 명령 검색…"
+                      enterKeyHint="go"
+                      aria-describedby="mobile-command-help"
+                      onKeyDown={(event) =>
+                        saveOnEnter(event, () => {
+                          if (matches[0]) runCommand(matches[0]);
+                        })
+                      }
+                    />
+                    <p id="mobile-command-help" className="fine">
+                      Enter 첫 결과 실행 · Tab 이동
+                    </p>
+                    {matches.length === 0 && <p>검색 결과가 없습니다.</p>}
+                    {matches.map((command) => (
+                      <button
+                        key={command.id}
+                        onClick={() => runCommand(command)}
+                      >
+                        {command.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {mobileTab === "notifications" && (
+                  <div className="mobile-home">
+                    <h2>Notifications</h2>
+                    {notificationList}
+                  </div>
+                )}
+                {mobileTab === "settings" && (
+                  <div className="mobile-home">
+                    <h2>Settings</h2>
+                    <p>이 기기의 앱 배치를 초기화합니다.</p>
+                    <button
+                      onClick={() => {
+                        reset();
+                        setMobileApp(null);
+                      }}
+                    >
+                      배치 초기화
                     </button>
                   </div>
-                ))}
-              {mobileTab === "apps" && (
-                <div className="mobile-home">
-                  <h2>Apps</h2>
-                  {apps.map((app) => (
-                    <button key={app.id} onClick={() => open(app.id)}>
-                      {app.name} 열기
-                    </button>
-                  ))}
-                  <Link href="/admin">Admin ↗</Link>
-                </div>
-              )}
-              {mobileTab === "search" && (
-                <div className="mobile-home">
-                  <h2>Search</h2>
-                  <input
-                    aria-label="명령 검색"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="앱 또는 명령 검색…"
-                  />
-                  {matches.length === 0 && <p>검색 결과가 없습니다.</p>}
-                  {matches.map((command) => (
-                    <button
-                      key={command.id}
-                      onClick={() => runCommand(command)}
-                    >
-                      {command.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {mobileTab === "notifications" && (
-                <div className="mobile-home">
-                  <h2>Notifications</h2>
-                  {notificationList}
-                </div>
-              )}
-              {mobileTab === "settings" && (
-                <div className="mobile-home">
-                  <h2>Settings</h2>
-                  <p>이 기기의 앱 배치를 초기화합니다.</p>
+                )}
+              </div>
+              <nav
+                className="mobile-workspace-nav"
+                aria-label="모바일 Workspace 메뉴"
+              >
+                {(
+                  [
+                    "home",
+                    "apps",
+                    "search",
+                    "notifications",
+                    "settings",
+                  ] as const
+                ).map((tab) => (
                   <button
-                    onClick={() => {
-                      reset();
-                      setMobileApp(null);
-                    }}
+                    key={tab}
+                    aria-current={mobileTab === tab ? "page" : undefined}
+                    onClick={() => setMobileTab(tab)}
                   >
-                    배치 초기화
+                    {tab}
                   </button>
-                </div>
-              )}
-            </div>
-            <nav
-              className="mobile-workspace-nav"
-              aria-label="모바일 Workspace 메뉴"
-            >
-              {(
-                ["home", "apps", "search", "notifications", "settings"] as const
-              ).map((tab) => (
-                <button
-                  key={tab}
-                  aria-current={mobileTab === tab ? "page" : undefined}
-                  onClick={() => setMobileTab(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </nav>
-          </>
-        )}
-        {layoutError && loaded && <p role="alert">{layoutError}</p>}
-        <div role="status" className="notice">
-          {notice}
+                ))}
+              </nav>
+            </>
+          )}
+          {layoutError && loaded && <p role="alert">{layoutError}</p>}
+          <div role="status" className="notice">
+            {notice}
+          </div>
         </div>
         {palette && (
           <div className="palette" onClick={() => setPalette(false)}>
@@ -435,7 +475,16 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="앱 또는 명령 검색…"
+                aria-describedby="command-help"
+                onKeyDown={(event) =>
+                  saveOnEnter(event, () => {
+                    if (matches[0]) runCommand(matches[0]);
+                  })
+                }
               />
+              <p id="command-help" className="fine">
+                Enter 첫 결과 실행 · Tab 이동 · Esc 닫기
+              </p>
               {matches.length === 0 && <p>검색 결과가 없습니다.</p>}
               {matches.map((command) => (
                 <button key={command.id} onClick={() => runCommand(command)}>

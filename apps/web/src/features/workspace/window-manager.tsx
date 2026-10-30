@@ -142,6 +142,7 @@ export function WindowManager({
     w: WindowPlacement,
     kind: Gesture["kind"],
   ) {
+    if (event.target !== event.currentTarget) return;
     if (kind === "move" && !event.altKey) return;
     const directions: Record<string, [number, number]> = {
       ArrowLeft: [-20, 0],
@@ -199,6 +200,12 @@ export function WindowManager({
                 zIndex: w.z,
               }}
               aria-label={`${app.name} 창`}
+              onFocusCapture={() => {
+                if (active !== w.id) {
+                  focus(w.id);
+                  save();
+                }
+              }}
               onPointerDown={(e) => {
                 if (
                   (e.target as HTMLElement).closest(

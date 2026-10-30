@@ -32,7 +32,12 @@ export function WorkGrid({
   return (
     <div className="work-grid">
       {items.map((item, i) => (
-        <Link href={artworkHref(item.slug)} className="work" key={item.id}>
+        <Link
+          href={artworkHref(item.slug)}
+          className="work"
+          key={item.id}
+          aria-label={item.title}
+        >
           <div className="work-image">
             {item.thumbnail_url && (
               <Image

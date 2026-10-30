@@ -29,7 +29,9 @@ export function PublicShell({
           Workspace <span>↗</span>
         </Link>
       </header>
-      <main id="main">{children}</main>
+      <main id="main" tabIndex={-1}>
+        {children}
+      </main>
       <footer>
         <Link href="/">PLUTO ARCHIVE</Link>
         <span>ART · DESIGN · DEVELOPMENT</span>

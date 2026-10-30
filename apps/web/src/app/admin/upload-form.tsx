@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { submitEditorOnEnter } from "@/lib/editor-keyboard";
 
 export function ArtworkUploadForm() {
   const router = useRouter();
@@ -45,7 +46,12 @@ export function ArtworkUploadForm() {
         이미지와 작품 정보는 저장 즉시 공개됩니다. 비공개 초안은 CMS 게시
         기능에서 제공할 예정입니다.
       </p>
-      <form onSubmit={submit} encType="multipart/form-data">
+      <form
+        onSubmit={submit}
+        onKeyDown={(event) => submitEditorOnEnter(event, busy)}
+        encType="multipart/form-data"
+        aria-busy={busy}
+      >
         <label htmlFor="art-title">작품 제목</label>
         <input
           id="art-title"
@@ -53,6 +59,7 @@ export function ArtworkUploadForm() {
           required
           maxLength={200}
           disabled={busy}
+          aria-describedby="upload-keyboard-help"
         />
         <label htmlFor="art-description">설명</label>
         <textarea
@@ -61,7 +68,12 @@ export function ArtworkUploadForm() {
           maxLength={5000}
           rows={4}
           disabled={busy}
+          aria-describedby="upload-keyboard-help"
+          aria-keyshortcuts="Enter Shift+Enter"
         />
+        <p id="upload-keyboard-help" className="fine">
+          Enter 게시 · Shift+Enter 줄바꿈. 필수 항목을 모두 입력하면 공개됩니다.
+        </p>
         <label htmlFor="art-image">작품 이미지</label>
         <input
           id="art-image"

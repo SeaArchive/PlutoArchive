@@ -19,7 +19,7 @@ export default async function Login({
   };
   return (
     <div className="private-space login-page">
-      <main id="main" className="login-panel">
+      <main id="main" className="login-panel" tabIndex={-1}>
         <Link href="/" className="meta">
           ← PLUTO ARCHIVE
         </Link>

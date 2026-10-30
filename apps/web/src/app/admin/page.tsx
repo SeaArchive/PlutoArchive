@@ -10,7 +10,9 @@ export const metadata = {
 export default async function Admin() {
   const { db } = await requireUser(true);
   const [gallery, home, categories, assignments] = await Promise.all([
-    db.from("gallery_items").select("id,title,description,created_at")
+    db
+      .from("gallery_items")
+      .select("id,title,description,created_at")
       .order("created_at", { ascending: false }),
     db.from("home_artwork").select("artwork_id").eq("slot", 1).maybeSingle(),
     db.from("categories").select("id,name,slug").order("position"),
@@ -32,7 +34,7 @@ export default async function Admin() {
           <Link href="/workspace">Workspace ↗</Link>
         </nav>
       </aside>
-      <main id="main" className="admin-content">
+      <main id="main" className="admin-content" tabIndex={-1}>
         <span className="meta">ADMIN / PORTFOLIO</span>
         <h1 id="dashboard">Archive overview.</h1>
         <p>공개 작품을 올리고 기존 갤러리를 확인하는 관리자 공간입니다.</p>
@@ -43,8 +45,12 @@ export default async function Admin() {
         </div>
         <ArtworkUploadForm />
         <h2 id="portfolio">Portfolio</h2>
-        <ArtworkManager works={gallery.data || []} featuredId={home.data?.artwork_id || null}
-          categories={categories.data || []} assignments={assignments.data || []} />
+        <ArtworkManager
+          works={gallery.data || []}
+          featuredId={home.data?.artwork_id || null}
+          categories={categories.data || []}
+          assignments={assignments.data || []}
+        />
         <p>
           비공개 초안·블록 편집·분류 및 게시 취소는 추후 CMS 관리 화면에서
           제공합니다.

@@ -1,4 +1,5 @@
 "use client";
+import { submitEditorOnEnter } from "@/lib/editor-keyboard";
 import { useEffect, useState } from "react";
 import Player from "./player";
 import { parseMusicSource, type MusicSource } from "./source";
@@ -170,6 +171,7 @@ export default function Music({
         </div>
         <div className="music-library" hidden={compact}>
           <form
+            onKeyDown={(event) => submitEditorOnEnter(event, loading || saving)}
             onSubmit={(e) => {
               e.preventDefault();
               add();

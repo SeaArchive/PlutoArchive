@@ -129,7 +129,7 @@ await rm(path.join(stagedSource, "app/auth"), { recursive: true });
 await rm(path.join(stagedSource, "app/api"), { recursive: true });
 const notice = (route) => `import Link from 'next/link';
 export const metadata={title:'Private space',robots:{index:false,follow:false}};
-export default function Page(){return <div className="private-space login-page"><main id="main" className="login-panel"><Link href="/" className="meta">← PLUTO ARCHIVE</Link><h1>Open your workspace.</h1><p>Continue to sign in and manage your work.</p><a className="text-link" href="${liveOrigin}/${route}">Continue ↗</a></main></div>;}\n`;
+export default function Page(){return <div className="private-space login-page"><main id="main" className="login-panel" tabIndex={-1}><Link href="/" className="meta">← PLUTO ARCHIVE</Link><h1>Open your workspace.</h1><p>Continue to sign in and manage your work.</p><a className="text-link" href="${liveOrigin}/${route}">Continue ↗</a></main></div>;}\n`;
 for (const route of ["login", "admin"])
   await writeFile(
     path.join(stagedSource, "app", route, "page.tsx"),

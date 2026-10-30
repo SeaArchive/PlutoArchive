@@ -12,7 +12,8 @@
     "test:music": "node scripts/test-music.mjs",
     "test:layout": "node scripts/test-layout.mjs",
     "test:stars": "node scripts/test-stars.mjs",
-    "test:public-gallery": "node scripts/test-public-gallery.mjs"
+    "test:public-gallery": "node scripts/test-public-gallery.mjs",
+    "test:keyboard": "node scripts/test-editor-keyboard.mjs"
   },
   "engines": {
     "node": ">=22"

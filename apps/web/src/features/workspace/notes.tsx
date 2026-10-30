@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { workspaceRequest } from "./data";
+import { saveOnEnter } from "@/lib/editor-keyboard";
 
 type Note = {
   id: string;
@@ -23,6 +24,12 @@ export default function Notes({
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [dirty, setDirty] = useState<string[]>([]);
+  const [focusId, setFocusId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!focusId || busy) return;
+    document.getElementById(`note-${focusId}`)?.focus();
+    setFocusId(null);
+  }, [focusId, busy]);
   useEffect(() => {
     if (!persistent) return;
     const controller = new AbortController();
@@ -45,6 +52,7 @@ export default function Notes({
     return () => controller.abort();
   }, [persistent]);
   async function add() {
+    if (busy || loading) return;
     setBusy(true);
     try {
       const note = persistent
@@ -60,6 +68,7 @@ export default function Notes({
             pinned: false,
           };
       setNotes((items) => [note, ...items]);
+      setFocusId(note.id);
       setError("");
     } catch (e) {
       setError((e as Error).message);
@@ -71,6 +80,7 @@ export default function Notes({
     note: Note,
     patch: Partial<Pick<Note, "body" | "color" | "pinned">>,
   ) {
+    if (busy || loading) return;
     setBusy(true);
     try {
       const saved = persistent
@@ -130,10 +140,11 @@ export default function Notes({
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
-      <p className="meta">
+      <p className="meta" id="notes-keyboard-help">
         {persistent
-          ? "본문 수정 후 저장을 눌러 주세요. 메모 본문과 화면 배치는 분리됩니다."
+          ? "Enter 저장 · Shift+Enter 줄바꿈. 메모 본문과 화면 배치는 분리됩니다."
           : "공개 미리보기 · 화면을 닫으면 초기화"}
+        {!persistent && " · Enter 저장 · Shift+Enter 줄바꿈"}
       </p>
       {loading && <p role="status">메모를 불러오는 중…</p>}
       {error && <p role="alert">{error}</p>}
@@ -152,7 +163,16 @@ export default function Notes({
               value={note.body}
               maxLength={20000}
               placeholder="생각이 떠오르면, 여기에."
-              disabled={busy || loading}
+              readOnly={busy || loading}
+              aria-describedby="notes-keyboard-help"
+              aria-keyshortcuts="Enter Shift+Enter"
+              onKeyDown={(event) =>
+                saveOnEnter(
+                  event,
+                  () => void update(note, { body: note.body }),
+                  busy || loading,
+                )
+              }
               onChange={(e) => {
                 setNotes((items) =>
                   items.map((item) =>

@@ -692,16 +692,19 @@ footer {
   position: fixed;
   inset: 0;
   background: #0009;
-  z-index: 20;
+  z-index: 10000;
   display: grid;
   place-items: start center;
-  padding-top: 15vh;
+  padding: min(15vh, 80px) 0 24px;
+  overflow-y: auto;
 }
 .palette > div {
   background: var(--surface);
   border: 1px solid var(--accent);
   width: min(500px, 90vw);
   padding: 20px;
+  max-height: calc(100dvh - 104px);
+  overflow-y: auto;
 }
 .palette input {
   width: 100%;
@@ -1148,3 +1151,27 @@ footer {
 .music-compact .music-playback {
   max-width: 480px;
 }
+
+/* Keyboard destinations and narrow-screen reflow share the normal document flow. */
+main:focus { outline: none; }
+.page-title, .work-caption h3, .admin-artwork-heading h3, .task-list span { overflow-wrap: anywhere; }
+.work, .work-caption, .work-caption h3, .admin-artwork-heading > div, .task-list span { min-width: 0; }
+.section-heading { flex-wrap: wrap; }
+.private-space, .admin-space { min-height: 100dvh; }
+@media (max-width: 800px) {
+  input, textarea, select { font-size: 16px; }
+  textarea { line-height: 1.6; }
+  .topbar nav { padding: 6px; margin: -6px; scroll-padding-inline: 6px; }
+  .brand, .text-link, .admin-sidebar nav a { min-height: 44px; align-items: center; }
+  .admin-sidebar nav a { display: inline-flex; }
+  .window-title button, .task-list button { min-height: 44px; min-width: 44px; }
+  .admin-artwork-heading { flex-wrap: wrap; }
+  .admin-artwork-heading > div { max-width: 100%; }
+  .login-panel h1 { overflow-wrap: anywhere; }
+  .task-form input { min-width: 0; }
+  .task-list span { flex-basis: calc(100% - 50px); }
+  .task-list input[type="checkbox"] { width: 24px; height: 24px; }
+}
+.admin-space input, .admin-space textarea, .admin-space select { border-color: #8c8881; }
+.admin-space :is(button, a, input, textarea, select):focus-visible { outline-color: #75602f; }
+.private-space input, .private-space textarea, .private-space select { border-color: #7b7e8d; }

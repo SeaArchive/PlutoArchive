@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { workspaceRequest } from "./data";
+import { submitEditorOnEnter } from "@/lib/editor-keyboard";
 
 type Task = {
   id: string;
@@ -44,6 +45,7 @@ export default function Tasks({
     return () => controller.abort();
   }, [persistent]);
   async function add() {
+    if (busy || loading) return;
     if (!title.trim()) return;
     setBusy(true);
     try {
@@ -125,6 +127,7 @@ export default function Tasks({
     <>
       <form
         className="task-form"
+        onKeyDown={(event) => submitEditorOnEnter(event, busy || loading)}
         onSubmit={(e) => {
           e.preventDefault();
           void add();
@@ -134,6 +137,8 @@ export default function Tasks({
           aria-label="새 작업"
           value={title}
           maxLength={200}
+          enterKeyHint="done"
+          readOnly={loading || busy}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="다음으로 할 일"
         />
