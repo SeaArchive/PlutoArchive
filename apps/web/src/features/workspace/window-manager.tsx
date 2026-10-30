@@ -191,6 +191,8 @@ export function WindowManager({
           return (
             <section
               key={w.id}
+              id={`workspace-app-${w.id}`}
+              tabIndex={-1}
               className={`app-window floating-window${active === w.id ? " window-active" : ""}`}
               style={{
                 left: w.x,

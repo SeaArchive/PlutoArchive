@@ -35,6 +35,7 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
   const searchRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const pendingAppFocus = useRef<string | null>(null);
   const notify = useCallback((message: string) => {
     setNotice(message);
     const entry = {
@@ -68,16 +69,28 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
     const origin = document.activeElement;
     searchRef.current?.focus();
     return () => {
+      if (pendingAppFocus.current) return;
       if (origin instanceof HTMLElement && origin.isConnected) origin.focus();
       else triggerRef.current?.focus();
     };
   }, [palette]);
+  useEffect(() => {
+    if (palette || !pendingAppFocus.current) return;
+    const panel = document.getElementById(
+      `workspace-app-${pendingAppFocus.current}`,
+    );
+    if (panel) {
+      pendingAppFocus.current = null;
+      panel.focus();
+    }
+  }, [windows, palette, mobileApp, device]);
   useEffect(() => {
     if (device === "mobile" && mobileTab === "search")
       mobileSearchRef.current?.focus();
   }, [device, mobileTab]);
   function open(id: string) {
     if (!device || !loaded) return;
+    pendingAppFocus.current = id;
     change((items) => {
       const ordered =
         Math.max(0, ...items.map((item) => item.z)) >= 9990
@@ -304,6 +317,8 @@ export function WorkspaceShell({ preview = false }: { preview?: boolean }) {
                   (MobileApp ? (
                     <section
                       className="app-window mobile-app"
+                      id={`workspace-app-${mobileVisible?.id}`}
+                      tabIndex={-1}
                       aria-label={`${mobileVisible?.id} 앱`}
                     >
                       <header className="window-title">
