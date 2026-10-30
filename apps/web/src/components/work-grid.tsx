@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Content } from "@pluto/types";
+import { artworkHref } from "@/lib/public-links";
 export function WorkGrid({
   items,
   state,
@@ -31,7 +32,7 @@ export function WorkGrid({
   return (
     <div className="work-grid">
       {items.map((item, i) => (
-        <Link href={"/works/" + item.slug} className="work" key={item.id}>
+        <Link href={artworkHref(item.slug)} className="work" key={item.id}>
           <div className="work-image">
             {item.thumbnail_url && (
               <Image

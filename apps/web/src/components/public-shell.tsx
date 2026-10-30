@@ -1,5 +1,6 @@
 import Link from "next/link";
 import site from "@/config/site.json";
+import { privateHref } from "@/lib/public-links";
 export function PublicShell({
   children,
   home = false,
@@ -24,7 +25,7 @@ export function PublicShell({
             </Link>
           ))}
         </nav>
-        <Link className="workspace-link" href="/workspace">
+        <Link className="workspace-link" href={privateHref("/workspace")}>
           Workspace <span>↗</span>
         </Link>
       </header>

@@ -4,6 +4,8 @@
 
 ## Start here
 
+Fast public delivery (2026-10-30): Pages is the public entry point, with no Render redirect on public routes. Public artwork is read anonymously from Supabase using the checked-in publishable configuration, without account cookies or an Auth client. Home still uses only the designated artwork. New works use `/works/view/?id=...`; old UUID pages and a UUID-only 404 bridge preserve deep links. Private routes still go to Node and may cold-start. No schema/data changes. Read the latest progress entry and `docs/github-pages.md` before deployment.
+
 Starfield correction (2026-10-19): user requests Sites implementation first, then application to the existing site. Planning cases are deferred. Preview: https://pluto-starfield-fix.p-hancheong.chatgpt.site (owner-private, project `appgprj_6ad590ab9f448191b814c94e9149d83d`, source `341172488e01c154b51ea5468c9334bf7eac5988`). The same `starfield-engine.ts` powers both renderers: visible contrast bounds and a 480ms minimum navigation cue without slowing content. Render currently shows older Korean Home content; its connectors require reauthentication. No Render fix/deploy was completed. Source/build/engine tests pass; real Sites browser QA is outstanding because control-browser is unavailable. Read the latest progress entry before deployment work.
 
 Public background update (2026-10-06): #02050C replaces #000817. The root-mounted `Starfield` only renders on Public routes, with 30/64 tiny stars, subtle pointer response and top-line gathering on internal navigation. It settles on route changes, respects reduced motion, stops when idle/hidden and cleans up listeners. `pnpm test:stars` checks the mocked animation lifecycle; a real browser visual review remains necessary.

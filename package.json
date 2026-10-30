@@ -11,7 +11,8 @@
     "test:database": "node scripts/test-database.mjs",
     "test:music": "node scripts/test-music.mjs",
     "test:layout": "node scripts/test-layout.mjs",
-    "test:stars": "node scripts/test-stars.mjs"
+    "test:stars": "node scripts/test-stars.mjs",
+    "test:public-gallery": "node scripts/test-public-gallery.mjs"
   },
   "engines": {
     "node": ">=22"

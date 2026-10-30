@@ -22,6 +22,7 @@ jobs:
       - run: pnpm test:music
       - run: pnpm test:layout
       - run: pnpm test:stars
+      - run: pnpm test:public-gallery
       - run: pnpm typecheck
       - run: pnpm build
       - run: pnpm build:pages

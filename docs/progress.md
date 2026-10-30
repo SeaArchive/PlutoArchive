@@ -1,5 +1,14 @@
 # Pluto Archive Progress
 
+
+## Fast public delivery — 2026-10-30
+
+- Render 무료 서버 재시작 대기를 공개 방문에서 피하도록 GitHub Pages의 Public 전체 리다이렉트를 제거했다. 공개 HTML/스타일/별 효과는 Pages에서 제공하고, 관리자·로그인·개인 Workspace는 기존 Node 호스트로 연결한다. 이전 Node URL 직접 방문과 개인 기능에는 무료 서버 대기가 남는다.
+- Home/Works/상세는 브라우저에서 Supabase의 기존 공개 테이블을 익명 조회한다. 공개 URL/배포 가능한 publishable key만 사용하고 credentials를 생략하며 세션·인증 토큰을 다루지 않는다. 기존 RLS·DB·작품 데이터 변경은 없다. Home은 지정된 1건만 노출한다.
+- 신규 카드의 `/works/view/?id=<UUID>` 경로는 작품 업로드마다 빌드하지 않아도 상세를 연다. 기존 UUID 정적 경로도 보존하고, 미생성 UUID 직접 링크는 Pages 404에서 query viewer로 안내한다. 실패 시 오래된 스냅샷을 다시 표시하지 않고 오류/재시도를 제공한다. 작품에는 JS가 필요하며 Pages의 작품 SEO/소셜 메타데이터는 일반 문구다.
+- 검증: pnpm 11.19.0 frozen 설치, 타입 검사·Node 빌드, DB 237개·별 효과·공개 gallery 회귀 검사 통과. 실제 publishable REST 조회에서 작품 5건과 Home `PlutoArchive` 1건을 확인했다. 보안 advisor에 신규 지적 없음(기존 Auth 유출 암호 보호 경고 유지). 최종 Pages 재생성·20 HTML/367 링크·자산 검사 통과. 원격 배포/브라우저 확인은 진행 중이다.
+- 다음: 배포된 Pages에서 Home/Works/상세/기존 링크와 관리자 연결을 확인한다. Public 콘텐츠·실제 모바일/접근성 검증은 로드맵대로 이어간다. 실제 운영 작품을 시험 목적으로 수정/삭제하지 않았다.
+
 ## Starfield correction / Sites first — 2026-10-19
 
 - 사용자 요청: 별 효과가 보이지 않는 문제를 우선 수정. 기획 사례는 추후 역기획 과정에서 추가하므로 현재 확장하지 않는다. Sites에서 수정본을 먼저 구현하고 실제 사이트 적용은 다음 단계로 둔다.

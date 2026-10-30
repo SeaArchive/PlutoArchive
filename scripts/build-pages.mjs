@@ -49,7 +49,9 @@ if (process.argv.includes("--refresh")) {
   if (!key.startsWith("sb_publishable_"))
     throw new Error("Only a publishable key is accepted.");
   const [gallery, home, categoryList, assignments] = await Promise.all([
-    db.from("gallery_items").select("id,title,description,image_path,created_at")
+    db
+      .from("gallery_items")
+      .select("id,title,description,image_path,created_at")
       .order("created_at", { ascending: false }),
     db.from("home_artwork").select("artwork_id").eq("slot", 1).maybeSingle(),
     db.from("categories").select("id,name,slug").order("position"),
@@ -59,12 +61,17 @@ if (process.argv.includes("--refresh")) {
   if (home.error) throw home.error;
   if (categoryList.error) throw categoryList.error;
   if (assignments.error) throw assignments.error;
-  const categoriesById = new Map(categoryList.data.map((item) => [item.id, item]));
+  const categoriesById = new Map(
+    categoryList.data.map((item) => [item.id, item]),
+  );
   const byArtwork = new Map();
   for (const link of assignments.data) {
     const category = categoriesById.get(link.category_id);
-    if (category) byArtwork.set(link.content_id,
-      [...(byArtwork.get(link.content_id) || []), category]);
+    if (category)
+      byArtwork.set(link.content_id, [
+        ...(byArtwork.get(link.content_id) || []),
+        category,
+      ]);
   }
   const items = gallery.data.map((row) => ({
     id: row.id,
@@ -120,18 +127,21 @@ const stagedSource = path.join(web, "src");
 await rm(path.join(stagedSource, "proxy.ts"));
 await rm(path.join(stagedSource, "app/auth"), { recursive: true });
 await rm(path.join(stagedSource, "app/api"), { recursive: true });
-const notice = `import Link from 'next/link';
+const notice = (route) => `import Link from 'next/link';
 export const metadata={title:'Private space',robots:{index:false,follow:false}};
-export default function Page(){return <div className="private-space login-page"><main id="main" className="login-panel"><Link href="/" className="meta">← PLUTO ARCHIVE</Link><span className="meta status">PRIVATE SPACE</span><h1>Your own<br/>working orbit.</h1><p>현재 공개 사이트에서는 작품 감상과 Workspace 미리보기를 이용할 수 있습니다.</p><p>계정 로그인과 관리자 편집 기능은 준비 중입니다.</p><Link className="text-link" href="/workspace/preview">Workspace 미리보기 →</Link></main></div>;}\n`;
+export default function Page(){return <div className="private-space login-page"><main id="main" className="login-panel"><Link href="/" className="meta">← PLUTO ARCHIVE</Link><h1>Open your workspace.</h1><p>Continue to sign in and manage your work.</p><a className="text-link" href="${liveOrigin}/${route}">Continue ↗</a></main></div>;}\n`;
 for (const route of ["login", "admin"])
-  await writeFile(path.join(stagedSource, "app", route, "page.tsx"), notice);
+  await writeFile(
+    path.join(stagedSource, "app", route, "page.tsx"),
+    notice(route),
+  );
 await writeFile(
   path.join(stagedSource, "app/workspace/page.tsx"),
-  `export {default,metadata} from './preview/page';\n`,
+  notice("workspace"),
 );
 await writeFile(
   path.join(stagedSource, "lib/content.ts"),
-  `import type {Content} from '@pluto/types';\nimport snapshot from '@/config/public-gallery.json';\nexport async function getWorks(): Promise<{items:Content[];state:'ready'}>{return {items:snapshot.items as Content[],state:'ready'};}\n`,
+  `import type {Content} from '@pluto/types';\nexport async function getWorks(): Promise<{items:Content[];state:'ready'}>{return {items:[],state:'ready'};}\n`,
 );
 for (const route of [
   "app/page.tsx",
@@ -150,22 +160,51 @@ for (const route of [
     ),
   );
 }
-const detail = path.join(stagedSource, "app/works/[slug]/page.tsx");
-// A snapshot has no network error state. Keep the server app's runtime error handling intact.
-let detailSource = (await readFile(detail, "utf8")).replace(
-  'if (state === "error") throw new Error("Archive unavailable");',
-  "",
+// Public HTML renders immediately; artwork is fetched anonymously in the browser.
+const homeFile = path.join(stagedSource, "app/page.tsx");
+await writeFile(
+  homeFile,
+  (await readFile(homeFile, "utf8")).replace(
+    'import { FeaturedArtwork } from "@/components/featured-artwork";',
+    'import { LiveFeatured as FeaturedArtwork } from "@/features/public-gallery/live-gallery";',
+  ),
 );
-detailSource +=
-  "\nexport const dynamicParams = false;\nexport async function generateStaticParams(){const {items}=await getWorks();return items.map(item=>({slug:item.slug}));}\n";
-await writeFile(detail, detailSource);
+const worksFile = path.join(stagedSource, "app/works/page.tsx");
+await writeFile(
+  worksFile,
+  (await readFile(worksFile, "utf8")).replace(
+    'import { WorkArchive } from "./work-archive";',
+    'import { LiveArchive as WorkArchive } from "@/features/public-gallery/live-gallery";',
+  ),
+);
+// Existing deep links stay valid. New uploads use the always-present query viewer.
+await writeFile(
+  path.join(stagedSource, "app/works/[slug]/page.tsx"),
+  `
+import {Suspense} from 'react';
+import {PublicShell} from '@/components/public-shell';
+import {ArchiveStatus,LiveWorkDetail} from '@/features/public-gallery/live-gallery';
+import snapshot from '@/config/public-gallery.json';
+export const metadata={title:'Artwork'};
+export const dynamicParams=false;
+export function generateStaticParams(){return snapshot.items.map(item=>({slug:item.slug}));}
+export default async function Page({params}:{params:Promise<{slug:string}>}){
+ const {slug}=await params;
+ return <PublicShell><Suspense fallback={<ArchiveStatus state="loading"/>}><LiveWorkDetail slug={slug}/></Suspense></PublicShell>;
+}
+`,
+);
 const result = spawnSync(
   process.execPath,
   [require.resolve("next/dist/bin/next"), "build", web],
   {
     cwd: root,
     stdio: "inherit",
-    env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
+    env: {
+      ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1",
+      NEXT_PUBLIC_STATIC_PUBLIC: "true",
+    },
   },
 );
 if (result.status !== 0)
@@ -236,11 +275,18 @@ for (const rel of files) {
   if (rel.endsWith(".html")) {
     const html = await readFile(path.join(out, rel), "utf8");
     if (!html.includes("</head>")) throw new Error(`Missing HTML head: ${rel}`);
-    // Preserve old Pages links while serving the live database-backed gallery.
-    const route = rel === "404.html" || rel === "index.html" ? "/" :
-      "/" + rel.replace(/\/index\.html$/, "/");
-    const redirect = `<script>location.replace(${JSON.stringify(liveOrigin)}+location.pathname.replace(/^\\/PlutoArchive(?=\\/|$)/,'')+location.search+location.hash)</script><noscript><meta http-equiv="refresh" content="0;url=${liveOrigin}${route}"></noscript>`;
-    await writeFile(target, html.replace("</head>", redirect + "</head>"));
+    let enhancement = "";
+    const privateRoute = /^(admin|login|workspace)\/index\.html$/.exec(
+      rel,
+    )?.[1];
+    if (privateRoute) {
+      const destination = `${liveOrigin}/${privateRoute}`;
+      enhancement = `<script>location.replace(${JSON.stringify(destination)}+location.search+location.hash)</script><noscript><meta http-equiv="refresh" content="0;url=${destination}"></noscript>`;
+    } else if (rel === "404.html") {
+      // A previously unseen artwork UUID can be opened directly on GitHub Pages.
+      enhancement = `<script>const match=location.pathname.match(/^\\/PlutoArchive\\/works\\/([0-9a-f-]{36})\\/?$/i);if(match)location.replace('/PlutoArchive/works/view/?id='+encodeURIComponent(match[1])+location.hash)</script>`;
+    }
+    await writeFile(target, html.replace("</head>", enhancement + "</head>"));
   } else await cp(path.join(out, rel), target);
 }
 await writeFile(path.join(root, ".nojekyll"), "");

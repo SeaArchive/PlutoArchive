@@ -17,7 +17,7 @@ Instead of replacing existing gallery tables immediately, keep them and read thr
 
 ## Boundaries
 
-Public reads use a fresh anonymous Supabase client and RLS. Public pages can revalidate every 60 seconds. Workspace/admin use server cookies, getUser and no-store responses. Admin also verifies the existing is_admin RPC. No browser Supabase client or provider token storage is introduced.
+Public reads use a fresh anonymous Supabase client and RLS. Public pages can revalidate every 60 seconds. Workspace/admin use server cookies, getUser and no-store responses. Admin also verifies the existing is_admin RPC. The Pages build adds a read-only native-fetch public gallery reader with a publishable key and credentials omitted; no browser Auth client or provider token storage is introduced.
 
 The current registry launches dynamically imported React apps. They are session-only previews. The shared Window contract exists; movement, resizing and device-specific persistence are not implemented yet. App lifecycle currently follows React mount/unmount.
 
@@ -26,3 +26,7 @@ Next.js server features require a Node-capable host. GitHub Pages now has a sepa
 ## Phase 02 update — 2026-09-23
 
 The additive CMS foundation is now applied: nine identity/content/media/taxonomy tables with RLS, trusted role lookup and preserved gallery copy. See `database.md` for grants, publication semantics and migration history. Existing readers, server administrator guard and Storage remain on the legacy path until CMS cutover. `content_media` normalizes block attachments so metadata visibility follows the public parent. PGlite is a dev-only SQL regression harness; it adds no runtime dependency to the web client.
+
+## Fast public delivery — 2026-10-30
+
+GitHub Pages now serves Public directly; Node is retained for authenticated Workspace/Admin operations. Shared artwork/featured renderers support the Node server reader and the staged live public reader. Pages' public reader makes four anonymous REST reads against existing RLS, and query-based artwork URLs allow new uploads without regenerating routes. The build snapshot enumerates legacy URLs only; it is not rendered as a stale fallback. See `github-pages.md` for loading/error behavior, metadata trade-offs and private-route boundaries.

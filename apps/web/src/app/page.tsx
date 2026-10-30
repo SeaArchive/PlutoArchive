@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { PublicShell } from "@/components/public-shell";
-import { WorkGrid } from "@/components/work-grid";
+import { FeaturedArtwork } from "@/components/featured-artwork";
 import { CodeNote } from "@/components/code-note";
 import { getWorks } from "@/lib/content";
 import { projects } from "@/config/public-content";
 export const revalidate = 60;
 export default async function Home() {
   const works = await getWorks();
-  const featuredWorks = {
-    ...works,
-    items: works.items.filter((item) => item.featured),
-  };
   return (
     <PublicShell home>
       <section className="hero">
@@ -56,24 +52,7 @@ export default async function Home() {
           <b>134340</b>
         </div>
       </section>
-      <section className="section" id="works">
-        <div className="section-heading">
-          <div>
-            <span className="meta">01 / VISUAL EXPLORATION</span>
-            <h2>
-              Artwork
-              <span className="count">
-                {" "}
-                / {String(featuredWorks.items.length).padStart(2, "0")}
-              </span>
-            </h2>
-          </div>
-          <Link className="text-link" href="/works">
-            All artwork ↗
-          </Link>
-        </div>
-        <WorkGrid {...featuredWorks} showSummary={false} />
-      </section>
+      <FeaturedArtwork works={works} />
       <section className="section" id="projects">
         <div className="section-heading">
           <div>

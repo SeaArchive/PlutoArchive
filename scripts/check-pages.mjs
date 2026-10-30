@@ -24,6 +24,21 @@ let checked = 0;
 for (const file of htmlFiles) {
   const html = await readFile(path.join(root, file), "utf8");
   assert(!html.includes("sb_secret_"), `Server secret in ${file}`);
+  if (
+    !/^(admin|login|workspace)\/index\.html$/.test(file) &&
+    file !== "404.html"
+  ) {
+    assert(
+      !html.includes("location.replace("),
+      `Public route redirects away from Pages: ${file}`,
+    );
+  }
+  if (/^(admin|login|workspace)\/index\.html$/.test(file)) {
+    assert(
+      html.includes('location.replace("https://pluto-archive.onrender.com/'),
+      `Private route is not connected to Node: ${file}`,
+    );
+  }
   assert(!html.includes('action="/auth/'), `Server form exported in ${file}`);
   assert(
     !html.includes("/_next/image?"),
@@ -51,6 +66,7 @@ for (const file of htmlFiles) {
 for (const file of [
   "index.html",
   "works/index.html",
+  "works/view/index.html",
   "projects/index.html",
   "projects/pluto-archive/index.html",
   "process/index.html",
