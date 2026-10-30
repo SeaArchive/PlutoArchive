@@ -6,8 +6,8 @@
 - Render 무료 서버 재시작 대기를 공개 방문에서 피하도록 GitHub Pages의 Public 전체 리다이렉트를 제거했다. 공개 HTML/스타일/별 효과는 Pages에서 제공하고, 관리자·로그인·개인 Workspace는 기존 Node 호스트로 연결한다. 이전 Node URL 직접 방문과 개인 기능에는 무료 서버 대기가 남는다.
 - Home/Works/상세는 브라우저에서 Supabase의 기존 공개 테이블을 익명 조회한다. 공개 URL/배포 가능한 publishable key만 사용하고 credentials를 생략하며 세션·인증 토큰을 다루지 않는다. 기존 RLS·DB·작품 데이터 변경은 없다. Home은 지정된 1건만 노출한다.
 - 신규 카드의 `/works/view/?id=<UUID>` 경로는 작품 업로드마다 빌드하지 않아도 상세를 연다. 기존 UUID 정적 경로도 보존하고, 미생성 UUID 직접 링크는 Pages 404에서 query viewer로 안내한다. 실패 시 오래된 스냅샷을 다시 표시하지 않고 오류/재시도를 제공한다. 작품에는 JS가 필요하며 Pages의 작품 SEO/소셜 메타데이터는 일반 문구다.
-- 검증: pnpm 11.19.0 frozen 설치, 타입 검사·Node 빌드, DB 237개·별 효과·공개 gallery 회귀 검사 통과. 실제 publishable REST 조회에서 작품 5건과 Home `PlutoArchive` 1건을 확인했다. 보안 advisor에 신규 지적 없음(기존 Auth 유출 암호 보호 경고 유지). 최종 Pages 재생성·20 HTML/367 링크·자산 검사 통과. 원격 배포/브라우저 확인은 진행 중이다.
-- 다음: 배포된 Pages에서 Home/Works/상세/기존 링크와 관리자 연결을 확인한다. Public 콘텐츠·실제 모바일/접근성 검증은 로드맵대로 이어간다. 실제 운영 작품을 시험 목적으로 수정/삭제하지 않았다.
+- 검증: pnpm 11.19.0 frozen 설치, 타입 검사·Node 빌드, DB 237개·별 효과·공개 gallery 회귀 검사 통과. 실제 publishable REST 조회에서 작품 5건과 Home `PlutoArchive` 1건을 확인했다. 보안 advisor에 신규 지적 없음(기존 Auth 유출 암호 보호 경고 유지). 최종 Pages 재생성·20 HTML/367 링크·자산 검사 통과. 구현 커밋 `b7bd613f552dc708314692cb4ec45276d3d941a4`의 [CI](https://github.com/SeaArchive/PlutoArchive/actions/runs/40995874274)와 [Pages 배포](https://github.com/SeaArchive/PlutoArchive/actions/runs/40995873850) 성공. 실제 브라우저에서 Pages URL 유지, 영어/코드형 Home과 지정작 1건, Works 5건, query 상세와 기존 UUID 상세의 현재 작품, 미생성 UUID의 query viewer 이동/미존재 안내를 확인했다. Render 자체는 이번에 배포/플랜 변경하지 않았다.
+- 다음: 실제 모바일/키보드·별 상호작용을 확인하고, 작품 분류/제작 설명과 실제 연락 경로 등 Public 콘텐츠를 보완한다. 관리자 연결은 정적 경로 검사와 공개 메뉴의 Node 링크로 확인했으며 실제 로그인/수정은 이번 검증에서 수행하지 않았다. 실제 운영 작품을 시험 목적으로 수정/삭제하지 않았다.
 
 ## Starfield correction / Sites first — 2026-10-19
 
